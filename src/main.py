@@ -376,15 +376,16 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, spee
         current_left_odom = left_odom.position(TURNS)
         current_right_odom = right_odom.position(TURNS)
         
-        if not ((left_target_turns - 0.2 < current_left_odom - init_left_odom < left_target_turns+0.2) or (right_target_turns - 0.2 < current_right_odom - init_right_odom < right_target_turns+0.2)):
+        if not ((left_target_turns-0.2 < current_left_odom-init_left_odom < left_target_turns+0.2) or 
+                (right_target_turns-0.2 < current_right_odom-init_right_odom < right_target_turns+0.2)):
             # Reset the timer if the condition is false
             false_condition_start_time = None
         else:
-            if false_condition_start_time == None:
+            if false_condition_start_time is None:
                 false_condition_start_time = brain.timer.time(MSEC)
             elif false_condition_start_time + 100 <= brain.timer.time(MSEC):
                 break
-        if brain.timer.time(MSEC) - movement_start_time > time_out and time_out > 0:
+        if time_out > 0 and brain.timer.time(MSEC) - movement_start_time > time_out:
             break
     drivetrain.stop()
     
