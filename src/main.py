@@ -388,21 +388,37 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, spee
         if time_out > 0 and brain.timer.time(MSEC) - movement_start_time > time_out:
             break
     drivetrain.stop()
+
+# -autonomous functions
+def red_1():
+    pass
+
+def red_2():
+    pass
+
+def blue_1():
+    pass
+
+def blue_2():
+    pass
     
+def skills():
+    pass
     
 
-# autonomous
+# autonomous choosing
 def autonomous():
     if team_position == "red_1":
-        pass
+        red_1()
     if team_position == "red_2":
-        pass 
+        red_2()
     if team_position == "blue_1":
-        pass
+        blue_1()
     if team_position == "blue_2":
-        pass
+        blue_2()
     if team_position == "skill":
-        pass
+        skills()
+
 # driver control
 def user_control():
     Thread(drivetrain_control)
