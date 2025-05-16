@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------- #
 #                                                                              #
 # 	Module:       main.py                                                      #
-# 	Author:       EricGu                                                       #
+# 	Author:       EricGu & ThomasCobiac                                        #
 # 	Created:      5/12/2025, 11:58:20 AM                                       #
 # 	Description:  V5 project                                                   #
 #                                                                              #
@@ -14,14 +14,14 @@
 # Wiring Guide
 # Updated: 2025-05-12
 
-# Port 01 : -
-# Port 02 : -
-# Port 03 : -
-# Port 04 : -
-# Port 05 : -
-# Port 06 : -
-# Port 07 : -
-# Port 08 : -
+# Port 01 : - 
+# Port 02 : - 
+# Port 03 : - 
+# Port 04 : - 
+# Port 05 : - 
+# Port 06 : - 
+# Port 07 : - 
+# Port 08 : - 
 # Port 09 : -
 # Port 10 : -
 # Port 11 : -
@@ -74,6 +74,8 @@ drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24 , 377.1, 304
 
 left_odom = Rotation(Ports.PORT7, True)
 right_odom = Rotation(Ports.PORT8, True)
+
+pto = Pneumatics(Ports.PORT9)
 
 
 # !GUI setup
@@ -205,6 +207,17 @@ def wait_until_release(fn, time) -> None:
     """
     while fn():
         wait(time, MSEC)
+
+# -thread pto
+
+def pto_change():
+    while True:
+        if controller_1.buttonL1.pressing() or controller_1.buttonL2.pressing():
+            if pto.value() == "open":
+                pto.close()
+            else:
+                pto.open()
+
 
 
 # -thread in driver control
@@ -356,7 +369,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     
     while True:
         left_err = left_target_turns - (current_left_odom - init_left_odom)
-        right_err = right_target_turns - (current_right_odom-init_right_odom)
+        right_err = right_target_turns - (current_right_odom - init_right_odom)
         
         left_integral = (left_integral + left_err)*0.95
         right_integral = (right_integral + right_err)*0.95
@@ -395,7 +408,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 # autonomous functions
 
 def red_1():
-    pass
+    drivetrain_forward(2, 4, False, 100, 0)
 
 def red_2():
     pass
@@ -425,6 +438,7 @@ def autonomous():
 # driver control
 def user_control():
     Thread(drivetrain_control)
+    Thread(pto_change)
     while True:
         wait(20, MSEC)
 
