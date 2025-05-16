@@ -174,6 +174,7 @@ def team_choosing() -> str:
             if team:
                 if GUI_BUTTONS_POSITIONS["side"]["1"].pressing(x, y):
                     if team == "skill":
+                        position = ""
                         confirmed = True
                     else:
                         position = "_1"
