@@ -357,6 +357,13 @@ def drivetrain_control():
 
 # -autonomous functions
 def drivetrain_turn_on_spot(target_turns: float, speed=100, time_out=0):
+    '''
+    Turn on spot using PID control
+    Args:
+        target_turns (float): target turns, positive for right, negative for left
+        speed (int): speed of the motors, default is 100
+        time_out (int): time out in ms, default is 0, 0 means no time out
+    '''
     movement_start_time = brain.timer.time(MSEC)
     kp = 40
     ki = 0.03
@@ -417,7 +424,16 @@ def drivetrain_turn_on_spot(target_turns: float, speed=100, time_out=0):
             break
     drivetrain.stop()
     
-def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status, speed=100, time_out=0):
+def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
+    '''
+    Move forward using PID control
+    Args:
+        left_target_turns (float): target turns for left motor
+        right_target_turns (float): target turns for right motor
+        chain_status (bool): True if not the last motion for motion chain, default is False
+        speed (int): speed of the motors, default is 100
+        time_out (int): time out in ms, default is 0, 0 means no time out
+    '''
     movement_start_time = brain.timer.time(MSEC)
     false_condition_start_time = None
     
