@@ -265,19 +265,19 @@ def drivetrain_control():
     recorder = Recorder()
     index = 0
 
-    usingRecordedData = False
+    playing = False
     recording = False
 
     controllers = {"ActualController": controller_1, "DummyController": DummyController(0, 0, 0, 0)}
     activeController = "ActualController"
     
     while True:
-        if usingRecordedData:
+        if playing:
             if index >= len(recorder.data):
                 activeController = "ActualController"
                 recorder.clearData()
                 index = 0
-                usingRecordedData = False
+                playing = False
                 recording = False
             else:
                 frame = recorder.data[index]
@@ -341,16 +341,17 @@ def drivetrain_control():
             right_drive_smart.set_velocity(right_drive_smart_speed, PERCENT)
             right_drive_smart.spin(FORWARD)
 
-        if not usingRecordedData:
+        if not playing:
             if controller_1.buttonUp.pressing():
-                if not recording:
-                    recording = True
-                    recorder.clearData()
-                else:
-                    recording = False
-                    usingRecordedData = True
-                    index = 0
-                    activeController = "DummyController"
+                recording = True
+                recorder.clearData()
+                wait_until_release(controller_1.buttonUp.pressing, 50)
+            elif controller_1.buttonDown.pressing():
+                recording = False
+                playing = False
+                with open("route.txt", "w") as f:
+                    f.write(str(recorder.data))
+                wait_until_release(controller_1.buttonDown.pressing, 50)
         wait(20, MSEC)
 
 
