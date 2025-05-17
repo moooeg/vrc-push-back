@@ -77,7 +77,6 @@ left_odom = Rotation(Ports.PORT7, True)
 right_odom = Rotation(Ports.PORT8, True)
 
 pto = DigitalOut(Ports.PORT9)
-#pto = Pneumatics(ports.PORT9)
 
 
 # !GUI setup
