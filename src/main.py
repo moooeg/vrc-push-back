@@ -430,13 +430,13 @@ def skill():
 def autonomous():
     if team_position == "red_1":
         red_1()
-    if team_position == "red_2":
+    elif team_position == "red_2":
         red_2()
-    if team_position == "blue_1":
+    elif team_position == "blue_1":
         blue_1()
-    if team_position == "blue_2":
+    elif team_position == "blue_2":
         blue_2()
-    if team_position == "skill":
+    elif team_position == "skill":
         skill()
 
 # driver control
