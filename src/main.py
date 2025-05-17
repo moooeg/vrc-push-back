@@ -75,7 +75,8 @@ drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24 , 377.1, 304
 left_odom = Rotation(Ports.PORT7, True)
 right_odom = Rotation(Ports.PORT8, True)
 
-pto = Pneumatics(Ports.PORT9)
+pto = DigitalOut(Ports.PORT9)
+#pto = Pneumatics(ports.PORT9)
 
 
 # !GUI setup
@@ -215,9 +216,11 @@ def pto_change():
     while True:
         if controller_1.buttonL1.pressing() or controller_1.buttonL2.pressing():
             if pto.value() == "open":
-                pto.close()
+                pto.set(True)
+                #pto.open()
             else:
-                pto.open()
+                pto.set(False)
+                #pto.close()
 
 
 
