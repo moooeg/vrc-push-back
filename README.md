@@ -8,7 +8,7 @@ Having the code in a git remote allows us to collaborate as a team easily as eve
 
 #### Programming Info
 
-- Frij's code uses purely Python. You can find the wiring guide at the top of main.py for the brain's port configuration.
+- Frij's code uses purely Python. You can find the wiring guide at the top of [main.py](https://github.com/moooeg/vrc-push-back/blob/main/src/main.py) for the brain's port configuration.
 - Our program includes a selection screen for easily selecting autonomous code suited for each starting position.
 
 Thank you, from the Frij team,
