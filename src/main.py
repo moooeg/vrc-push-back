@@ -53,6 +53,7 @@
 # distance = Distance(Ports.PORT4)
 # ---------------------------------------------------------------------------- #
 
+# !Initialization
 # Library imports
 from vex import *
 
@@ -75,13 +76,10 @@ drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24 , 377.1, 304
 left_odom = Rotation(Ports.PORT7, True)
 right_odom = Rotation(Ports.PORT8, True)
 
-pto = Pneumatics(Ports.PORT9)
+pto = DigitalOut(Ports.PORT9)
 
 
 # !GUI setup
-# -SS GUI init
-brain.screen.draw_image_from_file("begin.png", 0, 0)
-
 # -Side Selection GUI
 class ButtonPosition:
     def __init__(self, x1: int, y1: int, x2: int, y2: int) -> None:
@@ -176,6 +174,7 @@ def team_choosing() -> str:
             if team:
                 if GUI_BUTTONS_POSITIONS["side"]["1"].pressing(x, y):
                     if team == "skill":
+                        position = ""
                         confirmed = True
                     else:
                         position = "_1"
@@ -188,10 +187,14 @@ def team_choosing() -> str:
             
             wait_until_release(brain.screen.pressing, 50)
 
-
 # ! All functions
 # -misc.
 def cprint(_input: Any):
+    '''
+    Print to the controller screen, erase previous content
+    Args:
+        _input (Any): any type of input
+    '''
     s = str(_input)
     controller_1.screen.clear_screen()
     controller_1.screen.set_cursor(1,1)
@@ -208,20 +211,11 @@ def wait_until_release(fn, time) -> None:
     while fn():
         wait(time, MSEC)
 
-# -thread pto
-
-def pto_change():
-    while True:
-        if controller_1.buttonL1.pressing() or controller_1.buttonL2.pressing():
-            if pto.value() == "open":
-                pto.close()
-            else:
-                pto.open()
-
-
-
 # -thread in driver control
 def drivetrain_control():
+    '''
+    Control the drivetrain using the controller
+    '''
     while True:
         ratio = 1.1  # Bigger the number, less sensitive
         integral_decay_rate = 0.000003  # Rate at which integral decays
@@ -275,9 +269,25 @@ def drivetrain_control():
             
         wait(20, MSEC)
 
+def pto_change():
+    '''
+    Change the pto state using the controller'''
+    while True:
+        if controller_1.buttonL1.pressing() or controller_1.buttonL2.pressing():
+            if pto.value() == "open":
+                pto.set(True)
+            else:
+                pto.set(False)
 
 # -autonomous functions
 def drivetrain_turn_on_spot(target_turns: float, speed=100, time_out=0):
+    '''
+    Turn on spot using PID control
+    Args:
+        target_turns (float): target turns, positive for right, negative for left
+        speed (int): speed of the motors, default is 100
+        time_out (int): time out in ms, default is 0, 0 means no time out
+    '''
     movement_start_time = brain.timer.time(MSEC)
     kp = 40
     ki = 0.03
@@ -339,6 +349,15 @@ def drivetrain_turn_on_spot(target_turns: float, speed=100, time_out=0):
     drivetrain.stop()
     
 def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status, speed=100, time_out=0):
+    '''
+    Move forward using PID control
+    Args:
+        left_target_turns (float): target turns for left motor
+        right_target_turns (float): target turns for right motor
+        chain_status (bool): True if not the last motion for motion chain, default is False
+        speed (int): speed of the motors, default is 100
+        time_out (int): time out in ms, default is 0, 0 means no time out
+    '''
     movement_start_time = brain.timer.time(MSEC)
     false_condition_start_time = None
     
@@ -405,8 +424,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
                 return
         drivetrain.stop()
 
-# autonomous functions
-
+# -autonomous code
 def red_1():
     drivetrain_forward(2, 4, False, 100, 0)
 
@@ -424,24 +442,31 @@ def skill():
 
 # autonomous
 def autonomous():
+    '''
+    competition template for autonomous code
+    '''
     if team_position == "red_1":
         red_1()
-    if team_position == "red_2":
+    elif team_position == "red_2":
         red_2()
-    if team_position == "blue_1":
+    elif team_position == "blue_1":
         blue_1()
-    if team_position == "blue_2":
+    elif team_position == "blue_2":
         blue_2()
-    if team_position == "skill":
+    elif team_position == "skill":
         skill()
 
 # driver control
 def user_control():
+    '''
+    competition template for driver control
+    '''
     Thread(drivetrain_control)
     Thread(pto_change)
     while True:
         wait(20, MSEC)
 
+# !run after program start
 #getting team position
 team_position = team_choosing()
 
