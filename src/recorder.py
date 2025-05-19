@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------- #
 #                                                                              #
 # 	Module:       main.py                                                      #
-# 	Author:       EricGu & ThomasCobiac                                        #
+# 	Author:       EricGu, EthanHuang & ThomasCobiac                           #          #                                                                              #
 # 	Created:      5/12/2025, 11:58:20 AM                                       #
 # 	Description:  V5 project                                                   #
 #                                                                              #
@@ -113,6 +113,17 @@ class Recorder:
     def clearData(self) -> None:
         self.currentFrame = {}
         self.data = []
+
+    def convert(self) -> None:
+        auto_converted = []
+        for item in self.data:
+            if item["controller"].get("axis3") == 0 and item["controller"].get("axis4") == 0:
+                pass
+            #input turn convert code here
+            else:
+                pass
+            #input drive convert code here
+                
 
 
 # !GUI setup

@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------- #
 #                                                                              #
 # 	Module:       main.py                                                      #
-# 	Author:       EricGu & ThomasCobiac                                        #
+# 	Author:       EricGu, EthanHuang & ThomasCobiac                           #          #                                                                              #
 # 	Created:      5/12/2025, 11:58:20 AM                                       #
 # 	Description:  V5 project                                                   #
 #                                                                              #
