@@ -114,15 +114,51 @@ class Recorder:
         self.currentFrame = {}
         self.data = []
 
-    def convert(self) -> None:
+    def convert(self, auto_num) -> None:
+        last_action = ""
+        turn_rate = 0.00005
+        left_wheel_turn = 0
+        right_wheel_turn = 0
+        axis_addition = 0
         auto_converted = []
         for item in self.data:
+            axis_addition = controller_1.axis1.position() * turn_rate
             if item["controller"].get("axis3") == 0 and item["controller"].get("axis4") == 0:
-                pass
-            #input turn convert code here
+                if last_action == "turn":
+                    if controller_1.axis1.position() > 0:
+                        right_wheel_turn += 1
+                        left_wheel_turn += 1
+                    else:
+                        left_wheel_turn += 1
+                        right_wheel_turn += 1
+                else: 
+                    auto_converted.append({"auto_num": auto_num, "type": last_action, "left_wheel_turn": left_wheel_turn, "right_wheel_turn": right_wheel_turn, "chain_status": False, "wait": 0})
+                if controller_1.axis1.position() > 0:
+                    right_wheel_turn = 0 - right_wheel_turn
+                    left_wheel_turn = abs(left_wheel_turn)
+                else:
+                    right_wheel_turn = abs(right_wheel_turn)
+                    left_wheel_turn = 0 - left_wheel_turn
+                
+                last_action = "turn"
             else:
-                pass
-            #input drive convert code here
+                if last_action == "forward":
+                    left_wheel_turn += 1
+                    right_wheel_turn += 1
+                else: 
+                    auto_converted.append({"auto_num": auto_num, "type": last_action, "left_wheel_turn": left_wheel_turn, "right_wheel_turn": right_wheel_turn, "chain_status": False, "wait": 0})
+            
+                if controller_1.axis1.position() > 0:
+                        left_wheel_turn += axis_addition
+                elif controller_1.axis1.position() < 0:
+                        right_wheel_turn += axis_addition
+
+                last_action = "forward"
+
+        auto_converted.append({"auto_num": auto_num, "type": last_action, "left_wheel_turn": left_wheel_turn, "right_wheel_turn": right_wheel_turn, "chain_status": False, "wait": 0})
+            
+
+            
                 
 
 
