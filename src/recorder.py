@@ -125,7 +125,7 @@ class Recorder:
             axis_addition = controller_1.axis1.position() * turn_rate
             if item["controller"].get("axis3") == 0 and item["controller"].get("axis4") == 0:
                 if last_action == "turn":
-                    if controller_1.axis1.position() > 0:
+                    if item["controller"].get("axis1") > 0:
                         right_wheel_turn += 1
                         left_wheel_turn += 1
                     else:
@@ -133,7 +133,7 @@ class Recorder:
                         right_wheel_turn += 1
                 else: 
                     auto_converted.append({"auto_num": auto_num, "type": last_action, "left_wheel_turn": left_wheel_turn, "right_wheel_turn": right_wheel_turn, "chain_status": False, "wait": 0})
-                if controller_1.axis1.position() > 0:
+                if item["controller"].get("axis1") > 0:
                     right_wheel_turn = 0 - right_wheel_turn
                     left_wheel_turn = abs(left_wheel_turn)
                 else:
@@ -148,9 +148,9 @@ class Recorder:
                 else: 
                     auto_converted.append({"auto_num": auto_num, "type": last_action, "left_wheel_turn": left_wheel_turn, "right_wheel_turn": right_wheel_turn, "chain_status": False, "wait": 0})
             
-                if controller_1.axis1.position() > 0:
+                if item["controller"].get("axis1") > 0:
                         left_wheel_turn += axis_addition
-                elif controller_1.axis1.position() < 0:
+                else:
                         right_wheel_turn += axis_addition
 
                 last_action = "forward"
