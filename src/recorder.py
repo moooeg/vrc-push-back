@@ -115,46 +115,60 @@ class Recorder:
         self.data = []
 
     def convert(self, auto_num) -> None:
+        # setting constants
+        TURN_DECAY = 0.00005
+        LAST_ACTION_ADDITION = 1
+        # setting varibles
         last_action = ""
-        turn_rate = 0.00005
         left_wheel_turn = 0
         right_wheel_turn = 0
         axis_addition = 0
+        # setting lists
         auto_converted = []
+        # for loop
         for item in self.data:
-            axis_addition = controller_1.axis1.position() * turn_rate
+            # work out axis addition for forward
+            axis_addition = controller_1.axis1.position() * TURN_DECAY
+            # if we are only turning
             if item["controller"].get("axis3") == 0 and item["controller"].get("axis4") == 0:
+                # this checks if we want to add on to the previous value or create a new turn
                 if last_action == "turn":
+                    # if we are going left or right
                     if item["controller"].get("axis1") > 0:
-                        right_wheel_turn += 1
-                        left_wheel_turn += 1
+                        right_wheel_turn += LAST_ACTION_ADDITION
+                        left_wheel_turn += LAST_ACTION_ADDITION
                     else:
-                        left_wheel_turn += 1
-                        right_wheel_turn += 1
+                        left_wheel_turn += LAST_ACTION_ADDITION
+                        right_wheel_turn += LAST_ACTION_ADDITION
+                # if the last action was forward we want to add this data to the list before overiding it.
                 else: 
                     auto_converted.append({"auto_num": auto_num, "type": last_action, "left_wheel_turn": left_wheel_turn, "right_wheel_turn": right_wheel_turn, "chain_status": False, "wait": 0})
+                # if we are turning left or right what to inverse
                 if item["controller"].get("axis1") > 0:
-                    right_wheel_turn = 0 - right_wheel_turn
+                    right_wheel_turn = 0 - abs(right_wheel_turn)
                     left_wheel_turn = abs(left_wheel_turn)
                 else:
                     right_wheel_turn = abs(right_wheel_turn)
-                    left_wheel_turn = 0 - left_wheel_turn
-                
+                    left_wheel_turn = 0 - abs(left_wheel_turn)
+                # setting the last_action                
                 last_action = "turn"
+            # if we are not turning
             else:
+                # this checks if we want to add on to the previous value or create a new turn
                 if last_action == "forward":
-                    left_wheel_turn += 1
-                    right_wheel_turn += 1
+                    left_wheel_turn += LAST_ACTION_ADDITION
+                    right_wheel_turn += LAST_ACTION_ADDITION
+                # if the last action was turn we want to add this data to the list before overiding it.
                 else: 
                     auto_converted.append({"auto_num": auto_num, "type": last_action, "left_wheel_turn": left_wheel_turn, "right_wheel_turn": right_wheel_turn, "chain_status": False, "wait": 0})
-            
+                # what wheel to add more target turns to
                 if item["controller"].get("axis1") > 0:
                         left_wheel_turn += axis_addition
                 else:
                         right_wheel_turn += axis_addition
-
+                # setting the last_action
                 last_action = "forward"
-
+        # outside the for loop
         auto_converted.append({"auto_num": auto_num, "type": last_action, "left_wheel_turn": left_wheel_turn, "right_wheel_turn": right_wheel_turn, "chain_status": False, "wait": 0})
             
 
