@@ -62,13 +62,13 @@ controller_1 = Controller(PRIMARY)
 
 # ports settings
 left_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, True)
-left_motor_b = Motor(Ports.PORT2, GearSetting.RATIO_6_1, True)
-left_motor_c = Motor(Ports.PORT3, GearSetting.RATIO_6_1, True)
+left_motor_b = Motor(Ports.PORT7, GearSetting.RATIO_6_1, True)
+left_motor_c = Motor(Ports.PORT3, GearSetting.RATIO_6_1, False)
 left_drive_smart = MotorGroup(left_motor_a,  left_motor_b, left_motor_c)
 
-right_motor_a = Motor(Ports.PORT4, GearSetting.RATIO_18_1, False)
-right_motor_b = Motor(Ports.PORT5, GearSetting.RATIO_18_1, False)
-right_motor_c = Motor(Ports.PORT6, GearSetting.RATIO_18_1, False)
+right_motor_a = Motor(Ports.PORT4, GearSetting.RATIO_6_1, False)
+right_motor_b = Motor(Ports.PORT5, GearSetting.RATIO_6_1, False)
+right_motor_c = Motor(Ports.PORT6, GearSetting.RATIO_6_1, True)
 right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24 , 377.1, 304.8, MM)
@@ -76,7 +76,11 @@ drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24 , 377.1, 304
 left_odom = Rotation(Ports.PORT7, True)
 right_odom = Rotation(Ports.PORT8, True)
 
-pto = DigitalOut(Ports.PORT9)
+# Variables initialisation
+left_drive_smart_stopped = 0
+right_drive_smart_stopped = 0
+left_drive_smart_speed = 0
+right_drive_smart_speed = 0
 
 
 # !GUI setup
@@ -213,6 +217,7 @@ def wait_until_release(fn, time) -> None:
 
 # -thread in driver control
 def drivetrain_control():
+    global left_drive_smart_stopped, right_drive_smart_stopped
     '''
     Control the drivetrain using the controller
     '''
@@ -269,15 +274,14 @@ def drivetrain_control():
             
         wait(20, MSEC)
 
-def pto_change():
-    '''
-    Change the pto state using the controller'''
+'''def pto_change():
+    Change the pto state using the controller
     while True:
         if controller_1.buttonL1.pressing() or controller_1.buttonL2.pressing():
             if pto.value() == "open":
                 pto.set(True)
             else:
-                pto.set(False)
+                pto.set(False)'''
 
 # -autonomous functions
 def drivetrain_turn_on_spot(target_turns: float, speed=100, time_out=0):
@@ -348,7 +352,7 @@ def drivetrain_turn_on_spot(target_turns: float, speed=100, time_out=0):
             break
     drivetrain.stop()
     
-def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status, speed=100, time_out=0):
+def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
     '''
     Move forward using PID control
     Args:
@@ -462,7 +466,7 @@ def user_control():
     competition template for driver control
     '''
     Thread(drivetrain_control)
-    Thread(pto_change)
+    #Thread(pto_change)
     while True:
         wait(20, MSEC)
 
