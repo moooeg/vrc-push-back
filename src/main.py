@@ -76,12 +76,6 @@ drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24 , 377.1, 304
 left_odom = Rotation(Ports.PORT7, True)
 right_odom = Rotation(Ports.PORT8, True)
 
-# Variables initialisation
-left_drive_smart_stopped = 0
-right_drive_smart_stopped = 0
-left_drive_smart_speed = 0
-right_drive_smart_speed = 0
-
 
 # !GUI setup
 # -Side Selection GUI
@@ -217,7 +211,13 @@ def wait_until_release(fn, time) -> None:
 
 # -thread in driver control
 def drivetrain_control():
-    global left_drive_smart_stopped, right_drive_smart_stopped
+    # Variables initialisation
+    left_drive_smart_stopped = 0
+    right_drive_smart_stopped = 0
+    left_drive_smart_speed = 0
+    right_drive_smart_speed = 0
+    integral_rotate = 0
+    
     '''
     Control the drivetrain using the controller
     '''
@@ -463,6 +463,9 @@ def user_control():
     '''
     competition template for driver control
     '''
+    brain.timer.clear()
+    
+    #thread all func
     Thread(drivetrain_control)
     #Thread(pto_change)
     while True:

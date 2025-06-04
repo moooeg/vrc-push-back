@@ -75,9 +75,6 @@ drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24 , 377.1, 304
 left_odom = Rotation(Ports.PORT7, True)
 right_odom = Rotation(Ports.PORT8, True)
 
-pto = DigitalOut(Ports.PORT9)
-#pto = Pneumatics(ports.PORT9)
-
 #recoreder setup
 # !controller record
 class DummyControllerAxis:
@@ -246,22 +243,16 @@ def wait_until_release(fn, time) -> None:
     while fn():
         wait(time, MSEC)
 
-# -thread pto
-
-def pto_change():
-    while True:
-        if controller_1.buttonL1.pressing() or controller_1.buttonL2.pressing():
-            if pto.value() == "open":
-                pto.set(True)
-                #pto.open()
-            else:
-                pto.set(False)
-                #pto.close()
-
 
 
 # -thread in driver control
 def drivetrain_control():
+    # Variables initialisation
+    left_drive_smart_stopped = 0
+    right_drive_smart_stopped = 0
+    left_drive_smart_speed = 0
+    right_drive_smart_speed = 0
+    integral_rotate = 0
     recorder = Recorder()
     index = 0
 
@@ -533,7 +524,6 @@ def autonomous():
 # driver control
 def user_control():
     Thread(drivetrain_control)
-    Thread(pto_change)
     while True:
         wait(20, MSEC)
 
