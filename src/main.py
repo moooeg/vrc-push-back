@@ -222,17 +222,15 @@ def drivetrain_control():
     Control the drivetrain using the controller
     '''
     while True:
-        ratio = 1.1  # Bigger the number, less sensitive
+        ratio = 1  # Bigger the number, less sensitive
         integral_decay_rate = 0.000003  # Rate at which integral decays
         forward = 100 * math.sin(((controller_1.axis3.position()**3) / 636620))
-        if controller_1.axis3.position() < 0:
-            forward = 0.8 * forward
         rotate_dynamic = (100 / ratio) * math.sin((abs((forward**3)) / 636620)) * math.sin(((controller_1.axis1.position()**3) / 636620))
         rotate_linear = 40 * math.sin(((controller_1.axis1.position()**3) / 636620))
         max_integral_limit = 0.4*rotate_dynamic
         
         # Accumulate integral when joystick is pushed
-        if abs(controller_1.axis1.position()) >= 30:
+        if abs(controller_1.axis1.position()) >= 35:
             integral_rotate += rotate_dynamic * integral_decay_rate
             if integral_rotate > 0:
                 integral_rotate = min(integral_rotate, max_integral_limit)  # Cap the integral value
