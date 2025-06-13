@@ -60,7 +60,8 @@ from vex import *
 brain = Brain()
 controller_1 = Controller(PRIMARY)
 
-# ports settings
+# ports settings 
+# !broken ports: 2
 left_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, True)
 left_motor_b = Motor(Ports.PORT7, GearSetting.RATIO_6_1, True)
 left_motor_c = Motor(Ports.PORT3, GearSetting.RATIO_6_1, False)
@@ -73,8 +74,10 @@ right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24 , 377.1, 304.8, MM)
 
-left_odom = Rotation(Ports.PORT7, True)
-right_odom = Rotation(Ports.PORT8, True)
+intake1 = Motor(Ports.PORT8, GearSetting.RATIO_6_1, False)
+
+left_odom = Rotation(Ports.PORT18, False)
+right_odom = Rotation(Ports.PORT19, True)
 
 
 # !GUI setup
@@ -272,84 +275,11 @@ def drivetrain_control():
             
         wait(20, MSEC)
 
-'''def pto_change():
-    Change the pto state using the controller
-    while True:
-        if controller_1.buttonL1.pressing() or controller_1.buttonL2.pressing():
-            if pto.value() == "open":
-                pto.set(True)
-            else:
-                pto.set(False)'''
+def intake():
+    if controller_1.buttonR1.pressing():
+        intake1.spin(FORWARD)
 
 # -autonomous functions
-def drivetrain_turn_on_spot(target_turns: float, speed=100, time_out=0):
-    '''
-    Turn on spot using PID control
-    Args:
-        target_turns (float): target turns, positive for right, negative for left
-        speed (int): speed of the motors, default is 100
-        time_out (int): time out in ms, default is 0, 0 means no time out
-    '''
-    movement_start_time = brain.timer.time(MSEC)
-    kp = 40
-    ki = 0.03
-    kd = 0.1
-    
-    left_err = 0
-    right_err = 0
-    
-    left_integral = 0
-    right_integral = 0
-    
-    left_derivitive = 0
-    right_derivitive = 0
-    
-    left_prev_error = 0
-    right_prev_error = 0
-    
-    init_left_odom = left_odom.position(TURNS)
-    init_right_odom = right_odom.position(TURNS)
-    
-    current_left_odom = left_odom.position(TURNS)
-    current_right_odom = right_odom.position(TURNS)
-    
-    left_drive_smart.spin(FORWARD)
-    right_drive_smart.spin(REVERSE)
-    
-    while True:
-        left_err = target_turns - (current_left_odom - init_left_odom)
-        right_err = target_turns - (init_right_odom - current_right_odom)
-        
-        left_integral = (left_integral + left_err)*0.95
-        right_integral = (right_integral + right_err)*0.95
-        
-        left_derivitive = left_err - left_prev_error
-        right_derivitive = right_err - right_prev_error
-        
-        left_prev_error = left_err
-        right_prev_error = right_err
-        
-        left_speed = (speed/100)*(max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivitive), 100), -100))
-        right_speed = (speed/100)*(max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivitive), 100), -100))
-        
-        left_drive_smart.set_velocity(left_speed, PERCENT)
-        right_drive_smart.set_velocity(right_speed, PERCENT)
-        
-        current_left_odom = left_odom.position(TURNS)
-        current_right_odom = right_odom.position(TURNS)
-        
-        if not ((target_turns - 0.2 < current_left_odom - init_left_odom < target_turns+0.2) or (target_turns - 0.2 < init_right_odom - current_right_odom < target_turns+0.2)):
-            # Reset the timer if the condition is false
-            false_condition_start_time = None
-        else:
-            if false_condition_start_time == None:
-                false_condition_start_time = brain.timer.time(MSEC)
-            elif false_condition_start_time + 100 <= brain.timer.time(MSEC):
-                break
-        if movement_start_time-brain.timer.time(MSEC) > time_out and time_out > 0:
-            break
-    drivetrain.stop()
-    
 def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
     '''
     Move forward using PID control
@@ -363,9 +293,9 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     movement_start_time = brain.timer.time(MSEC)
     false_condition_start_time = None
     
-    kp = 40
-    ki = 0.03
-    kd = 0.1
+    kp = 28
+    ki = 0
+    kd = 100
     
     left_err = 0
     right_err = 0
@@ -392,23 +322,24 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
         left_err = left_target_turns - (current_left_odom - init_left_odom)
         right_err = right_target_turns - (current_right_odom - init_right_odom)
         
-        left_integral = (left_integral + left_err)*0.95
-        right_integral = (right_integral + right_err)*0.95
+        left_integral = (left_integral + left_err)*0.99
+        right_integral = (right_integral + right_err)*0.99
         
         left_derivitive = left_err - left_prev_error
         right_derivitive = right_err - right_prev_error
         
-        left_prev_error = left_err
-        right_prev_error = right_err
-        
         left_speed = (speed/100)*(max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivitive), 100), -100))
         right_speed = (speed/100)*(max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivitive), 100), -100))
+        
+        left_prev_error = left_err
+        right_prev_error = right_err
         
         left_drive_smart.set_velocity(left_speed, PERCENT)
         right_drive_smart.set_velocity(right_speed, PERCENT)
         
         current_left_odom = left_odom.position(TURNS)
         current_right_odom = right_odom.position(TURNS)
+        
         if not chain_status:
             if not ((left_target_turns-0.2 < current_left_odom-init_left_odom < left_target_turns+0.2) or 
                     (right_target_turns-0.2 < current_right_odom-init_right_odom < right_target_turns+0.2)):
@@ -424,11 +355,11 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
         else:
             if (left_target_turns-0.5 < current_left_odom-init_left_odom < left_target_turns+0.5) or (right_target_turns-0.5 < current_right_odom-init_right_odom < right_target_turns+0.5):
                 return
-        drivetrain.stop()
+    drivetrain.stop()
 
 # -autonomous code
 def red_1():
-    drivetrain_forward(2, 4, False, 100, 0)
+    pass
 
 def red_2():
     pass
@@ -469,6 +400,7 @@ def user_control():
     Thread(drivetrain_control)
     #Thread(pto_change)
     while True:
+        print("LOdom:", left_odom.position(TURNS), "ROdom:", left_odom.position(TURNS))
         wait(20, MSEC)
 
 # !run after program start
