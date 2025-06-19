@@ -222,15 +222,15 @@ def drivetrain_control():
     integral_rotate = 0
     
     '''
-    Control the drivetrain using the controller
+    Control the drivetrain using the controlle`r
     '''
     while True:
-        ratio = 1  # Bigger the number, less sensitive
-        integral_decay_rate = 0.000003  # Rate at which integral decays
+        ratio = 1.5  # Bigger the number, less sensitive
+        integral_decay_rate = 0.000009  # Rate at which integral decays
         forward = 100 * math.sin(((controller_1.axis3.position()**3) / 636620))
         rotate_dynamic = (100 / ratio) * math.sin((abs((forward**3)) / 636620)) * math.sin(((controller_1.axis1.position()**3) / 636620))
         rotate_linear = 40 * math.sin(((controller_1.axis1.position()**3) / 636620))
-        max_integral_limit = 0.4*rotate_dynamic
+        max_integral_limit = 0.6*rotate_dynamic
         
         # Accumulate integral when joystick is pushed
         if abs(controller_1.axis1.position()) >= 35:
@@ -243,7 +243,7 @@ def drivetrain_control():
             integral_rotate = 0  # Reset the integral when joystick is back below 30
 
         # Add integral component to turning calculation
-        if -30 <= forward <= 30:
+        if -20 <= forward <= 20:
             left_drive_smart_speed = forward + rotate_linear
             right_drive_smart_speed = forward - rotate_linear
         else:
@@ -251,14 +251,14 @@ def drivetrain_control():
             left_drive_smart_speed = forward + rotate_dynamic - integral_rotate
             right_drive_smart_speed = forward - rotate_dynamic + integral_rotate
 
-        if abs(left_drive_smart_speed) < 3:
+        if abs(left_drive_smart_speed) < 1:
             if left_drive_smart_stopped:
                 left_drive_smart.stop()
                 left_drive_smart_stopped = 0
         else:
             left_drive_smart_stopped = 1
 
-        if abs(right_drive_smart_speed) < 3:
+        if abs(right_drive_smart_speed) < 1:
             if right_drive_smart_stopped:
                 right_drive_smart.stop()
                 right_drive_smart_stopped = 0
@@ -319,14 +319,15 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     right_drive_smart.spin(FORWARD)
     
     while True:
+        wait(10, MSEC)
         left_err = left_target_turns - (current_left_odom - init_left_odom)
         right_err = right_target_turns - (current_right_odom - init_right_odom)
         
         left_integral = (left_integral + left_err)*0.99
         right_integral = (right_integral + right_err)*0.99
         
-        left_derivitive = left_err - left_prev_error
-        right_derivitive = right_err - right_prev_error
+        left_derivitive = (left_err - left_prev_error)/0.01
+        right_derivitive = (right_err - right_prev_error)/0.01
         
         left_speed = (speed/100)*(max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivitive), 100), -100))
         right_speed = (speed/100)*(max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivitive), 100), -100))
@@ -359,7 +360,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def red_1():
-    pass
+    drivetrain_forward(1,-1)
 
 def red_2():
     pass
