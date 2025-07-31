@@ -79,6 +79,8 @@ intake1 = Motor(Ports.PORT8, GearSetting.RATIO_6_1, False)
 left_odom = Rotation(Ports.PORT18, False)
 right_odom = Rotation(Ports.PORT19, True)
 
+angular = DigitalOut(brain.three_wire_port.a) #true: High goal, false: Low goal
+
 
 # !GUI setup
 # -Side Selection GUI
@@ -278,6 +280,17 @@ def drivetrain_control():
 def intake():
     if controller_1.buttonR1.pressing():
         intake1.spin(FORWARD)
+    elif controller_1.buttonR2.pressing():
+        intake1.spin(REVERSE)
+
+def scoring_angle():
+    '''
+    Set the scoring angle using the controller
+    '''
+    if controller_1.axis2.position() > 80:
+        angular.set(True)  # Toggle the angular status
+    elif controller_1.axis2.position() < -80:
+        angular.set(False)  # Toggle the angular status
 
 # -autonomous functions
 def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
@@ -360,7 +373,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def red_1():
-    drivetrain_forward(1,-1)
+    pass
 
 def red_2():
     pass
