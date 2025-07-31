@@ -79,7 +79,10 @@ intake1 = Motor(Ports.PORT8, GearSetting.RATIO_6_1, False)
 left_odom = Rotation(Ports.PORT18, False)
 right_odom = Rotation(Ports.PORT19, True)
 
+optical = Optical(Ports.PORT10)
+
 angular = DigitalOut(brain.three_wire_port.a) #true: High goal, false: Low goal
+trap_door = DigitalOut(brain.three_wire_port.b) #true: Open, false: close
 
 
 # ! GUI setup
@@ -117,12 +120,12 @@ GUI_BUTTONS_POSITIONS = {
 
 # -side selection
 def team_choosing() -> str:
-    """
+    '''
     Start choosing team, can use controller button to select or use GUI on brain.
 
     Returns:
         str: Literal [ "red_1", "red_2", "blue_1", "blue_2", "skill" ]
-    """
+    '''
     # SS GUI init
     brain.screen.draw_image_from_file("begin.png", 0, 0)
 
@@ -204,15 +207,37 @@ def cprint(_input: Any):
     controller_1.screen.print(s)
 
 def wait_until_release(fn, time) -> None:
-    """
+    '''
     Block until the passed function return False
 
     Args:
         fn (function): must returm bool
         time: time to wait in ms
-    """
+    '''
     while fn():
         wait(time, MSEC)
+
+def color_sort(team_pos): #color to remain 
+    '''
+    Sorting Opponent color blocks
+    
+    Args:
+        team_pos: Team Position include current team color
+    '''
+    while True:
+        if "red" in team_pos:
+            if 10 < optical.hue() < 100: # blue hue value
+                trap_door.set(True)
+            else:
+                trap_door.set(False)
+        elif "blue" in team_pos:
+            if 200 < optical.hue() < 300: # red hue value
+                trap_door.set(True)
+            else:
+                trap_door.set(False)
+        else:
+            trap_door.set(False)
+        wait(20, MSEC)
 
 # -thread in driver control
 def drivetrain_control():
@@ -433,6 +458,8 @@ def user_control():
 # ! run after program start
 #getting team position
 team_position = team_choosing()
+
+Thread(color_sort(team_position))
 
 # create competition instance
 comp = Competition(user_control, autonomous)
