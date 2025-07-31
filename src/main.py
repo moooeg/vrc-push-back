@@ -62,24 +62,24 @@ controller_1 = Controller(PRIMARY)
 
 # ports settings 
 # !broken ports: 2
-left_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, True)
-left_motor_b = Motor(Ports.PORT7, GearSetting.RATIO_6_1, True)
-left_motor_c = Motor(Ports.PORT3, GearSetting.RATIO_6_1, False)
+left_motor_a = Motor(Ports.PORT2, GearSetting.RATIO_6_1, True)
+left_motor_b = Motor(Ports.PORT4, GearSetting.RATIO_6_1, True)
+left_motor_c = Motor(Ports.PORT8, GearSetting.RATIO_6_1, False)
 left_drive_smart = MotorGroup(left_motor_a,  left_motor_b, left_motor_c)
 
-right_motor_a = Motor(Ports.PORT4, GearSetting.RATIO_6_1, False)
+right_motor_a = Motor(Ports.PORT3, GearSetting.RATIO_6_1, False)
 right_motor_b = Motor(Ports.PORT5, GearSetting.RATIO_6_1, False)
-right_motor_c = Motor(Ports.PORT6, GearSetting.RATIO_6_1, True)
+right_motor_c = Motor(Ports.PORT9, GearSetting.RATIO_6_1, True)
 right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
-drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24 , 377.1, 304.8, MM)
+drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.8, MM)
 
-intake1 = Motor(Ports.PORT8, GearSetting.RATIO_6_1, False)
+intake1 = Motor(Ports.PORT10, GearSetting.RATIO_6_1, False)
 
-left_odom = Rotation(Ports.PORT18, False)
-right_odom = Rotation(Ports.PORT19, True)
+left_odom = Rotation(Ports.PORT6, False)
+right_odom = Rotation(Ports.PORT7, True)
 
-optical = Optical(Ports.PORT10)
+optical = Optical(Ports.PORT1)
 
 angular = DigitalOut(brain.three_wire_port.a) #true: High goal, false: Low goal
 trap_door = DigitalOut(brain.three_wire_port.b) #true: Open, false: close
