@@ -82,7 +82,7 @@ right_odom = Rotation(Ports.PORT19, True)
 angular = DigitalOut(brain.three_wire_port.a) #true: High goal, false: Low goal
 
 
-# !GUI setup
+# ! GUI setup
 # -Side Selection GUI
 class ButtonPosition:
     def __init__(self, x1: int, y1: int, x2: int, y2: int) -> None:
@@ -216,6 +216,9 @@ def wait_until_release(fn, time) -> None:
 
 # -thread in driver control
 def drivetrain_control():
+    '''
+    Control the drivetrain using the controller
+    '''
     # Variables initialisation
     left_drive_smart_stopped = 0
     right_drive_smart_stopped = 0
@@ -223,9 +226,6 @@ def drivetrain_control():
     right_drive_smart_speed = 0
     integral_rotate = 0
     
-    '''
-    Control the drivetrain using the controlle`r
-    '''
     while True:
         ratio = 1.5  # Bigger the number, less sensitive
         integral_decay_rate = 0.000009  # Rate at which integral decays
@@ -278,19 +278,30 @@ def drivetrain_control():
         wait(20, MSEC)
 
 def intake():
-    if controller_1.buttonR1.pressing():
-        intake1.spin(FORWARD)
-    elif controller_1.buttonR2.pressing():
-        intake1.spin(REVERSE)
+    ''' 
+    Control the intake using the controller
+    '''
+    while True:
+        if controller_1.buttonR1.pressing():
+            intake1.spin(FORWARD)
+        elif controller_1.buttonR2.pressing():
+            intake1.spin(REVERSE)
+        wait(20, MSEC)
 
 def scoring_angle():
     '''
     Set the scoring angle using the controller
     '''
-    if controller_1.axis2.position() > 80:
-        angular.set(True)  # Toggle the angular status
-    elif controller_1.axis2.position() < -80:
-        angular.set(False)  # Toggle the angular status
+    while True:
+        if controller_1.axis2.position() > 80:
+            angular.set(True)  # Toggle the angular status
+            while controller_1.axis2.position() > 80:
+                wait(20, MSEC)
+        elif controller_1.axis2.position() < -80:
+            angular.set(False)  # Toggle the angular status
+            while controller_1.axis2.position() < -80:
+                wait(20, MSEC)
+        wait(20, MSEC)
 
 # -autonomous functions
 def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
@@ -412,12 +423,14 @@ def user_control():
     
     #thread all func
     Thread(drivetrain_control)
+    Thread(intake)
+    Thread(scoring_angle)
     #Thread(pto_change)
     while True:
         print("LOdom:", left_odom.position(TURNS), "ROdom:", left_odom.position(TURNS))
         wait(20, MSEC)
 
-# !run after program start
+# ! run after program start
 #getting team position
 team_position = team_choosing()
 
