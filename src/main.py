@@ -454,12 +454,18 @@ def user_control():
     while True:
         print("LOdom:", left_odom.position(TURNS), "ROdom:", left_odom.position(TURNS))
         wait(20, MSEC)
+        if controller_1.buttonA.pressing():
+            trap_door.set(True)
+            wait_until_release(controller_1.buttonA.pressing(), 50)
+        elif controller_1.buttonB.pressing():
+            trap_door.set(False)
+            wait_until_release(controller_1.buttonA.pressing(), 50)
 
 # ! run after program start
 #getting team position
 team_position = team_choosing()
 
-Thread(color_sort(team_position))
+#Thread(color_sort(team_position))
 
 # create competition instance
 comp = Competition(user_control, autonomous)
