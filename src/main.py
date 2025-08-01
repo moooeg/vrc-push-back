@@ -14,16 +14,16 @@
 # Wiring Guide
 # Updated: 2025-05-12
 
-# Port 01 : - 
-# Port 02 : - 
-# Port 03 : - 
-# Port 04 : - 
-# Port 05 : - 
-# Port 06 : - 
-# Port 07 : - 
-# Port 08 : - 
-# Port 09 : -
-# Port 10 : -
+# Port 01 : intake
+# Port 02 : optical
+# Port 03 : left motor b
+# Port 04 : left motor a
+# Port 05 : left motor c
+# Port 06 : left odom
+# Port 07 : right odom
+# Port 08 : right motor a
+# Port 09 : right motor c
+# Port 10 : right motor b
 # Port 11 : -
 # Port 12 : -
 # Port 13 : -
@@ -53,7 +53,7 @@
 # distance = Distance(Ports.PORT4)
 # ---------------------------------------------------------------------------- #
 
-# !Initialization
+# ! Initialization
 # Library imports
 from vex import *
 
@@ -61,25 +61,25 @@ brain = Brain()
 controller_1 = Controller(PRIMARY)
 
 # ports settings 
-# !broken ports: 2
-left_motor_a = Motor(Ports.PORT2, GearSetting.RATIO_6_1, True)
-left_motor_b = Motor(Ports.PORT4, GearSetting.RATIO_6_1, True)
-left_motor_c = Motor(Ports.PORT8, GearSetting.RATIO_6_1, False)
+# ! broken ports: 2
+left_motor_a = Motor(Ports.PORT4, GearSetting.RATIO_6_1, True)
+left_motor_b = Motor(Ports.PORT3, GearSetting.RATIO_6_1, True)
+left_motor_c = Motor(Ports.PORT5, GearSetting.RATIO_6_1, False)
 left_drive_smart = MotorGroup(left_motor_a,  left_motor_b, left_motor_c)
 
-right_motor_a = Motor(Ports.PORT3, GearSetting.RATIO_6_1, False)
-right_motor_b = Motor(Ports.PORT5, GearSetting.RATIO_6_1, False)
+right_motor_a = Motor(Ports.PORT8, GearSetting.RATIO_6_1, False)
+right_motor_b = Motor(Ports.PORT10, GearSetting.RATIO_6_1, False)
 right_motor_c = Motor(Ports.PORT9, GearSetting.RATIO_6_1, True)
 right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.8, MM)
 
-intake1 = Motor(Ports.PORT10, GearSetting.RATIO_6_1, False)
+intake1 = Motor(Ports.PORT1, GearSetting.RATIO_6_1, False)
 
 left_odom = Rotation(Ports.PORT6, False)
 right_odom = Rotation(Ports.PORT7, True)
 
-optical = Optical(Ports.PORT1)
+optical = Optical(Ports.PORT2)
 
 angular = DigitalOut(brain.three_wire_port.a) #true: High goal, false: Low goal
 trap_door = DigitalOut(brain.three_wire_port.b) #true: Open, false: close
