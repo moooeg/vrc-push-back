@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------- #
 #                                                                              #
 # 	Module:       main.py                                                      #
-# 	Author:       EricGu, EthanHuang & ThomasCobiac                            # #                                                                              #
+# 	Author:       EricGu, EthanHuang & ThomasCobiac                            # 
 # 	Created:      5/12/2025, 11:58:20 AM                                       #
 # 	Description:  V5 project                                                   #
 #                                                                              #
@@ -12,13 +12,13 @@
 
 # --------------------------------------
 # Wiring Guide
-# Updated: 2025-05-12
+# Updated: 2025-08-01
 
-# Port 01 : intake
-# Port 02 : optical
+# Port 01 : left motor c
+# Port 02 : 
 # Port 03 : left motor b
 # Port 04 : left motor a
-# Port 05 : left motor c
+# Port 05 : 
 # Port 06 : left odom
 # Port 07 : right odom
 # Port 08 : right motor a
@@ -48,6 +48,7 @@
 
 # ---------------------------------------------------------------------------- #
 # port define template
+# motor = Motor(Ports.PORT1, GearSetting.RATIO_6_1, True)
 # pneumatics = DigitalOut(brain.three_wire_port.a)
 # optical = Optical(Ports.PORT3)
 # distance = Distance(Ports.PORT4)
@@ -62,24 +63,26 @@ controller_1 = Controller(PRIMARY)
 
 # ports settings 
 # ! broken ports: 2
-left_motor_a = Motor(Ports.PORT4, GearSetting.RATIO_6_1, True)
-left_motor_b = Motor(Ports.PORT3, GearSetting.RATIO_6_1, True)
-left_motor_c = Motor(Ports.PORT5, GearSetting.RATIO_6_1, False)
+left_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, True)
+left_motor_b = Motor(Ports.PORT3, GearSetting.RATIO_6_1, False)
+left_motor_c = Motor(Ports.PORT4, GearSetting.RATIO_6_1, True)
 left_drive_smart = MotorGroup(left_motor_a,  left_motor_b, left_motor_c)
 
-right_motor_a = Motor(Ports.PORT8, GearSetting.RATIO_6_1, False)
-right_motor_b = Motor(Ports.PORT10, GearSetting.RATIO_6_1, False)
-right_motor_c = Motor(Ports.PORT9, GearSetting.RATIO_6_1, True)
+right_motor_a = Motor(Ports.PORT8, GearSetting.RATIO_6_1, True)
+right_motor_b = Motor(Ports.PORT9, GearSetting.RATIO_6_1, False)
+right_motor_c = Motor(Ports.PORT10, GearSetting.RATIO_6_1, False)
 right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.8, MM)
 
-intake1 = Motor(Ports.PORT1, GearSetting.RATIO_6_1, False)
+intake1 = Motor(Ports.PORT18, GearSetting.RATIO_6_1, False)
+intake2 = Motor(Ports.PORT16, GearSetting.RATIO_6_1, False)
+
 
 left_odom = Rotation(Ports.PORT6, False)
 right_odom = Rotation(Ports.PORT7, True)
 
-optical = Optical(Ports.PORT2)
+optical = Optical(Ports.PORT13)
 
 angular = DigitalOut(brain.three_wire_port.a) #true: High goal, false: Low goal
 trap_door = DigitalOut(brain.three_wire_port.b) #true: Open, false: close
@@ -306,11 +309,19 @@ def intake():
     ''' 
     Control the intake using the controller
     '''
+    intake1.set_velocity(100, PERCENT)
+    intake2.set_velocity(100, PERCENT)
     while True:
         if controller_1.buttonR1.pressing():
             intake1.spin(FORWARD)
+            intake2.spin(FORWARD)
         elif controller_1.buttonR2.pressing():
             intake1.spin(REVERSE)
+            intake2.spin(REVERSE)
+        else:
+            intake1.stop()
+            intake2.stop()
+            
         wait(20, MSEC)
 
 def scoring_angle():
