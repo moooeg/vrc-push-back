@@ -488,9 +488,11 @@ def user_control():
 # ! run after program start
 #getting team position
 team_position = team_choosing()
+
+# init function
 intake()
 
-#Thread(color_sort(team_position))
+Thread(color_sort(team_position))
 
 # create competition instance
 comp = Competition(user_control, autonomous)
