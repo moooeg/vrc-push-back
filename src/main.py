@@ -14,31 +14,31 @@
 # Wiring Guide
 # Updated: 2025-08-01
 
-# Port 01 : left motor c
+# Port 01 : left motor a
 # Port 02 : 
 # Port 03 : left motor b
-# Port 04 : left motor a
+# Port 04 : left motor c
 # Port 05 : 
 # Port 06 : left odom
 # Port 07 : right odom
 # Port 08 : right motor a
-# Port 09 : right motor c
-# Port 10 : right motor b
+# Port 09 : right motor b
+# Port 10 : right motor c
 # Port 11 : -
 # Port 12 : -
 # Port 13 : -
 # Port 14 : -
-# Port 15 : -
-# Port 16 : -
+# Port 15 : - optical1
+# Port 16 : - intake2
 # Port 17 : -
-# Port 18 : -
+# Port 18 : - intake1
 # Port 19 : -
 # Port 20 : -
 # Port 21 : -
 
-# Port A  : -
+# Port A  : - angular
 # Port B  : -
-# Port C  : -
+# Port C  : - trap_door
 # Port D  : -
 # Port E  : -
 # Port F  : -
