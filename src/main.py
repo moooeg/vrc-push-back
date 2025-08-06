@@ -82,10 +82,10 @@ intake2 = Motor(Ports.PORT16, GearSetting.RATIO_6_1, False)
 left_odom = Rotation(Ports.PORT6, False)
 right_odom = Rotation(Ports.PORT7, True)
 
-optical = Optical(Ports.PORT13)
+optical = Optical(Ports.PORT15)
 
 angular = DigitalOut(brain.three_wire_port.a) #true: High goal, false: Low goal
-trap_door = DigitalOut(brain.three_wire_port.b) #true: Open, false: close
+trap_door = DigitalOut(brain.three_wire_port.c) #true: Open, false: close
 
 
 # ! GUI setup
@@ -228,19 +228,20 @@ def color_sort(team_pos): #color to remain
         team_pos: Team Position include current team color
     '''
     while True:
-        if "red" in team_pos:
-            if 10 < optical.hue() < 100: # blue hue value
+        if "blue" in team_pos:
+            if 0 < optical.hue() < 40: # red hue value
                 trap_door.set(True)
+                wait(500, MSEC)
             else:
                 trap_door.set(False)
-        elif "blue" in team_pos:
-            if 200 < optical.hue() < 300: # red hue value
+        elif "red" in team_pos:
+            if 150 < optical.hue() < 230: # blue hue value
                 trap_door.set(True)
+                wait(500, MSEC)
             else:
                 trap_door.set(False)
         else:
             trap_door.set(False)
-        wait(20, MSEC)
 
 # -thread in driver control
 def drivetrain_control():
