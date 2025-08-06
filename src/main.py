@@ -161,6 +161,10 @@ def team_choosing() -> str:
             team = "blue"
             position = "_2"
             confirmed = True
+        elif controller_1.buttonA.pressing():
+            team = "skill"
+            position = ""
+            confirmed = True
 
         # brain
         if brain.screen.pressing():
@@ -444,9 +448,11 @@ def blue_2():
 
 def skill():
     intake.on
-    drivetrain_forward(4, 5, True, 100, 0)    
-    drivetrain_forward(-2, 2, True, 100, 0)
+    drivetrain_forward(5, 5, True, 100, 0)  
     intake.off
+    drivetrain_forward(1, -x1, True, 100, 0)
+    drivetrain_forward(3, 3, True, 100, 0)
+    drivetrain_forward(-3, 3, True, 100, 0)
 
 # autonomous
 def autonomous():
