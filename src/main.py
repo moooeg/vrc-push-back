@@ -305,24 +305,34 @@ def drivetrain_control():
             
         wait(20, MSEC)
 
-def intake():
+class intake():
     ''' 
     Control the intake using the controller
     '''
-    intake1.set_velocity(100, PERCENT)
-    intake2.set_velocity(100, PERCENT)
-    while True:
-        if controller_1.buttonR1.pressing():
-            intake1.spin(FORWARD)
-            intake2.spin(FORWARD)
-        elif controller_1.buttonR2.pressing():
-            intake1.spin(REVERSE)
-            intake2.spin(REVERSE)
-        else:
-            intake1.stop()
-            intake2.stop()
-            
-        wait(20, MSEC)
+    def __init__(self):
+        intake1.set_velocity(100, PERCENT)
+        intake2.set_velocity(100, PERCENT)
+
+    def controller_intake():    
+        while True:
+            if controller_1.buttonR1.pressing():
+                intake1.spin(FORWARD)
+                intake2.spin(FORWARD)
+            elif controller_1.buttonR2.pressing():
+                intake1.spin(REVERSE)
+                intake2.spin(REVERSE)
+            else:
+                intake1.stop()
+                intake2.stop()
+            wait(20, MSEC)
+
+    def on():
+        intake1.spin(FORWARD)
+        intake2.spin(FORWARD)
+
+    def off():
+        intake1.spin(FORWARD)
+        intake2.spin(FORWARD)
 
 def scoring_angle():
     '''
@@ -432,7 +442,10 @@ def blue_2():
     pass
 
 def skill():
-    pass    
+    intake.on
+    drivetrain_forward(4, 5, True, 100, 0)    
+    drivetrain_forward(-2, 2, True, 100, 0)
+    intake.off
 
 # autonomous
 def autonomous():
@@ -459,11 +472,11 @@ def user_control():
     
     #thread all func
     Thread(drivetrain_control)
-    Thread(intake)
+    Thread(intake.controller_intake)
     Thread(scoring_angle)
     #Thread(pto_change)
     while True:
-        print("LOdom:", left_odom.position(TURNS), "ROdom:", left_odom.position(TURNS))
+        print("xLOdom:", left_odom.position(TURNS), "ROdom:", left_odom.position(TURNS))
         wait(20, MSEC)
         if controller_1.buttonA.pressing():
             trap_door.set(True)
@@ -475,6 +488,7 @@ def user_control():
 # ! run after program start
 #getting team position
 team_position = team_choosing()
+intake()
 
 #Thread(color_sort(team_position))
 
