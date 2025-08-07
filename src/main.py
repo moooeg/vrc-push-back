@@ -161,6 +161,10 @@ def team_choosing() -> str:
             team = "blue"
             position = "_2"
             confirmed = True
+        elif controller_1.buttonA.pressing():
+            team = "skill"
+            position = ""
+            confirmed = True
 
         # brain
         if brain.screen.pressing():
@@ -306,12 +310,16 @@ def drivetrain_control():
             
         wait(20, MSEC)
 
-
-
-class Intake():
-    global intake1, intake2
+class intake():
     ''' 
-    Control the intake using the controller
+    Intake Usage:
+
+    Thread(intake.controller_intake) 
+
+    For Autonomous Code:
+    
+    on - intake.on
+    off - intake.off
     '''
 
     @staticmethod
@@ -455,10 +463,12 @@ def blue_2():
     pass
 
 def skill():
-    Intake.on()
-    drivetrain_forward(4, 5, True, 100, 0)    
-    drivetrain_forward(-2, 2, True, 100, 0)
-    Intake.off()
+    intake.on
+    drivetrain_forward(5, 5, True, 100, 0)  
+    intake.off
+    drivetrain_forward(1, -x1, True, 100, 0)
+    drivetrain_forward(3, 3, True, 100, 0)
+    drivetrain_forward(-3, 3, True, 100, 0)
 
 # autonomous
 def autonomous():
