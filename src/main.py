@@ -312,7 +312,14 @@ def drivetrain_control():
 
 class intake():
     ''' 
-    Control the intake using the controller
+    Intake Usage:
+
+    Thread(intake.controller_intake) 
+
+    For Autonomous Code:
+    
+    on - intake.on
+    off - intake.off
     '''
     def __init__(self):
         intake1.set_velocity(100, PERCENT)
