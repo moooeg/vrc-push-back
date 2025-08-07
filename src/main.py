@@ -75,14 +75,14 @@ right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.8, MM)
 
-intake1 = Motor(Ports.PORT18, GearSetting.RATIO_6_1, False)
+intake1 = Motor(Ports.PORT17, GearSetting.RATIO_6_1, False)
 intake2 = Motor(Ports.PORT16, GearSetting.RATIO_6_1, False)
 
 
 left_odom = Rotation(Ports.PORT6, False)
 right_odom = Rotation(Ports.PORT7, True)
 
-optical = Optical(Ports.PORT15)
+optical = Optical(Ports.PORT18)
 
 angular = DigitalOut(brain.three_wire_port.a) #true: High goal, false: Low goal
 trap_door = DigitalOut(brain.three_wire_port.c) #true: Open, false: close
@@ -306,14 +306,15 @@ def drivetrain_control():
             
         wait(20, MSEC)
 
-class intake():
+
+
+class Intake():
+    global intake1, intake2
     ''' 
     Control the intake using the controller
     '''
-    def __init__(self):
-        intake1.set_velocity(100, PERCENT)
-        intake2.set_velocity(100, PERCENT)
 
+    @staticmethod
     def controller_intake():    
         while True:
             if controller_1.buttonR1.pressing():
@@ -327,13 +328,16 @@ class intake():
                 intake2.stop()
             wait(20, MSEC)
 
+    @staticmethod
     def on():
         intake1.spin(FORWARD)
         intake2.spin(FORWARD)
 
+    @staticmethod
     def off():
-        intake1.spin(FORWARD)
-        intake2.spin(FORWARD)
+        intake1.stop()
+        intake2.stop()
+        
 
 def scoring_angle():
     '''
@@ -431,7 +435,15 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def red_1():
-    pass
+    drivetrain_forward(2, 2, True, 100)
+    Intake.on()
+    drivetrain_forward(1, 1, False, 30)
+    Intake.off()
+    drivetrain_forward(1, -1, False, 100)
+    drivetrain_forward(1, 1, False, 50)
+    Intake.on()
+    wait(2, SECONDS)
+    
 
 def red_2():
     pass
@@ -443,10 +455,10 @@ def blue_2():
     pass
 
 def skill():
-    intake.on
+    Intake.on()
     drivetrain_forward(4, 5, True, 100, 0)    
     drivetrain_forward(-2, 2, True, 100, 0)
-    intake.off
+    Intake.off()
 
 # autonomous
 def autonomous():
@@ -473,27 +485,21 @@ def user_control():
     
     #thread all func
     Thread(drivetrain_control)
-    Thread(intake.controller_intake)
+    Thread(Intake.controller_intake)
     Thread(scoring_angle)
     #Thread(pto_change)
     while True:
-        print("xLOdom:", left_odom.position(TURNS), "ROdom:", left_odom.position(TURNS))
+        print(optical.color())
         wait(20, MSEC)
-        if controller_1.buttonA.pressing():
-            trap_door.set(True)
-            wait_until_release(controller_1.buttonA.pressing(), 50)
-        elif controller_1.buttonB.pressing():
-            trap_door.set(False)
-            wait_until_release(controller_1.buttonA.pressing(), 50)
 
 # ! run after program start
 #getting team position
 team_position = team_choosing()
 
-# init function
-intake()
+Thread(color_sort,(team_position,))
 
-Thread(lambda: color_sort(team_position))
-
+intake1.set_velocity(100, PERCENT)
+intake2.set_velocity(100, PERCENT)
 # create competition instance
 comp = Competition(user_control, autonomous)
+
