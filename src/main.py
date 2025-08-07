@@ -310,7 +310,7 @@ def drivetrain_control():
             
         wait(20, MSEC)
 
-class intake():
+class Intake():
     ''' 
     Intake Usage:
 
@@ -463,10 +463,10 @@ def blue_2():
     pass
 
 def skill():
-    intake.on
+    Intake.on
     drivetrain_forward(5, 5, True, 100, 0)  
-    intake.off
-    drivetrain_forward(1, -x1, True, 100, 0)
+    Intake.off
+    drivetrain_forward(1, -1, True, 100, 0)
     drivetrain_forward(3, 3, True, 100, 0)
     drivetrain_forward(-3, 3, True, 100, 0)
 
