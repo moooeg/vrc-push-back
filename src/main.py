@@ -334,6 +334,9 @@ def drivetrain_control():
             right_drive_smart.set_velocity(right_drive_smart_speed, PERCENT)
             right_drive_smart.spin(FORWARD)
             
+        # Manual Trapdoor Control
+        if (controller_1.buttonA.pressing()):
+            trap_door.set(True)
         wait(20, MSEC)
 
 class Intake():
