@@ -79,8 +79,8 @@ intake1 = Motor(Ports.PORT17, GearSetting.RATIO_6_1, False)
 intake2 = Motor(Ports.PORT16, GearSetting.RATIO_6_1, False)
 
 
-left_odom = Rotation(Ports.PORT6, False)
-right_odom = Rotation(Ports.PORT7, True)
+left_odom = Rotation(Ports.PORT7, False)
+right_odom = Rotation(Ports.PORT6, True)
 
 optical = Optical(Ports.PORT18)
 
@@ -346,7 +346,6 @@ class Intake():
         intake1.stop()
         intake2.stop()
         
-
 def scoring_angle():
     '''
     Set the scoring angle using the controller
@@ -443,16 +442,16 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def red_1():
-    drivetrain_forward(2, 2, True, 100)
+    drivetrain_forward(1, 1, True, 80)
+    '''
     Intake.on()
     drivetrain_forward(1, 1, False, 30)
     Intake.off()
     drivetrain_forward(1, -1, False, 100)
     drivetrain_forward(1, 1, False, 50)
     Intake.on()
-    wait(2, SECONDS)
+    wait(2, SECONDS)'''
     
-
 def red_2():
     pass
 
@@ -476,7 +475,7 @@ def autonomous():
     competition template for autonomous code
     '''
     if team_position == "red_1":
-        red_1()
+        drivetrain_forward(10, 10, False, 80)
     elif team_position == "red_2":
         red_2()
     elif team_position == "blue_1":
@@ -498,8 +497,8 @@ def user_control():
     Thread(Intake.controller_intake)
     Thread(scoring_angle)
     #Thread(pto_change)
+    drivetrain_forward(1, 1, False, 80)
     while True:
-        print(optical.color())
         wait(20, MSEC)
 
 # ! run after program start
