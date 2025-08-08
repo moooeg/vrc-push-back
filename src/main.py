@@ -122,7 +122,7 @@ GUI_BUTTONS_POSITIONS = {
 }
 
 # -side selection
-def team_choosing() -> str:
+def team_choosing(use_skill: bool = False) -> str:
     '''
     Start choosing team, can use controller button to select or use GUI on brain.
 
@@ -135,6 +135,10 @@ def team_choosing() -> str:
     team = ""
     position = ""
     confirmed = False
+
+    if use_skill:
+        team = "skill"
+        confirmed = True
 
     while True:
         wait(5, MSEC)
@@ -246,6 +250,7 @@ def color_sort(team_pos): #color to remain
                 trap_door.set(False)
         else:
             trap_door.set(False)
+        wait(20, MSEC)
 
 # -thread in driver control
 def drivetrain_control():
@@ -322,6 +327,9 @@ class Intake():
     off - intake.off
     '''
 
+    def __init__(self):
+        self.running: bool = False
+    
     @staticmethod
     def controller_intake():    
         while True:
@@ -335,14 +343,18 @@ class Intake():
                 intake1.stop()
                 intake2.stop()
             wait(20, MSEC)
+    
+    def on(self):
+        self.running = True
+        Thread(intake_on)
 
-    @staticmethod
-    def on():
-        intake1.spin(FORWARD)
-        intake2.spin(FORWARD)
+    def intake_on(self):
+        while self.running:
+            intake1.spin(FORWARD)
+            intake2.spin(FORWARD)
 
-    @staticmethod
-    def off():
+    def off(self):
+        self.running = False
         intake1.stop()
         intake2.stop()
         
@@ -461,19 +473,13 @@ def blue_1():
 def blue_2():
     pass
 
-def skill():
-    Intake.on
-    drivetrain_forward(5, 5, True, 100, 0)  
-    Intake.off
-    drivetrain_forward(1, -1, True, 100, 0)
-    drivetrain_forward(3, 3, True, 100, 0)
-    drivetrain_forward(-3, 3, True, 100, 0)
-
 # autonomous
 def autonomous():
     '''
     competition template for autonomous code
     '''
+    intake = Intake()
+    print("yay3")
     if team_position == "red_1":
         drivetrain_forward(10, 10, False, 80)
     elif team_position == "red_2":
@@ -483,7 +489,8 @@ def autonomous():
     elif team_position == "blue_2":
         blue_2()
     elif team_position == "skill":
-        skill()
+        intake.on()
+        drivetrain_forward(1, 1, True, 80)
 
 # driver control
 def user_control():
@@ -497,13 +504,12 @@ def user_control():
     Thread(Intake.controller_intake)
     Thread(scoring_angle)
     #Thread(pto_change)
-    drivetrain_forward(1, 1, False, 80)
     while True:
         wait(20, MSEC)
 
 # ! run after program start
 #getting team position
-team_position = team_choosing()
+team_position = team_choosing(True)
 
 Thread(color_sort,(team_position,))
 
