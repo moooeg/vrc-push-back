@@ -79,7 +79,7 @@ intake1 = Motor(Ports.PORT17, GearSetting.RATIO_6_1, False)
 intake2 = Motor(Ports.PORT16, GearSetting.RATIO_6_1, False)
 
 
-left_odom = Rotation(Ports.PORT7, False)
+left_odom =  Rotation(Ports.PORT7, False)
 right_odom = Rotation(Ports.PORT6, True)
 
 optical = Optical(Ports.PORT18)
@@ -121,53 +121,61 @@ GUI_BUTTONS_POSITIONS = {
     }
 }
 
+class TeamPosition:
+    def __init__(self, team: str = "", position: str = ""):
+        self.team = team
+        self.position = position
+    
+    def __str__(self) -> str:
+        return self.team + "_" + self.position
+
 # -side selection
-def team_choosing(use_skill: bool = False) -> str:
+def team_choosing(is_skill: bool = False) -> TeamPosition:
     '''
     Start choosing team, can use controller button to select or use GUI on brain.
 
-    Returns:
-        str: Literal [ "red_1", "red_2", "blue_1", "blue_2", "skill" ]
+    Args:
+        isSkill (bool): If True, directly select "skill"
     '''
     # SS GUI init
     brain.screen.draw_image_from_file("begin.png", 0, 0)
 
-    team = ""
-    position = ""
+    team_position = TeamPosition()
     confirmed = False
 
-    if use_skill:
-        team = "skill"
-        confirmed = True
+    if is_skill:
+        team_position.team = "skill"
+        brain.screen.draw_image_from_file("skill_confirmed.png", 0, 0)
+        return team_position
 
     while True:
         wait(5, MSEC)
 
         # exit
         if confirmed:
-            brain.screen.draw_image_from_file(team+position+"_confirmed.png", 0, 0)
-            return team + position
+            brain.screen.draw_image_from_file(str(team_position) + "_confirmed.png", 0, 0)
+            return team_position
 
         # controller
         if controller_1.buttonL1.pressing():
-            team = "red"
-            position = "_1"
+            team_position.team = "red"
+            team_position.position = "1"
             confirmed = True
         elif controller_1.buttonL2.pressing():
-            team = "red"
-            position = "_2"
+            team_position.team = "red"
+            team_position.position = "2"
             confirmed = True
         elif controller_1.buttonR1.pressing():
-            team = "blue"
-            position = "_1"
+            team_position.team = "blue"
+            team_position.position = "1"
             confirmed = True
         elif controller_1.buttonR2.pressing():
-            team = "blue"
-            position = "_2"
+            team_position.team = "blue"
+            team_position.position = "2"
             confirmed = True
         elif controller_1.buttonA.pressing():
-            team = "skill"
-            position = ""
+            team_position.team = "skill"
+            team_position.position = ""
             confirmed = True
 
         # brain
@@ -176,37 +184,37 @@ def team_choosing(use_skill: bool = False) -> str:
             y = brain.screen.y_position()
 
             if GUI_BUTTONS_POSITIONS["top"]["1"].pressing(x, y):
-                team = "red"
-                position = ""
+                team_position.team = "red"
+                team_position.position = ""
                 brain.screen.draw_image_from_file("red_begin.png", 0, 0)
             elif GUI_BUTTONS_POSITIONS["top"]["2"].pressing(x, y):
-                team = "blue"
-                position = ""
+                team_position.team = "blue"
+                team_position.position = ""
                 brain.screen.draw_image_from_file("blue_begin.png", 0, 0)
             elif GUI_BUTTONS_POSITIONS["top"]["3"].pressing(x, y):
-                team = "skill"
-                position = ""
+                team_position.team = "skill"
+                team_position.position = ""
                 brain.screen.draw_image_from_file("skill_begin.png", 0, 0)
 
-            if team:
+            if team_position.team:
                 if GUI_BUTTONS_POSITIONS["side"]["1"].pressing(x, y):
-                    if team == "skill":
-                        position = ""
+                    if team_position.team == "skill":
+                        team_position.position = ""
                         confirmed = True
                     else:
-                        position = "_1"
-                        brain.screen.draw_image_from_file(team+"_1.png", 0, 0)
-                elif GUI_BUTTONS_POSITIONS["side"]["2"].pressing(x, y) and team != "skill":
-                    position = "_2"
-                    brain.screen.draw_image_from_file(team+"_2.png", 0, 0)
-                elif GUI_BUTTONS_POSITIONS["side"]["3"].pressing(x, y) and position and team != "skill":
+                        team_position.position = "1"
+                        brain.screen.draw_image_from_file(team_position.team+"_1.png", 0, 0)
+                elif GUI_BUTTONS_POSITIONS["side"]["2"].pressing(x, y) and team_position.team != "skill":
+                    team_position.position = "2"
+                    brain.screen.draw_image_from_file(team_position.team + "_2.png", 0, 0)
+                elif GUI_BUTTONS_POSITIONS["side"]["3"].pressing(x, y) and team_position.position and team_position.team != "skill":
                     confirmed = True
             
             wait_until_release(brain.screen.pressing, 50)
 
 # ! All functions
 # -misc.
-def cprint(_input: Any):
+def cprint(_input: Any) -> None:
     '''
     Print to the controller screen, erase previous content
     Args:
@@ -217,7 +225,7 @@ def cprint(_input: Any):
     controller_1.screen.set_cursor(1,1)
     controller_1.screen.print(s)
 
-def wait_until_release(fn, time) -> None:
+def wait_until_release(fn, time: float) -> None:
     '''
     Block until the passed function return False
 
@@ -228,7 +236,20 @@ def wait_until_release(fn, time) -> None:
     while fn():
         wait(time, MSEC)
 
-def color_sort(team_pos): #color to remain 
+def clamp(number: int | float, minimum: int | float, maximum: int | float) -> int | float:
+    '''
+    Clamp number into given range
+
+    Examples:
+        clamp(8, 0, 10) >>> 8
+
+        clamp(20, 0, 10) >>> 10
+
+        clamp(-20, -10, 10) >>> -10
+    '''
+    return max(min(number, maximum), minimum)
+
+def color_sort(team_pos: TeamPosition): #color to remain 
     '''
     Sorting Opponent color blocks
     
@@ -236,13 +257,13 @@ def color_sort(team_pos): #color to remain
         team_pos: Team Position include current team color
     '''
     while True:
-        if "blue" in team_pos:
+        if team_pos.team == "blue":
             if 0 < optical.hue() < 40: # red hue value
                 trap_door.set(True)
                 wait(500, MSEC)
             else:
                 trap_door.set(False)
-        elif "red" in team_pos:
+        elif team_pos.team == "red":
             if 150 < optical.hue() < 230: # blue hue value
                 trap_door.set(True)
                 wait(500, MSEC)
@@ -258,8 +279,8 @@ def drivetrain_control():
     Control the drivetrain using the controller
     '''
     # Variables initialisation
-    left_drive_smart_stopped = 0
-    right_drive_smart_stopped = 0
+    left_drive_smart_stopped = False
+    right_drive_smart_stopped = False
     left_drive_smart_speed = 0
     right_drive_smart_speed = 0
     integral_rotate = 0
@@ -267,9 +288,9 @@ def drivetrain_control():
     while True:
         ratio = 1.5  # Bigger the number, less sensitive
         integral_decay_rate = 0.000009  # Rate at which integral decays
-        forward = 100 * math.sin(((controller_1.axis3.position()**3) / 636620))
-        rotate_dynamic = (100 / ratio) * math.sin((abs((forward**3)) / 636620)) * math.sin(((controller_1.axis1.position()**3) / 636620))
-        rotate_linear = 40 * math.sin(((controller_1.axis1.position()**3) / 636620))
+        forward = 100 * math.sin((controller_1.axis3.position()**3) / 636620)
+        rotate_dynamic = (100 / ratio) * math.sin(abs(forward**3) / 636620) * math.sin(controller_1.axis1.position()**3 / 636620)
+        rotate_linear = 40 * math.sin(controller_1.axis1.position()**3 / 636620)
         max_integral_limit = 0.6*rotate_dynamic
         
         # Accumulate integral when joystick is pushed
@@ -284,26 +305,26 @@ def drivetrain_control():
 
         # Add integral component to turning calculation
         if -20 <= forward <= 20:
-            left_drive_smart_speed = forward + rotate_linear
+            left_drive_smart_speed =  forward + rotate_linear
             right_drive_smart_speed = forward - rotate_linear
         else:
             # Use the integral component
-            left_drive_smart_speed = forward + rotate_dynamic - integral_rotate
+            left_drive_smart_speed =  forward + rotate_dynamic - integral_rotate
             right_drive_smart_speed = forward - rotate_dynamic + integral_rotate
 
         if abs(left_drive_smart_speed) < 1:
             if left_drive_smart_stopped:
                 left_drive_smart.stop()
-                left_drive_smart_stopped = 0
+                left_drive_smart_stopped = False
         else:
-            left_drive_smart_stopped = 1
+            left_drive_smart_stopped = True
 
         if abs(right_drive_smart_speed) < 1:
             if right_drive_smart_stopped:
                 right_drive_smart.stop()
-                right_drive_smart_stopped = 0
+                right_drive_smart_stopped = False
         else:
-            right_drive_smart_stopped = 1
+            right_drive_smart_stopped = True
 
         if left_drive_smart_stopped:
             left_drive_smart.set_velocity(left_drive_smart_speed, PERCENT)
@@ -323,38 +344,32 @@ class Intake():
 
     For Autonomous Code:
     
-    on - intake.on
-    off - intake.off
+    on - Intake.on
+    off - Intake.off
     '''
 
-    def __init__(self):
-        self.running: bool = False
-    
     @staticmethod
     def controller_intake():    
         while True:
             if controller_1.buttonR1.pressing():
                 intake1.spin(FORWARD)
                 intake2.spin(FORWARD)
+                wait_until_release(controller_1.buttonR1.pressing, 5)
             elif controller_1.buttonR2.pressing():
                 intake1.spin(REVERSE)
                 intake2.spin(REVERSE)
-            else:
-                intake1.stop()
-                intake2.stop()
+                wait_until_release(controller_1.buttonR2.pressing, 5)
+            intake1.stop()
+            intake2.stop()
             wait(20, MSEC)
     
-    def on(self):
-        self.running = True
-        Thread(intake_on)
+    @staticmethod
+    def on():
+        intake1.spin(FORWARD)
+        intake2.spin(FORWARD)
 
-    def intake_on(self):
-        while self.running:
-            intake1.spin(FORWARD)
-            intake2.spin(FORWARD)
-
-    def off(self):
-        self.running = False
+    @staticmethod
+    def off():
         intake1.stop()
         intake2.stop()
         
@@ -365,16 +380,15 @@ def scoring_angle():
     while True:
         if controller_1.axis2.position() > 80:
             angular.set(True)  # Toggle the angular status
-            while controller_1.axis2.position() > 80:
-                wait(20, MSEC)
+            wait_until_release(lambda: controller_1.axis2.position() > 80, 20)
         elif controller_1.axis2.position() < -80:
             angular.set(False)  # Toggle the angular status
-            while controller_1.axis2.position() < -80:
-                wait(20, MSEC)
+            wait_until_release(lambda: controller_1.axis2.position() < -80, 20)
+
         wait(20, MSEC)
 
 # -autonomous functions
-def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
+def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status: bool = False, speed: int = 100, time_out: int = 0) -> None:
     '''
     Move forward using PID control
     Args:
@@ -417,14 +431,14 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
         left_err = left_target_turns - (current_left_odom - init_left_odom)
         right_err = right_target_turns - (current_right_odom - init_right_odom)
         
-        left_integral = (left_integral + left_err)*0.99
+        left_integral = (left_integral  + left_err)*0.99
         right_integral = (right_integral + right_err)*0.99
         
-        left_derivitive = (left_err - left_prev_error)/0.01
+        left_derivitive = (left_err  - left_prev_error)/0.01
         right_derivitive = (right_err - right_prev_error)/0.01
         
-        left_speed = (speed/100)*(max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivitive), 100), -100))
-        right_speed = (speed/100)*(max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivitive), 100), -100))
+        left_speed =  (speed/100) * clamp((kp * left_err ) + (ki * left_integral ) + (kd * left_derivitive ), -100, 100)
+        right_speed = (speed/100) * clamp((kp * right_err) + (ki * right_integral) + (kd * right_derivitive), -100, 100)
         
         left_prev_error = left_err
         right_prev_error = right_err
@@ -436,8 +450,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
         current_right_odom = right_odom.position(TURNS)
         
         if not chain_status:
-            if not ((left_target_turns-0.2 < current_left_odom-init_left_odom < left_target_turns+0.2) or 
-                    (right_target_turns-0.2 < current_right_odom-init_right_odom < right_target_turns+0.2)):
+            if not ((left_target_turns  - 0.2 < current_left_odom  - init_left_odom  < left_target_turns  + 0.2) or 
+                    (right_target_turns - 0.2 < current_right_odom - init_right_odom < right_target_turns + 0.2)):
                 # Reset the timer if the condition is false
                 false_condition_start_time = None
             else:
@@ -448,12 +462,13 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
             if time_out > 0 and brain.timer.time(MSEC) - movement_start_time > time_out:
                 break
         else:
-            if (left_target_turns-0.5 < current_left_odom-init_left_odom < left_target_turns+0.5) or (right_target_turns-0.5 < current_right_odom-init_right_odom < right_target_turns+0.5):
+            if ((left_target_turns  - 0.5 < current_left_odom  - init_left_odom  < left_target_turns  + 0.5) or 
+                (right_target_turns - 0.5 < current_right_odom - init_right_odom < right_target_turns + 0.5)):
                 return
     drivetrain.stop()
 
 # -autonomous code
-def red_1():
+def auto_red_1():
     drivetrain_forward(1, 1, True, 80)
     '''
     Intake.on()
@@ -462,35 +477,37 @@ def red_1():
     drivetrain_forward(1, -1, False, 100)
     drivetrain_forward(1, 1, False, 50)
     Intake.on()
-    wait(2, SECONDS)'''
+    wait(2, SECONDS)
+    '''
     
-def red_2():
+def auto_red_2():
     pass
 
-def blue_1():
+def auto_blue_1():
     pass
 
-def blue_2():
+def auto_blue_2():
     pass
+
+def auto_skill():
+    Intake.on()
+    drivetrain_forward(1, 1, True, 80)
+
+AUTO_FUNCTIONS = {
+    "red_1": auto_red_1,
+    "red_2": auto_red_2,
+    "blue_1": auto_blue_1,
+    "blue_2": auto_blue_2,
+    "skill": auto_skill
+}
 
 # autonomous
 def autonomous():
     '''
     competition template for autonomous code
     '''
-    intake = Intake()
-    print("yay3")
-    if team_position == "red_1":
-        drivetrain_forward(10, 10, False, 80)
-    elif team_position == "red_2":
-        red_2()
-    elif team_position == "blue_1":
-        blue_1()
-    elif team_position == "blue_2":
-        blue_2()
-    elif team_position == "skill":
-        intake.on()
-        drivetrain_forward(1, 1, True, 80)
+    AUTO_FUNCTIONS[str(team_position)]()
+        
 
 # driver control
 def user_control():
@@ -499,7 +516,7 @@ def user_control():
     '''
     brain.timer.clear()
     
-    #thread all func
+    # thread all func
     Thread(drivetrain_control)
     Thread(Intake.controller_intake)
     Thread(scoring_angle)
@@ -508,13 +525,14 @@ def user_control():
         wait(20, MSEC)
 
 # ! run after program start
-#getting team position
-team_position = team_choosing(True)
+# getting team position
+team_position = team_choosing(is_skill=True)
 
-Thread(color_sort,(team_position,))
+Thread(color_sort, (team_position,))
 
 intake1.set_velocity(100, PERCENT)
 intake2.set_velocity(100, PERCENT)
+
 # create competition instance
 comp = Competition(user_control, autonomous)
 
