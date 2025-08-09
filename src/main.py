@@ -348,43 +348,6 @@ def controller_intake():
             intake1.stop()
             intake2.stop()
         wait(20, MSEC)
-'''
-class Intake():
-    
-    Intake Usage:
-
-    Thread(intake.controller_intake) 
-
-    For Autonomous Code:
-    
-    on - Intake.on
-    off - Intake.off
-    def __init__(self):
-        self.running = False
-
-    @staticmethod
-    def controller_intake():    
-        while True:
-            if controller_1.buttonR1.pressing():
-                intake1.spin(FORWARD)
-                intake2.spin(FORWARD)
-                wait_until_release(controller_1.buttonR1.pressing, 5)
-            elif controller_1.buttonR2.pressing():
-                intake1.spin(REVERSE)
-                intake2.spin(REVERSE)
-                wait_until_release(controller_1.buttonR2.pressing, 5)
-            intake1.stop()
-            intake2.stop()
-            wait(20, MSEC)
-    
-    def on(self):
-        self.running = True
-        Thread(Intake.intake_run) 
-
-
-    def off(self):
-        self.running = False
-        '''
         
 def scoring_angle():
     '''
@@ -497,18 +460,24 @@ def auto_red_1():
     intake1.spin(FORWARD)
     drivetrain_forward(2.5, 3, False, 80)
     
-    '''
-    Intake.on()
-    drivetrain_forward(1, 1, False, 30)
-    Intake.off()
-    drivetrain_forward(1, -1, False, 100)
-    drivetrain_forward(1, 1, False, 50)
-    Intake.on()
-    wait(2, SECONDS)
-    '''
     
 def auto_red_2():
-    pass
+    intake1.set_velocity(50, PERCENT)
+    intake1.spin(FORWARD)
+    drivetrain_forward(3, 3, True, 80)
+    intake1.set_velocity(80, PERCENT)
+    drivetrain_forward(2.9, 2.9, True, 35)
+    intake1.set_velocity(40, PERCENT)
+    drivetrain_forward(-0.85, 0.85, False, 50)
+    wait(50, MSEC)
+    intake1.set_velocity(-100, PERCENT)
+    drivetrain_forward(1.92, 1.92, False, 80)
+    wait(3, SECONDS)
+    intake1.stop()
+    drivetrain_forward(-1, -1, True, 100)
+    drivetrain_forward(0.95, -0.95, False, 100)
+    intake1.spin(FORWARD)
+    drivetrain_forward(2.5, 3, False, 80)
 
 def auto_blue_1():
     intake1.set_velocity(50, PERCENT)
@@ -529,7 +498,22 @@ def auto_blue_1():
     drivetrain_forward(2.5, 3, False, 80)
 
 def auto_blue_2():
-    pass
+    intake1.set_velocity(50, PERCENT)
+    intake1.spin(FORWARD)
+    drivetrain_forward(3, 3, True, 80)
+    intake1.set_velocity(80, PERCENT)
+    drivetrain_forward(2.9, 2.9, True, 35)
+    intake1.set_velocity(40, PERCENT)
+    drivetrain_forward(-0.85, 0.85, False, 50)
+    wait(50, MSEC)
+    intake1.set_velocity(-100, PERCENT)
+    drivetrain_forward(1.92, 1.92, False, 80)
+    wait(3, SECONDS)
+    intake1.stop()
+    drivetrain_forward(-1, -1, True, 100)
+    drivetrain_forward(0.95, -0.95, False, 100)
+    intake1.spin(FORWARD)
+    drivetrain_forward(2.5, 3, False, 80)
 
 def auto_skill():
     drivetrain_forward(1, 1, True, 80)
