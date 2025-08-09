@@ -255,6 +255,7 @@ def color_sort(team_pos: TeamPosition): #color to remain
     Args:
         team_pos: Team Position include current team color
     '''
+    print("hi")
     while True:
         if team_pos.team == "blue":
             if 0 < optical.hue() < 40: # red hue value
@@ -343,8 +344,9 @@ def controller_intake():
             intake1.spin(REVERSE)
             intake2.spin(REVERSE)
             wait_until_release(controller_1.buttonR2.pressing, 5)
-        intake1.stop()
-        intake2.stop()
+        else:
+            intake1.stop()
+            intake2.stop()
         wait(20, MSEC)
 '''
 class Intake():
@@ -413,7 +415,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     false_condition_start_time = None
     
     kp = 28
-    ki = 0
+    ki = 0.001
     kd = 100
     
     left_err = 0
@@ -460,8 +462,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
         current_right_odom = right_odom.position(TURNS)
         
         if not chain_status:
-            if not ((left_target_turns-0.2 < current_left_odom-init_left_odom < left_target_turns+0.2) or 
-                    (right_target_turns-0.2 < current_right_odom-init_right_odom < right_target_turns+0.2)):
+            if not ((left_target_turns-0.3 < current_left_odom-init_left_odom < left_target_turns+0.3) or 
+                    (right_target_turns-0.3 < current_right_odom-init_right_odom < right_target_turns+0.3)):
                 # Reset the timer if the condition is false
                 false_condition_start_time = None
             else:
@@ -478,8 +480,23 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
-    drivetrain_forward(1, 1, False, 80)
-    cprint("pid exit")
+    intake1.set_velocity(50, PERCENT)
+    intake1.spin(FORWARD)
+    drivetrain_forward(3, 3, True, 80)
+    intake1.set_velocity(80, PERCENT)
+    drivetrain_forward(2.9, 2.9, True, 35)
+    intake1.set_velocity(40, PERCENT)
+    drivetrain_forward(0.85, -0.85, False, 50)
+    wait(50, MSEC)
+    intake1.set_velocity(100, PERCENT)
+    drivetrain_forward(1.92, 1.92, False, 80)
+    wait(3, SECONDS)
+    intake1.stop()
+    drivetrain_forward(-1, -1, True, 100)
+    drivetrain_forward(-0.95, 0.95, False, 100)
+    intake1.spin(FORWARD)
+    drivetrain_forward(2.5, 3, False, 80)
+    
     '''
     Intake.on()
     drivetrain_forward(1, 1, False, 30)
@@ -507,7 +524,7 @@ AUTO_FUNCTIONS = {
     "red_2": auto_red_2,
     "blue_1": auto_blue_1,
     "blue_2": auto_blue_2,
-    "skill": auto_skill
+    "skill_": auto_skill
 }
 
 # autonomous
@@ -525,20 +542,32 @@ def user_control():
     competition template for driver control
     '''
     brain.timer.clear()
-    
+    global intake
     # thread all func
     Thread(drivetrain_control)
-    Thread(controller_intake)
+    #Thread(controller_intake)
     Thread(scoring_angle)
     #Thread(pto_change)
     while True:
+        if controller_1.buttonR1.pressing():
+            intake1.spin(FORWARD)
+            intake2.spin(FORWARD)
+            wait_until_release(controller_1.buttonR1.pressing, 5)
+        elif controller_1.buttonR2.pressing():
+            intake1.spin(REVERSE)
+            intake2.spin(REVERSE)
+            wait_until_release(controller_1.buttonR2.pressing, 5)
+        else:
+            intake1.stop()
+            intake2.stop()
+        wait(20, MSEC)
         wait(20, MSEC)
 
 # ! run after program start
 # getting team position
 team_position = team_choosing()
 
-#Thread(color_sort, (team_position,))
+Thread(color_sort, (team_position,))
 
 intake1.set_velocity(100, PERCENT)
 intake2.set_velocity(100, PERCENT)
