@@ -511,7 +511,22 @@ def auto_red_2():
     pass
 
 def auto_blue_1():
-    pass
+    intake1.set_velocity(50, PERCENT)
+    intake1.spin(FORWARD)
+    drivetrain_forward(3, 3, True, 80)
+    intake1.set_velocity(80, PERCENT)
+    drivetrain_forward(2.9, 2.9, True, 35)
+    intake1.set_velocity(40, PERCENT)
+    drivetrain_forward(0.85, -0.85, False, 50)
+    wait(50, MSEC)
+    intake1.set_velocity(100, PERCENT)
+    drivetrain_forward(1.92, 1.92, False, 80)
+    wait(3, SECONDS)
+    intake1.stop()
+    drivetrain_forward(-1, -1, True, 100)
+    drivetrain_forward(-0.95, 0.95, False, 100)
+    intake1.spin(FORWARD)
+    drivetrain_forward(2.5, 3, False, 80)
 
 def auto_blue_2():
     pass
