@@ -79,8 +79,8 @@ intake1 = Motor(Ports.PORT17, GearSetting.RATIO_6_1, False)
 intake2 = Motor(Ports.PORT16, GearSetting.RATIO_6_1, False)
 
 
-left_odom =  Rotation(Ports.PORT7, False)
-right_odom = Rotation(Ports.PORT6, True)
+left_odom =  Rotation(Ports.PORT6, False)
+right_odom = Rotation(Ports.PORT7, True)
 
 optical = Optical(Ports.PORT18)
 
@@ -125,7 +125,6 @@ class TeamPosition:
     def __init__(self, team: str = "", position: str = ""):
         self.team = team
         self.position = position
-    z
     def __str__(self) -> str:
         return self.team + "_" + self.position
 
@@ -334,13 +333,22 @@ def drivetrain_control():
             right_drive_smart.set_velocity(right_drive_smart_speed, PERCENT)
             right_drive_smart.spin(FORWARD)
             
-        # Manual Trapdoor Control
-        if (controller_1.buttonA.pressing()):
-            trap_door.set(True)
+def controller_intake():    
+    while True:
+        if controller_1.buttonR1.pressing():
+            intake1.spin(FORWARD)
+            intake2.spin(FORWARD)
+            wait_until_release(controller_1.buttonR1.pressing, 5)
+        elif controller_1.buttonR2.pressing():
+            intake1.spin(REVERSE)
+            intake2.spin(REVERSE)
+            wait_until_release(controller_1.buttonR2.pressing, 5)
+        intake1.stop()
+        intake2.stop()
         wait(20, MSEC)
-
+'''
 class Intake():
-    ''' 
+    
     Intake Usage:
 
     Thread(intake.controller_intake) 
@@ -349,7 +357,6 @@ class Intake():
     
     on - Intake.on
     off - Intake.off
-    '''
     def __init__(self):
         self.running = False
 
@@ -370,22 +377,12 @@ class Intake():
     
     def on(self):
         self.running = True
-        Thread(Intake.intake_run)
-    
-    @staticmethod
-    def intake_run():
-        while True:
-            if Intake.running:
-                intake1.spin(FORWARD)
-                intake2.spin(FORWARD)
-            else:
-                intake1.stop()
-                intake2.stop()
-                break
-            wait(20, MSEC)
+        Thread(Intake.intake_run) 
+
 
     def off(self):
         self.running = False
+        '''
         
 def scoring_angle():
     '''
@@ -402,12 +399,12 @@ def scoring_angle():
         wait(20, MSEC)
 
 # -autonomous functions
-def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status: bool = False, speed: int = 100, time_out: int = 0) -> None:
+def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
     '''
     Move forward using PID control
     Args:
-        left_target_turns (float): target turns for left odom
-        right_target_turns (float): target turns for right odom
+        left_target_turns (float): target turns for left motor
+        right_target_turns (float): target turns for right motor
         chain_status (bool): True if not the last motion for motion chain, default is False
         speed (int): speed of the motors, default is 100
         time_out (int): time out in ms, default is 0, 0 means no time out
@@ -441,18 +438,17 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     right_drive_smart.spin(FORWARD)
     
     while True:
-        wait(10, MSEC)
         left_err = left_target_turns - (current_left_odom - init_left_odom)
         right_err = right_target_turns - (current_right_odom - init_right_odom)
         
-        left_integral = (left_integral  + left_err)*0.99
+        left_integral = (left_integral + left_err)*0.99
         right_integral = (right_integral + right_err)*0.99
         
-        left_derivitive = (left_err  - left_prev_error)/0.01
-        right_derivitive = (right_err - right_prev_error)/0.01
+        left_derivitive = left_err - left_prev_error
+        right_derivitive = right_err - right_prev_error
         
-        left_speed =  (speed/100) * clamp((kp * left_err ) + (ki * left_integral ) + (kd * left_derivitive ), -100, 100)
-        right_speed = (speed/100) * clamp((kp * right_err) + (ki * right_integral) + (kd * right_derivitive), -100, 100)
+        left_speed = (speed/100)*(max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivitive), 100), -100))
+        right_speed = (speed/100)*(max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivitive), 100), -100))
         
         left_prev_error = left_err
         right_prev_error = right_err
@@ -464,8 +460,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
         current_right_odom = right_odom.position(TURNS)
         
         if not chain_status:
-            if not ((left_target_turns  - 0.2 < current_left_odom  - init_left_odom  < left_target_turns  + 0.2) or 
-                    (right_target_turns - 0.2 < current_right_odom - init_right_odom < right_target_turns + 0.2)):
+            if not ((left_target_turns-0.2 < current_left_odom-init_left_odom < left_target_turns+0.2) or 
+                    (right_target_turns-0.2 < current_right_odom-init_right_odom < right_target_turns+0.2)):
                 # Reset the timer if the condition is false
                 false_condition_start_time = None
             else:
@@ -476,16 +472,14 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
             if time_out > 0 and brain.timer.time(MSEC) - movement_start_time > time_out:
                 break
         else:
-            if ((left_target_turns  - 0.5 < current_left_odom  - init_left_odom  < left_target_turns  + 0.5) or 
-                (right_target_turns - 0.5 < current_right_odom - init_right_odom < right_target_turns + 0.5)):
+            if (left_target_turns-0.5 < current_left_odom-init_left_odom < left_target_turns+0.5) or (right_target_turns-0.5 < current_right_odom-init_right_odom < right_target_turns+0.5):
                 return
     drivetrain.stop()
 
 # -autonomous code
-def red_1():
-    drivetrain_forward(1, 1, False, 80)
 def auto_red_1():
-    drivetrain_forward(1, 1, True, 80)
+    drivetrain_forward(1, 1, False, 80)
+    cprint("pid exit")
     '''
     Intake.on()
     drivetrain_forward(1, 1, False, 30)
@@ -506,7 +500,6 @@ def auto_blue_2():
     pass
 
 def auto_skill():
-    Intake.on()
     drivetrain_forward(1, 1, True, 80)
 
 AUTO_FUNCTIONS = {
@@ -522,6 +515,7 @@ def autonomous():
     '''
     competition template for autonomous code
     '''
+    global team_position
     AUTO_FUNCTIONS[str(team_position)]()
         
 
@@ -534,7 +528,7 @@ def user_control():
     
     # thread all func
     Thread(drivetrain_control)
-    Thread(Intake.controller_intake)
+    Thread(controller_intake)
     Thread(scoring_angle)
     #Thread(pto_change)
     while True:
@@ -542,9 +536,9 @@ def user_control():
 
 # ! run after program start
 # getting team position
-team_position = team_choosing(is_skill=True)
+team_position = team_choosing()
 
-Thread(color_sort, (team_position,))
+#Thread(color_sort, (team_position,))
 
 intake1.set_velocity(100, PERCENT)
 intake2.set_velocity(100, PERCENT)
