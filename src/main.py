@@ -366,8 +366,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     '''
     Move forward using PID control
     Args:
-        left_target_turns (float): target turns for left motor
-        right_target_turns (float): target turns for right motor
+        left_target_turns (float): target turns for left odom
+        right_target_turns (float): target turns for right odom
         chain_status (bool): True if not the last motion for motion chain, default is False
         speed (int): speed of the motors, default is 100
         time_out (int): time out in ms, default is 0, 0 means no time out
@@ -442,7 +442,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def red_1():
-    drivetrain_forward(1, 1, True, 80)
+    drivetrain_forward(1, 1, False, 80)
     '''
     Intake.on()
     drivetrain_forward(1, 1, False, 30)
