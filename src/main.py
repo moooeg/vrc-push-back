@@ -350,6 +350,8 @@ class Intake():
     on - Intake.on
     off - Intake.off
     '''
+    def __init__(self):
+        self.running = False
 
     @staticmethod
     def controller_intake():    
@@ -366,15 +368,24 @@ class Intake():
             intake2.stop()
             wait(20, MSEC)
     
+    def on(self):
+        self.running = True
+        Thread(Intake.intake_run)
+    
     @staticmethod
-    def on():
-        intake1.spin(FORWARD)
-        intake2.spin(FORWARD)
+    def intake_run():
+        while True:
+            if Intake.running:
+                intake1.spin(FORWARD)
+                intake2.spin(FORWARD)
+            else:
+                intake1.stop()
+                intake2.stop()
+                break
+            wait(20, MSEC)
 
-    @staticmethod
-    def off():
-        intake1.stop()
-        intake2.stop()
+    def off(self):
+        self.running = False
         
 def scoring_angle():
     '''
