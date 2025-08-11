@@ -469,7 +469,7 @@ def auto_red_2():
     intake1.set_velocity(80, PERCENT)
     drivetrain_forward(2.9, 2.9, True, 35)
     intake1.set_velocity(40, PERCENT)
-    drivetrain_forward(-0.85, 0.85, False, 50)
+    drivetrain_forward(-0.8, 0.8, False, 50)
     wait(50, MSEC)
     intake1.set_velocity(-100, PERCENT)
     drivetrain_forward(1.92, 1.92, False, 80)
@@ -478,7 +478,7 @@ def auto_red_2():
     drivetrain_forward(-1, -1, True, 100)
     drivetrain_forward(0.95, -0.95, False, 100)
     intake1.spin(FORWARD)
-    drivetrain_forward(2.5, 3, False, 80)
+    drivetrain_forward(3, 3.5, False, 80)
 
 def auto_blue_1():
     intake1.set_velocity(50, PERCENT)
@@ -487,7 +487,7 @@ def auto_blue_1():
     intake1.set_velocity(80, PERCENT)
     drivetrain_forward(2.9, 2.9, True, 35)
     intake1.set_velocity(20, PERCENT)
-    drivetrain_forward(0.85, -0.85, False, 50)
+    drivetrain_forward(0.8, -0.8, False, 50)
     wait(50, MSEC)
     intake1.set_velocity(100, PERCENT)
     drivetrain_forward(1.92, 1.92, False, 80)
@@ -496,7 +496,7 @@ def auto_blue_1():
     drivetrain_forward(-1, -1, True, 100)
     drivetrain_forward(-0.95, 0.95, False, 100)
     intake1.spin(FORWARD)
-    drivetrain_forward(2.5, 3, False, 80)
+    drivetrain_forward(3, 3.5, False,   80)
 
 def auto_blue_2():
     intake1.set_velocity(50, PERCENT)
@@ -505,7 +505,7 @@ def auto_blue_2():
     intake1.set_velocity(80, PERCENT)
     drivetrain_forward(2.9, 2.9, True, 35)
     intake1.set_velocity(40, PERCENT)
-    drivetrain_forward(-0.85, 0.85, False, 50)
+    drivetrain_forward(-0.8, 0.8, False, 50)
     wait(50, MSEC)
     intake1.set_velocity(-100, PERCENT)
     drivetrain_forward(1.92, 1.92, False, 80)
@@ -514,16 +514,16 @@ def auto_blue_2():
     drivetrain_forward(-1, -1, True, 100)
     drivetrain_forward(0.95, -0.95, False, 100)
     intake1.spin(FORWARD)
-    drivetrain_forward(2.5, 3, False, 80)
+    drivetrain_forward(3, 3.5, False, 80)
 
 def auto_skill():
     intake1.set_velocity(50, PERCENT)
     intake1.spin(FORWARD)
     drivetrain_forward(3, 3, True, 80)
     intake1.set_velocity(80, PERCENT)
-    drivetrain_forward(3, 3, True, 40)
+    drivetrain_forward(2.8, 2.8, True, 40)
     intake1.set_velocity(40, PERCENT)
-    drivetrain_forward(0.85, -0.85, False, 50)
+    drivetrain_forward(0.8, -0.8, False, 50)
     wait(50, MSEC)
     intake1.set_velocity(100, PERCENT)
     drivetrain_forward(1.92, 1.92, False, 80)
@@ -532,7 +532,7 @@ def auto_skill():
     drivetrain_forward(-1, -1, True, 100)
     drivetrain_forward(0.95, -0.95, False, 100)
     intake1.spin(FORWARD)
-    drivetrain_forward(7, 6.5, False, 80)
+    drivetrain_forward(7.5, 7, False, 100)
 
 AUTO_FUNCTIONS = {
     "red_1": auto_red_1,
@@ -565,12 +565,12 @@ def user_control():
     #Thread(pto_change)
     while True:
         if controller_1.buttonR1.pressing():
-            intake1.spin(REVERSE)
-            intake2.spin(REVERSE)
-            wait_until_release(controller_1.buttonR1.pressing, 5)
-        elif controller_1.buttonR2.pressing():
             intake1.spin(FORWARD)
             intake2.spin(FORWARD)
+            wait_until_release(controller_1.buttonR1.pressing, 5)
+        elif controller_1.buttonR2.pressing():
+            intake1.spin(REVERSE)
+            intake2.spin(REVERSE)
             wait_until_release(controller_1.buttonR2.pressing, 5)
         else:
             intake1.stop()
@@ -582,7 +582,7 @@ def user_control():
 # getting team position
 team_position = team_choosing()
 
-#Thread(color_sort, (team_position,))
+Thread(color_sort, (team_position,))
 
 intake1.set_velocity(100, PERCENT)
 intake2.set_velocity(100, PERCENT)
