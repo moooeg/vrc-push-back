@@ -532,7 +532,7 @@ def auto_skill():
     drivetrain_forward(-1, -1, True, 100)
     drivetrain_forward(0.95, -0.95, False, 100)
     intake1.spin(FORWARD)
-    drivetrain_forward(3, 2.5, False, 80)
+    drivetrain_forward(7, 6.5, False, 80)
 
 AUTO_FUNCTIONS = {
     "red_1": auto_red_1,
