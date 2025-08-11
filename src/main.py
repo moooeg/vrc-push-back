@@ -260,13 +260,13 @@ def color_sort(team_pos: TeamPosition): #color to remain
         if team_pos.team == "blue":
             if 0 < optical.hue() < 40: # red hue value
                 trap_door.set(True)
-                wait(500, MSEC)
+                wait(750, MSEC)
             else:
                 trap_door.set(False)
         elif team_pos.team == "red":
             if 150 < optical.hue() < 230: # blue hue value
                 trap_door.set(True)
-                wait(500, MSEC)
+                wait(750, MSEC)
             else:
                 trap_door.set(False)
         else:
