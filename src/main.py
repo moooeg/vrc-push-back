@@ -458,7 +458,8 @@ def auto_red_1():
     drivetrain_forward(-1, -1, True, 100)
     drivetrain_forward(-0.95, 0.95, False, 100)
     intake1.spin(FORWARD)
-    drivetrain_forward(2.5, 3, False, 80)
+    drivetrain_forward(2.9, 3, False, 80)
+    intake1.stop()
     
     
 def auto_red_2():
@@ -485,7 +486,7 @@ def auto_blue_1():
     drivetrain_forward(3, 3, True, 80)
     intake1.set_velocity(80, PERCENT)
     drivetrain_forward(2.9, 2.9, True, 35)
-    intake1.set_velocity(40, PERCENT)
+    intake1.set_velocity(20, PERCENT)
     drivetrain_forward(0.85, -0.85, False, 50)
     wait(50, MSEC)
     intake1.set_velocity(100, PERCENT)
@@ -520,7 +521,7 @@ def auto_skill():
     intake1.spin(FORWARD)
     drivetrain_forward(3, 3, True, 80)
     intake1.set_velocity(80, PERCENT)
-    drivetrain_forward(2.9, 2.9, True, 35)
+    drivetrain_forward(3, 3, True, 40)
     intake1.set_velocity(40, PERCENT)
     drivetrain_forward(0.85, -0.85, False, 50)
     wait(50, MSEC)
@@ -564,12 +565,12 @@ def user_control():
     #Thread(pto_change)
     while True:
         if controller_1.buttonR1.pressing():
-            intake1.spin(FORWARD)
-            intake2.spin(FORWARD)
-            wait_until_release(controller_1.buttonR1.pressing, 5)
-        elif controller_1.buttonR2.pressing():
             intake1.spin(REVERSE)
             intake2.spin(REVERSE)
+            wait_until_release(controller_1.buttonR1.pressing, 5)
+        elif controller_1.buttonR2.pressing():
+            intake1.spin(FORWARD)
+            intake2.spin(FORWARD)
             wait_until_release(controller_1.buttonR2.pressing, 5)
         else:
             intake1.stop()
@@ -581,7 +582,7 @@ def user_control():
 # getting team position
 team_position = team_choosing()
 
-Thread(color_sort, (team_position,))
+#Thread(color_sort, (team_position,))
 
 intake1.set_velocity(100, PERCENT)
 intake2.set_velocity(100, PERCENT)
