@@ -260,13 +260,13 @@ def color_sort(team_pos: TeamPosition): #color to remain
         if team_pos.team == "blue":
             if 0 < optical.hue() < 40: # red hue value
                 trap_door.set(True)
-                wait(500, MSEC)
+                wait(750, MSEC)
             else:
                 trap_door.set(False)
         elif team_pos.team == "red":
             if 150 < optical.hue() < 230: # blue hue value
                 trap_door.set(True)
-                wait(500, MSEC)
+                wait(750, MSEC)
             else:
                 trap_door.set(False)
         else:
@@ -290,11 +290,11 @@ def drivetrain_control():
         integral_decay_rate = 0.000009  # Rate at which integral decays
         forward = 100 * math.sin((controller_1.axis3.position()**3) / 636620)
         rotate_dynamic = (100 / ratio) * math.sin(abs(forward**3) / 636620) * math.sin(controller_1.axis1.position()**3 / 636620)
-        rotate_linear = 40 * math.sin(controller_1.axis1.position()**3 / 636620)
+        rotate_linear = 30 * math.sin(controller_1.axis1.position()**3 / 636620)
         max_integral_limit = 0.6*rotate_dynamic
         
         # Accumulate integral when joystick is pushed
-        if abs(controller_1.axis1.position()) >= 35:
+        if abs(controller_1.axis1.position()) >= 50:
             integral_rotate += rotate_dynamic * integral_decay_rate
             if integral_rotate > 0:
                 integral_rotate = min(integral_rotate, max_integral_limit)  # Cap the integral value
@@ -527,7 +527,7 @@ def auto_skill():
     wait(50, MSEC)
     intake1.set_velocity(100, PERCENT)
     drivetrain_forward(1.92, 1.92, False, 80)
-    wait(3, SECONDS)
+    wait(10, SECONDS)
     intake1.stop()
     drivetrain_forward(-1, -1, True, 100)
     drivetrain_forward(0.95, -0.95, False, 100)
@@ -582,7 +582,7 @@ def user_control():
 # getting team position
 team_position = team_choosing()
 
-Thread(color_sort, (team_position,))
+#Thread(color_sort, (team_position,))
 
 intake1.set_velocity(100, PERCENT)
 intake2.set_velocity(100, PERCENT)
