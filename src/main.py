@@ -174,8 +174,8 @@ def team_choosing(is_skill: bool = False) -> TeamPosition:
             confirmed = True
         elif controller_1.buttonA.pressing():
             team_position.team = "skill"
-            team_position.position = ""
-            confirmed = True
+            brain.screen.draw_image_from_file("skill_confirmed.png", 0, 0)
+            return team_position
 
         # brain
         if brain.screen.pressing():
