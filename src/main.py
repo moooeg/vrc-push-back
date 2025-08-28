@@ -56,6 +56,7 @@
 
 # ! Initialization
 # Library imports
+from re import match
 from vex import *
 
 brain = Brain()
@@ -82,10 +83,8 @@ intake2 = Motor(Ports.PORT10, GearSetting.RATIO_6_1, False)
 left_odom =  Rotation(Ports.PORT6, False)
 right_odom = Rotation(Ports.PORT7, True)
 
-optical = Optical(Ports.PORT18)
-
-angular = DigitalOut(brain.three_wire_port.a) #true: High goal, false: Low goal
-trap_door = DigitalOut(brain.three_wire_port.c) #true: Open, false: close
+angular = DigitalOut(brain.three_wire_port.c) #true: High goal, false: Low goal
+match_load = DigitalOut(brain.three_wire_port.a) #true: Lowered, false: Contracted
 
 
 # ! GUI setup
@@ -248,13 +247,14 @@ def clamp(number: int | float, minimum: int | float, maximum: int | float) -> in
     '''
     return max(min(number, maximum), minimum)
 
+'''
 def color_sort(team_pos: TeamPosition): #color to remain 
-    '''
+    
     Sorting Opponent color blocks
     
     Args:
         team_pos: Team Position include current team color
-    '''
+    
     print("hi")
     while True:
         if team_pos.team == "blue":
@@ -272,6 +272,7 @@ def color_sort(team_pos: TeamPosition): #color to remain
         else:
             trap_door.set(False)
         wait(20, MSEC)
+        '''
 
 # -thread in driver control
 def drivetrain_control():
@@ -362,6 +363,15 @@ def scoring_angle():
             wait_until_release(lambda: controller_1.axis2.position() < -80, 20)
 
         wait(20, MSEC)
+
+def match_loading():
+    while True:
+        if controller_1.buttonL1.pressing():
+            match_load.set(True)
+            wait_until_release(lambda: controller_1.buttonL1.pressing(), 20)
+        elif not controller_1.buttonL2.pressing():
+            wait_until_release(lambda: not controller_1.buttonL1.pressing(), 20)
+            match_load.set(False)
 
 # -autonomous functions
 def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
@@ -562,6 +572,7 @@ def user_control():
     Thread(drivetrain_control)
     #Thread(controller_intake)
     Thread(scoring_angle)
+    Thread(match_loading)
     #Thread(pto_change)
     while True:
         if controller_1.buttonR1.pressing():
