@@ -69,19 +69,19 @@ left_motor_b = Motor(Ports.PORT3, GearSetting.RATIO_6_1, False)
 left_motor_c = Motor(Ports.PORT11, GearSetting.RATIO_6_1, True)
 left_drive_smart = MotorGroup(left_motor_a,  left_motor_b, left_motor_c)
 
-right_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, True)
-right_motor_b = Motor(Ports.PORT9, GearSetting.RATIO_6_1, False)
+right_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, False)
+right_motor_b = Motor(Ports.PORT6, GearSetting.RATIO_6_1, True)
 right_motor_c = Motor(Ports.PORT12, GearSetting.RATIO_6_1, False)
 right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.8, MM)
 
-intake1 = Motor(Ports.PORT7, GearSetting.RATIO_6_1, False)
-intake2 = Motor(Ports.PORT10, GearSetting.RATIO_6_1, False)
+intake1 = Motor(Ports.PORT7, GearSetting.RATIO_6_1, True)
+intake2 = Motor(Ports.PORT10, GearSetting.RATIO_6_1, True)
 
 
-left_odom =  Rotation(Ports.PORT6, False)
-right_odom = Rotation(Ports.PORT7, True)
+left_odom =  Rotation(Ports.PORT9, False)
+right_odom = Rotation(Ports.PORT8, True)
 
 angular = DigitalOut(brain.three_wire_port.c) #true: High goal, false: Low goal
 match_load = DigitalOut(brain.three_wire_port.a) #true: Lowered, false: Contracted
@@ -334,7 +334,7 @@ def drivetrain_control():
         if right_drive_smart_stopped:
             right_drive_smart.set_velocity(right_drive_smart_speed, PERCENT)
             right_drive_smart.spin(FORWARD)
-            
+'''           
 def controller_intake():    
     while True:
         if controller_1.buttonR1.pressing():
@@ -350,6 +350,7 @@ def controller_intake():
             intake2.stop()
         wait(20, MSEC)
         
+'''
 def scoring_angle():
     '''
     Set the scoring angle using the controller
@@ -360,6 +361,7 @@ def scoring_angle():
             wait_until_release(lambda: controller_1.axis2.position() > 80, 20)
         elif controller_1.axis2.position() < -80:
             angular.set(False)  # Toggle the angular status
+            match_load.set(False)
             wait_until_release(lambda: controller_1.axis2.position() < -80, 20)
 
         wait(20, MSEC)
@@ -367,11 +369,13 @@ def scoring_angle():
 def match_loading():
     while True:
         if controller_1.buttonL1.pressing():
+            match_load.set(True) #up
             match_load.set(True)
             wait_until_release(lambda: controller_1.buttonL1.pressing(), 20)
         elif not controller_1.buttonL2.pressing():
+            match_load.set(False) #down
             wait_until_release(lambda: not controller_1.buttonL1.pressing(), 20)
-            match_load.set(False)
+            
 
 # -autonomous functions
 def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
@@ -453,23 +457,12 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
-    intake1.set_velocity(50, PERCENT)
-    intake1.spin(FORWARD)
-    drivetrain_forward(3, 3, True, 80)
-    intake1.set_velocity(80, PERCENT)
-    drivetrain_forward(2.9, 2.9, True, 35)
-    intake1.set_velocity(40, PERCENT)
-    drivetrain_forward(0.85, -0.85, False, 50)
-    wait(50, MSEC)
     intake1.set_velocity(100, PERCENT)
-    drivetrain_forward(1.92, 1.92, False, 80)
-    wait(3, SECONDS)
-    intake1.stop()
-    drivetrain_forward(-1, -1, True, 100)
-    drivetrain_forward(-0.95, 0.95, False, 100)
     intake1.spin(FORWARD)
-    drivetrain_forward(2.9, 3, False, 80)
-    intake1.stop()
+    intake2.set_velocity(100, PERCENT)
+    intake2.spin(FORWARD)
+    drivetrain_forward(3, 3, True, 100)
+    drivetrain_forward(2.9, 2.9, True, 35)
     
     
 def auto_red_2():
