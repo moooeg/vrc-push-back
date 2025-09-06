@@ -66,7 +66,7 @@ controller_1 = Controller(PRIMARY)
 # ! broken ports: 2
 left_motor_a = Motor(Ports.PORT19, GearSetting.RATIO_6_1, True)
 left_motor_b = Motor(Ports.PORT3, GearSetting.RATIO_6_1, False)
-left_motor_c = Motor(Ports.PORT11, GearSetting.RATIO_6_1, True)
+left_motor_c = Motor(Ports.PORT10, GearSetting.RATIO_6_1, True)
 left_drive_smart = MotorGroup(left_motor_a,  left_motor_b, left_motor_c)
 
 right_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, False)
@@ -288,30 +288,12 @@ def drivetrain_control():
     
     while True:
         ratio = 1.5  # Bigger the number, less sensitive
-        integral_decay_rate = 0.000009  # Rate at which integral decays
         forward = 100 * math.sin((controller_1.axis3.position()**3) / 636620)
-        rotate_dynamic = (100 / ratio) * math.sin(abs(forward**3) / 636620) * math.sin(controller_1.axis1.position()**3 / 636620)
-        rotate_linear = 30 * math.sin(controller_1.axis1.position()**3 / 636620)
-        max_integral_limit = 0.6*rotate_dynamic
-        
-        # Accumulate integral when joystick is pushed
-        if abs(controller_1.axis1.position()) >= 50:
-            integral_rotate += rotate_dynamic * integral_decay_rate
-            if integral_rotate > 0:
-                integral_rotate = min(integral_rotate, max_integral_limit)  # Cap the integral value
-            elif integral_rotate < 0:
-                integral_rotate = max(integral_rotate, max_integral_limit)
-        else:
-            integral_rotate = 0  # Reset the integral when joystick is back below 30
+        rotate = (0.4*abs(controller_1.axis3.position()+30)) * math.sin(controller_1.axis1.position()**3 / 636620)
 
         # Add integral component to turning calculation
-        if -20 <= forward <= 20:
-            left_drive_smart_speed =  forward + rotate_linear
-            right_drive_smart_speed = forward - rotate_linear
-        else:
-            # Use the integral component
-            left_drive_smart_speed =  forward + rotate_dynamic - integral_rotate
-            right_drive_smart_speed = forward - rotate_dynamic + integral_rotate
+        left_drive_smart_speed =  forward + rotate
+        right_drive_smart_speed = forward - rotate
 
         if abs(left_drive_smart_speed) < 1:
             if left_drive_smart_stopped:
@@ -370,11 +352,9 @@ def match_loading():
     while True:
         if controller_1.buttonL1.pressing():
             match_load.set(True) #up
-            match_load.set(True)
-            wait_until_release(lambda: controller_1.buttonL1.pressing(), 20)
-        elif not controller_1.buttonL2.pressing():
-            match_load.set(False) #down
-            wait_until_release(lambda: not controller_1.buttonL1.pressing(), 20)
+            angular.set(False)
+        elif controller_1.buttonL2.pressing(): #down
+            match_load.set(False)
             
 
 # -autonomous functions
@@ -457,88 +437,24 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
-    intake1.set_velocity(100, PERCENT)
-    intake1.spin(FORWARD)
-    intake2.set_velocity(100, PERCENT)
-    intake2.spin(FORWARD)
-    drivetrain_forward(3, 3, True, 100)
-    drivetrain_forward(2.9, 2.9, True, 35)
+    pass
     
     
 def auto_red_2():
-    intake1.set_velocity(50, PERCENT)
-    intake1.spin(FORWARD)
-    drivetrain_forward(3, 3, True, 80)
-    intake1.set_velocity(80, PERCENT)
-    drivetrain_forward(2.9, 2.9, True, 35)
-    intake1.set_velocity(40, PERCENT)
-    drivetrain_forward(-0.8, 0.8, False, 50)
-    wait(50, MSEC)
-    intake1.set_velocity(-100, PERCENT)
-    drivetrain_forward(1.92, 1.92, False, 80)
-    wait(3, SECONDS)
-    intake1.stop()
-    drivetrain_forward(-1, -1, True, 100)
-    drivetrain_forward(0.95, -0.95, False, 100)
-    intake1.spin(FORWARD)
-    drivetrain_forward(3, 3.5, False, 80)
+    pass
 
 def auto_blue_1():
-    intake1.set_velocity(50, PERCENT)
-    intake1.spin(FORWARD)
-    drivetrain_forward(3, 3, True, 80)
-    intake1.set_velocity(80, PERCENT)
-    drivetrain_forward(2.9, 2.9, True, 35)
-    intake1.set_velocity(20, PERCENT)
-    drivetrain_forward(0.8, -0.8, False, 50)
-    wait(50, MSEC)
-    intake1.set_velocity(100, PERCENT)
-    drivetrain_forward(1.92, 1.92, False, 80)
-    wait(3, SECONDS)
-    intake1.stop()
-    drivetrain_forward(-1, -1, True, 100)
-    drivetrain_forward(-0.95, 0.95, False, 100)
-    intake1.spin(FORWARD)
-    drivetrain_forward(3, 3.5, False,   80)
+    pass
 
 def auto_blue_2():
-    intake1.set_velocity(50, PERCENT)
-    intake1.spin(FORWARD)
-    drivetrain_forward(3, 3, True, 80)
-    intake1.set_velocity(80, PERCENT)
-    drivetrain_forward(2.9, 2.9, True, 35)
-    intake1.set_velocity(40, PERCENT)
-    drivetrain_forward(-0.8, 0.8, False, 50)
-    wait(50, MSEC)
-    intake1.set_velocity(-100, PERCENT)
-    drivetrain_forward(1.92, 1.92, False, 80)
-    wait(3, SECONDS)
-    intake1.stop()
-    drivetrain_forward(-1, -1, True, 100)
-    drivetrain_forward(0.95, -0.95, False, 100)
-    intake1.spin(FORWARD)
-    drivetrain_forward(3, 3.5, False, 80)
+    pass
 
 def auto_skill():
-    intake1.set_velocity(50, PERCENT)
-    intake1.spin(FORWARD)
-    drivetrain_forward(3, 3, True, 80)
-    intake1.set_velocity(80, PERCENT)
-    drivetrain_forward(2.8, 2.8, True, 40)
-    intake1.set_velocity(40, PERCENT)
-    drivetrain_forward(0.8, -0.8, False, 50)
-    wait(50, MSEC)
-    intake1.set_velocity(100, PERCENT)
-    drivetrain_forward(1.92, 1.92, False, 80)
-    wait(10, SECONDS)
-    intake1.stop()
-    drivetrain_forward(-1, -1, True, 100)
-    drivetrain_forward(0.95, -0.95, False, 100)
-    intake1.spin(FORWARD)
-    drivetrain_forward(7.5, 7, False, 100)
+    drivetrain_forward(0.8, 0.8, False, 100)
+    drivetrain_forward(-4, -4, False, 100)
 
 AUTO_FUNCTIONS = {
-    "red_1": auto_red_1,
+    "red_1": auto_red_1, 
     "red_2": auto_red_2,
     "blue_1": auto_blue_1,
     "blue_2": auto_blue_2,
