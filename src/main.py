@@ -76,15 +76,17 @@ right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.8, MM)
 
-intake1 = Motor(Ports.PORT7, GearSetting.RATIO_6_1, True)
-intake2 = Motor(Ports.PORT10, GearSetting.RATIO_6_1, True)
+intake1 = Motor(Ports.PORT7, GearSetting.RATIO_18_1, True)
+intake2 = Motor55(Ports.PORT10)
+intake3 = Motor55(Ports.PORT1)
 
 
 left_odom =  Rotation(Ports.PORT9, False)
 right_odom = Rotation(Ports.PORT8, True)
 
-angular = DigitalOut(brain.three_wire_port.c) #true: High goal, false: Low goal
-match_load = DigitalOut(brain.three_wire_port.a) #true: Lowered, false: Contracted
+holder = DigitalOut(brain.three_wire_port.a) #true: hold, false: release
+match_load = DigitalOut(brain.three_wire_port.c) #true: Lowered, false: Contracted
+double_park = DigitalOut(brain.three_wire_port.d) #true: lift, false: unlift
 
 
 # ! GUI setup
@@ -316,45 +318,20 @@ def drivetrain_control():
         if right_drive_smart_stopped:
             right_drive_smart.set_velocity(right_drive_smart_speed, PERCENT)
             right_drive_smart.spin(FORWARD)
-'''           
-def controller_intake():    
-    while True:
-        if controller_1.buttonR1.pressing():
-            intake1.spin(FORWARD)
-            intake2.spin(FORWARD)
-            wait_until_release(controller_1.buttonR1.pressing, 5)
-        elif controller_1.buttonR2.pressing():
-            intake1.spin(REVERSE)
-            intake2.spin(REVERSE)
-            wait_until_release(controller_1.buttonR2.pressing, 5)
-        else:
-            intake1.stop()
-            intake2.stop()
-        wait(20, MSEC)
-        
-'''
-def scoring_angle():
-    '''
-    Set the scoring angle using the controller
-    '''
-    while True:
-        if controller_1.axis2.position() > 80:
-            angular.set(True)  # Toggle the angular status
-            wait_until_release(lambda: controller_1.axis2.position() > 80, 20)
-        elif controller_1.axis2.position() < -80:
-            angular.set(False)  # Toggle the angular status
-            match_load.set(False)
-            wait_until_release(lambda: controller_1.axis2.position() < -80, 20)
-
-        wait(20, MSEC)
 
 def match_loading():
     while True:
-        if controller_1.buttonL1.pressing():
-            match_load.set(True) #up
-            angular.set(False)
-        elif controller_1.buttonL2.pressing(): #down
+        if controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
+            match_load.set(True) #down
+        else:
             match_load.set(False)
+            
+def double_parking():
+    while True:
+        if controller_1.buttonY.pressing():
+            double_park.set(True)
+        if controller_1.buttonB.pressing():
+            double_park.set(False)
             
 
 # -autonomous functions
@@ -479,23 +456,29 @@ def user_control():
     global intake
     # thread all func
     Thread(drivetrain_control)
-    #Thread(controller_intake)
-    Thread(scoring_angle)
     Thread(match_loading)
-    #Thread(pto_change)
     while True:
         if controller_1.buttonR1.pressing():
             intake1.spin(FORWARD)
             intake2.spin(FORWARD)
-            wait_until_release(controller_1.buttonR1.pressing, 5)
+            if controller_1.buttonL1.pressing():
+                holder.set(False)
+                intake3.spin(FORWARD)
+            elif controller_1.buttonL2.pressing():
+                holder.set(False)
+                intake3.spin(REVERSE)
+            else:
+                holder.set(True)
         elif controller_1.buttonR2.pressing():
             intake1.spin(REVERSE)
             intake2.spin(REVERSE)
-            wait_until_release(controller_1.buttonR2.pressing, 5)
+        elif controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
+            holder.set(True)
+            intake1.spin(FORWARD)
+            intake2.spin(FORWARD)
         else:
             intake1.stop()
             intake2.stop()
-        wait(20, MSEC)
         wait(20, MSEC)
 
 # ! run after program start
@@ -505,7 +488,9 @@ team_position = team_choosing()
 #Thread(color_sort, (team_position,))
 
 intake1.set_velocity(100, PERCENT)
-intake2.set_velocity(100, PERCENT)
+intake2.set_velocity(100)
+intake3.set_velocity(100)
+
 
 # create competition instance
 comp = Competition(user_control, autonomous)
