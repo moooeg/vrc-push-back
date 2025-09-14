@@ -358,8 +358,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     left_integral = 0
     right_integral = 0
     
-    left_derivitive = 0
-    right_derivitive = 0
+    left_derivative = 0
+    right_derivative = 0
     
     left_prev_error = 0
     right_prev_error = 0
@@ -373,18 +373,25 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     left_drive_smart.spin(FORWARD)
     right_drive_smart.spin(FORWARD)
     
+    last_time = brain.timer.time(MSEC)
+    
     while True:
+        wait(10, MSEC)
+        dt = (brain.timer.time(MSEC) - last_time) / 1000.0
+        last_time = brain.timer.time(MSEC)
         left_err = left_target_turns - (current_left_odom - init_left_odom)
         right_err = right_target_turns - (current_right_odom - init_right_odom)
         
-        left_integral = (left_integral + left_err)*0.99
-        right_integral = (right_integral + right_err)*0.99
+        left_integral += left_err*dt
+        left_integral *= 0.99 
+        right_integral += right_err*dt
+        right_integral *= 0.99
         
-        left_derivitive = left_err - left_prev_error
-        right_derivitive = right_err - right_prev_error
+        left_derivative = (left_err - left_prev_error) / dt
+        right_derivative = (right_err - right_prev_error) / dt
         
-        left_speed = (speed/100)*(max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivitive), 100), -100))
-        right_speed = (speed/100)*(max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivitive), 100), -100))
+        left_speed = (speed/100)*(max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivative), 100), -100))
+        right_speed = (speed/100)*(max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivative), 100), -100))
         
         left_prev_error = left_err
         right_prev_error = right_err
@@ -396,8 +403,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
         current_right_odom = right_odom.position(TURNS)
         
         if not chain_status:
-            if not ((left_target_turns-0.3 < current_left_odom-init_left_odom < left_target_turns+0.3) or 
-                    (right_target_turns-0.3 < current_right_odom-init_right_odom < right_target_turns+0.3)):
+            if (not (left_target_turns-0.2 < current_left_odom-init_left_odom < left_target_turns+0.2) or 
+                    not (right_target_turns-0.2 < current_right_odom-init_right_odom < right_target_turns+0.2)):
                 # Reset the timer if the condition is false
                 false_condition_start_time = None
             else:
@@ -408,7 +415,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
             if time_out > 0 and brain.timer.time(MSEC) - movement_start_time > time_out:
                 break
         else:
-            if (left_target_turns-0.5 < current_left_odom-init_left_odom < left_target_turns+0.5) or (right_target_turns-0.5 < current_right_odom-init_right_odom < right_target_turns+0.5):
+            if (left_target_turns-0.3 < current_left_odom-init_left_odom < left_target_turns+0.3) and (right_target_turns-0.3 < current_right_odom-init_right_odom < right_target_turns+0.3):
                 return
     drivetrain.stop()
 
