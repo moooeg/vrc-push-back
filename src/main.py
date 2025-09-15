@@ -64,29 +64,29 @@ controller_1 = Controller(PRIMARY)
 
 # ports settings 
 # ! broken ports: 2
-left_motor_a = Motor(Ports.PORT3, GearSetting.RATIO_6_1, True)
-left_motor_b = Motor(Ports.PORT4, GearSetting.RATIO_6_1, False)
-left_motor_c = Motor(Ports.PORT7, GearSetting.RATIO_6_1, True)
+left_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, True)
+left_motor_b = Motor(Ports.PORT13, GearSetting.RATIO_6_1, False)
+left_motor_c = Motor(Ports.PORT14, GearSetting.RATIO_6_1, True)
 left_drive_smart = MotorGroup(left_motor_a,  left_motor_b, left_motor_c)
 
-right_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, False)
-right_motor_b = Motor(Ports.PORT12, GearSetting.RATIO_6_1, True)
-right_motor_c = Motor(Ports.PORT13, GearSetting.RATIO_6_1, False)
+right_motor_a = Motor(Ports.PORT4, GearSetting.RATIO_6_1, False)
+right_motor_b = Motor(Ports.PORT3, GearSetting.RATIO_6_1, True)
+right_motor_c = Motor(Ports.PORT7, GearSetting.RATIO_6_1, False)
 right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.8, MM)
 
-intake1 = Motor(Ports.PORT14, GearSetting.RATIO_18_1, True)
-intake2 = Motor55(Ports.PORT18)
-intake3 = Motor55(Ports.PORT21)
+intake1 = Motor(Ports.PORT12, GearSetting.RATIO_18_1, True)
+intake2 = Motor55(Ports.PORT18, True)
+intake3 = Motor55(Ports.PORT21, True)
 
 
 left_odom =  Rotation(Ports.PORT15, False)
 right_odom = Rotation(Ports.PORT17, True)
 
-holder = DigitalOut(brain.three_wire_port.a) #true: hold, false: release
+holder = DigitalOut(brain.three_wire_port.c) #true: hold, false: release
 double_park = DigitalOut(brain.three_wire_port.b) #true: lift, false: unlift
-match_load = DigitalOut(brain.three_wire_port.c) #true: Lowered, false: Contracted
+match_load = DigitalOut(brain.three_wire_port.a) #true: Contracted, false: down
 
 
 # ! GUI setup
@@ -262,7 +262,7 @@ def drivetrain_control():
     
     while True:
         forward = 100 * math.sin((controller_1.axis3.position()**3) / 636620)
-        rotate = (0.4*abs(controller_1.axis3.position()+30)) * math.sin(controller_1.axis1.position()**3 / 636620)
+        rotate = (0.8*abs(controller_1.axis3.position()+40)) * math.sin(controller_1.axis1.position()**3 / 636620)
 
         # Add integral component to turning calculation
         left_drive_smart_speed =  forward + rotate
@@ -293,9 +293,9 @@ def drivetrain_control():
 def match_loading():
     while True:
         if controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
-            match_load.set(True) #down
+            match_load.set(False) #down
         else:
-            match_load.set(False)
+            match_load.set(True)
             
 def double_parking():
     while True:
@@ -320,8 +320,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     false_condition_start_time = None
     
     kp = 28
-    ki = 0.001
-    kd = 100
+    ki = 0
+    kd = 0
     
     left_err = 0
     right_err = 0
@@ -432,6 +432,7 @@ def user_control():
     '''
     brain.timer.clear()
     global intake
+    match_load.set(True)
     # thread all func
     Thread(drivetrain_control)
     Thread(match_loading)
@@ -446,6 +447,7 @@ def user_control():
                 holder.set(False)
                 intake3.spin(REVERSE)
             else:
+                intake3.stop()
                 holder.set(True)
         elif controller_1.buttonR2.pressing():
             intake1.spin(REVERSE)
@@ -457,6 +459,7 @@ def user_control():
         else:
             intake1.stop()
             intake2.stop()
+            intake3.stop()
         wait(20, MSEC)
 
 # ! run after program start
@@ -466,7 +469,7 @@ team_position = team_choosing()
 #Thread(color_sort, (team_position,))
 
 intake1.set_velocity(100, PERCENT)
-intake2.set_velocity(100)
+intake2.set_velocity(85)
 intake3.set_velocity(100)
 
 
