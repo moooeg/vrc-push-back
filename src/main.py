@@ -64,29 +64,29 @@ controller_1 = Controller(PRIMARY)
 
 # ports settings 
 # ! broken ports: 2
-left_motor_a = Motor(Ports.PORT19, GearSetting.RATIO_6_1, True)
-left_motor_b = Motor(Ports.PORT3, GearSetting.RATIO_6_1, False)
-left_motor_c = Motor(Ports.PORT10, GearSetting.RATIO_6_1, True)
+left_motor_a = Motor(Ports.PORT3, GearSetting.RATIO_6_1, True)
+left_motor_b = Motor(Ports.PORT4, GearSetting.RATIO_6_1, False)
+left_motor_c = Motor(Ports.PORT7, GearSetting.RATIO_6_1, True)
 left_drive_smart = MotorGroup(left_motor_a,  left_motor_b, left_motor_c)
 
 right_motor_a = Motor(Ports.PORT1, GearSetting.RATIO_6_1, False)
-right_motor_b = Motor(Ports.PORT6, GearSetting.RATIO_6_1, True)
-right_motor_c = Motor(Ports.PORT12, GearSetting.RATIO_6_1, False)
+right_motor_b = Motor(Ports.PORT12, GearSetting.RATIO_6_1, True)
+right_motor_c = Motor(Ports.PORT13, GearSetting.RATIO_6_1, False)
 right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.8, MM)
 
-intake1 = Motor(Ports.PORT7, GearSetting.RATIO_18_1, True)
-intake2 = Motor55(Ports.PORT10)
-intake3 = Motor55(Ports.PORT1)
+intake1 = Motor(Ports.PORT14, GearSetting.RATIO_18_1, True)
+intake2 = Motor55(Ports.PORT18)
+intake3 = Motor55(Ports.PORT21)
 
 
-left_odom =  Rotation(Ports.PORT9, False)
-right_odom = Rotation(Ports.PORT8, True)
+left_odom =  Rotation(Ports.PORT15, False)
+right_odom = Rotation(Ports.PORT17, True)
 
 holder = DigitalOut(brain.three_wire_port.a) #true: hold, false: release
+double_park = DigitalOut(brain.three_wire_port.b) #true: lift, false: unlift
 match_load = DigitalOut(brain.three_wire_port.c) #true: Lowered, false: Contracted
-double_park = DigitalOut(brain.three_wire_port.d) #true: lift, false: unlift
 
 
 # ! GUI setup
@@ -249,33 +249,6 @@ def clamp(number: int | float, minimum: int | float, maximum: int | float) -> in
     '''
     return max(min(number, maximum), minimum)
 
-'''
-def color_sort(team_pos: TeamPosition): #color to remain 
-    
-    Sorting Opponent color blocks
-    
-    Args:
-        team_pos: Team Position include current team color
-    
-    print("hi")
-    while True:
-        if team_pos.team == "blue":
-            if 0 < optical.hue() < 40: # red hue value
-                trap_door.set(True)
-                wait(750, MSEC)
-            else:
-                trap_door.set(False)
-        elif team_pos.team == "red":
-            if 150 < optical.hue() < 230: # blue hue value
-                trap_door.set(True)
-                wait(750, MSEC)
-            else:
-                trap_door.set(False)
-        else:
-            trap_door.set(False)
-        wait(20, MSEC)
-        '''
-
 # -thread in driver control
 def drivetrain_control():
     '''
@@ -286,10 +259,8 @@ def drivetrain_control():
     right_drive_smart_stopped = False
     left_drive_smart_speed = 0
     right_drive_smart_speed = 0
-    integral_rotate = 0
     
     while True:
-        ratio = 1.5  # Bigger the number, less sensitive
         forward = 100 * math.sin((controller_1.axis3.position()**3) / 636620)
         rotate = (0.4*abs(controller_1.axis3.position()+30)) * math.sin(controller_1.axis1.position()**3 / 636620)
 
