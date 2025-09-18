@@ -262,7 +262,7 @@ def drivetrain_control():
     
     while True:
         forward = 100 * math.sin((controller_1.axis3.position()**3) / 636620)
-        rotate = (35 + 3 * math.sqrt(abs(controller_1.axis3.position()))) * math.sin(controller_1.axis1.position()**3 / 636620)
+        rotate = (35 + 3 * math.sqrt(abs(forward))) * math.sin(controller_1.axis1.position()**3 / 636620)
 
         # Add integral component to turning calculation
         left_drive_smart_speed =  forward + rotate
@@ -321,7 +321,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     
     kp = 28
     ki = 0
-    kd = 0
+    kd = 0.5
     
     left_err = 0
     right_err = 0
@@ -392,7 +392,42 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
-    pass
+    drivetrain_forward(3.4, 3.4, True, 100)
+    intake1.set_velocity(50)
+    intake1.spin(FORWARD)
+    intake2.set_velocity(50)
+    intake2.spin(FORWARD)
+    match_load.set(True)
+    drivetrain_forward(2, 2, False, 30)
+    intake1.stop()
+    intake2.stop()
+    drivetrain_forward(-0.75, 0.75, False, 40)
+    wait(50, MSEC)
+    intake1.set_velocity(80)
+    intake2.set_velocity(80)
+    intake1.spin(FORWARD)
+    intake2.spin(FORWARD)
+    match_load.set(False)
+    drivetrain_forward(-2.75, -2.75, False, 100, 1000)
+    intake1.set_velocity(100)
+    intake2.set_velocity(100)
+    intake3.spin(REVERSE)
+    wait(1, SECONDS)
+    drivetrain_forward(4, 4, False, 100)
+    intake1.set_velocity(10)
+    intake2.set_velocity(10)
+    intake3.stop()
+    '''
+    drivetrain_forward(-0.4, 0.4, False, 80)
+    match_load.set(True)
+    drivetrain_forward(4, 4, False, 80, 1000)
+    intake1.spin(FORWARD)
+    wait(1, SECONDS)
+    drivetrain_forward(-5, -5, False, 80, 2000)
+    intake2.spin(FORWARD)
+    intake3.spin(FORWARD)
+    '''
+    
      
 def auto_red_2():
     pass
@@ -404,8 +439,7 @@ def auto_blue_2():
     pass
 
 def auto_skill():
-    drivetrain_forward(0.8, 0.8, False, 100)
-    drivetrain_forward(-4, -4, False, 100)
+    pass
 
 AUTO_FUNCTIONS = {
     "red_1": auto_red_1, 
@@ -447,7 +481,7 @@ def user_control():
                 holder.set(False)
                 intake3.spin(REVERSE)
             else:
-                intake3.stop()
+                intake3.spin(FORWARD)
                 holder.set(True)
         elif controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
             holder.set(True)
@@ -462,9 +496,7 @@ def user_control():
             intake3.stop()
             
         if controller_1.buttonUp.pressing():
-            drivetrain_forward(2, 2, False, 100, 0)
-            wait_until_release(controller_1.buttonUp.pressing(), 50)
-        wait(20, MSEC)
+            drivetrain_forward(3, 3, False, 100, 0)
 
 # ! run after program start
 # getting team position
