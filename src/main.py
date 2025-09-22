@@ -392,6 +392,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
+    pass
+    '''
     drivetrain_forward(3.3, 3.3, True, 80)
     intake1.set_velocity(60)
     intake1.spin(FORWARD)
@@ -419,17 +421,21 @@ def auto_red_1():
     drivetrain_forward(-0.35, 0.35, False, 80)
     match_load.set(True)
     wait(0.2, SECONDS)
-    drivetrain_forward(1.8, 1.8, False, 100, 1000)
+    drivetrain_forward(1.8, 1.8, False, 80, 1000)
     intake1.set_velocity(100)
     intake2.set_velocity(100)
     intake3.set_velocity(100)
     intake1.spin(FORWARD)
     intake2.spin(FORWARD)
     intake3.spin(FORWARD)
+    '''
     
      
 def auto_red_2():
-    pass
+    match_load.set(True)
+    drivetrain_forward(5, 5, False, 100)
+    match_load.set(False)
+    drivetrain_forward(-0.5, -0.5, False, 100)
 
 def auto_blue_1():
     drivetrain_forward(3.3, 3.3, True, 80)
@@ -459,7 +465,7 @@ def auto_blue_1():
     drivetrain_forward(-0.35, 0.35, False, 80)
     match_load.set(True)
     wait(0.2, SECONDS)
-    drivetrain_forward(1.8, 1.8, False, 100, 1000)
+    drivetrain_forward(1.8, 1.8, False, 80, 1000)
     intake1.set_velocity(100)
     intake2.set_velocity(100)
     intake3.set_velocity(100)
@@ -471,11 +477,9 @@ def auto_blue_2():
     pass
 
 def auto_skill():
-    match_load.set(True)
-    drivetrain_forward(-0.3, -0.3, False, 100)
-    drivetrain_forward(5, 5, False, 100)
-    match_load.set(False)
-    drivetrain_forward(-0.5, -0.5, False, 100)
+    #double_park.set(True)
+    #
+    pass
 
 AUTO_FUNCTIONS = {
     "red_1": auto_red_1, 
@@ -534,7 +538,7 @@ def user_control():
             intake3.stop()
             
         if controller_1.buttonDown.pressing():
-            intake1.set_velocity(20, PERCENT)
+            intake1.set_velocity(60, PERCENT)
         elif controller_1.buttonUp.pressing():
             intake1.set_velocity(100, PERCENT)
 
