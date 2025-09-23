@@ -420,7 +420,7 @@ def auto_red_1():
     intake.spin(FORWARD)
     match_load.set(True)
     drivetrain_forward(8.75, 9, False, 100)
-    wait(2, SEC)
+    wait(2, SECONDS)
     drivetrain_forward(-3, -3)
     holder.set(False)
     
@@ -443,7 +443,7 @@ def auto_blue_1():
     intake.spin(FORWARD)
     match_load.set(True)
     drivetrain_forward(8.75, 9, False, 100)
-    wait(2, SEC)
+    wait(2, SECONDS)
     drivetrain_forward(-3, -3)
     holder.set(False)
 
