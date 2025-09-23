@@ -55,8 +55,6 @@
 # ---------------------------------------------------------------------------- #
 
 # ! Initialization
-# Library imports
-from re import match
 from vex import *
 
 brain = Brain()
@@ -79,6 +77,8 @@ drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.
 intake1 = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
 intake2 = Motor55(Ports.PORT5, True)
 intake3 = Motor55(Ports.PORT10, True)
+
+intake = Intake()
 
 
 left_odom =  Rotation(Ports.PORT19, False)
@@ -199,7 +199,6 @@ def team_choosing(is_skill: bool = False) -> TeamPosition:
             if team_position.team:
                 if GUI_BUTTONS_POSITIONS["side"]["1"].pressing(x, y):
                     if team_position.team == "skill":
-                        team_position.position = ""
                         confirmed = True
                     else:
                         team_position.position = "1"
@@ -211,6 +210,21 @@ def team_choosing(is_skill: bool = False) -> TeamPosition:
                     confirmed = True
             
             wait_until_release(brain.screen.pressing, 50)
+
+class Intake:
+    # this is for autonomous code
+    def start(direction: FORWARD | REVERSE):
+        intake1.spin(direction)
+        intake2.spin(direction)
+        intake3.spin(direction)
+    def stop():
+        intake1.stop()
+        intake2.stop()
+        intake3.stop()
+    def velocityPower(intPercent: int):
+        intake1.set_velocity(intPercent, PERCENT)
+        intake2.set_velocity(intPercent, PERCENT)
+        intake3.set_velocity(intPercent, PERCENT)
 
 # ! All functions
 # -misc.
@@ -392,86 +406,46 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
-    pass
-    '''
-    drivetrain_forward(3.3, 3.3, True, 80)
-    intake1.set_velocity(60)
-    intake1.spin(FORWARD)
-    intake2.set_velocity(40)
-    intake2.spin(FORWARD)
-    drivetrain_forward(2, 2, False, 35)
-    intake1.stop()
-    intake2.stop()
-    drivetrain_forward(-0.74, 0.74, False, 100)
+    intake.velocityPower(100)
+    holder.set(True)
+    drivetrain_forward(3.3, 3.6, True, 80)
+    intake.start(FORWARD)
+    drivetrain_forward(2.1, 2.1, False, 35)
+    drivetrain_forward(-0.7, 0.7, False, 100)
     wait(50, MSEC)
-    intake1.set_velocity(80)
-    intake2.set_velocity(80)
-    intake1.spin(FORWARD)
-    intake2.spin(FORWARD)
     match_load.set(False)
     drivetrain_forward(-3, -3, False, 100, 1000)
-    intake1.set_velocity(100)
-    intake2.set_velocity(100)
     intake3.spin(REVERSE)
-    wait(2.5, SECONDS)
-    drivetrain_forward(8.7, 8.7, False, 100)
-    intake1.set_velocity(-50)
-    intake2.set_velocity(-50)
-    intake3.stop()
-    drivetrain_forward(-0.35, 0.35, False, 80)
+    wait(2, SECONDS)
+    intake.spin(FORWARD)
     match_load.set(True)
-    wait(0.2, SECONDS)
-    drivetrain_forward(1.8, 1.8, False, 80, 1000)
-    intake1.set_velocity(100)
-    intake2.set_velocity(100)
-    intake3.set_velocity(100)
-    intake1.spin(FORWARD)
-    intake2.spin(FORWARD)
-    intake3.spin(FORWARD)
-    '''
+    drivetrain_forward(8.75, 9, False, 100)
+    wait(2, SEC)
+    drivetrain_forward(-3, -3)
+    holder.set(False)
     
      
 def auto_red_2():
-    match_load.set(True)
-    drivetrain_forward(5, 5, False, 100)
-    match_load.set(False)
-    drivetrain_forward(-0.5, -0.5, False, 100)
+    pass
 
 def auto_blue_1():
-    drivetrain_forward(3.3, 3.3, True, 80)
-    intake1.set_velocity(60)
-    intake1.spin(FORWARD)
-    intake2.set_velocity(40)
-    intake2.spin(FORWARD)
-    drivetrain_forward(2, 2, False, 35)
-    intake1.stop()
-    intake2.stop()
-    drivetrain_forward(-0.74, 0.74, False, 100)
+    intake.velocityPower(100)
+    holder.set(True)
+    drivetrain_forward(3.3, 3.6, True, 80)
+    intake.start(FORWARD)
+    drivetrain_forward(2.1, 2.1, False, 35)
+    drivetrain_forward(-0.7, 0.7, False, 100)
     wait(50, MSEC)
-    intake1.set_velocity(80)
-    intake2.set_velocity(80)
-    intake1.spin(FORWARD)
-    intake2.spin(FORWARD)
     match_load.set(False)
     drivetrain_forward(-3, -3, False, 100, 1000)
-    intake1.set_velocity(100)
-    intake2.set_velocity(100)
     intake3.spin(REVERSE)
-    wait(2.5, SECONDS)
-    drivetrain_forward(8.7, 8.7, False, 100)
-    intake1.set_velocity(-50)
-    intake2.set_velocity(-50)
-    intake3.stop()
-    drivetrain_forward(-0.35, 0.35, False, 80)
+    wait(2, SECONDS)
+    intake.spin(FORWARD)
     match_load.set(True)
-    wait(0.2, SECONDS)
-    drivetrain_forward(1.8, 1.8, False, 80, 1000)
-    intake1.set_velocity(100)
-    intake2.set_velocity(100)
-    intake3.set_velocity(100)
-    intake1.spin(FORWARD)
-    intake2.spin(FORWARD)
-    intake3.spin(FORWARD)
+    drivetrain_forward(8.75, 9, False, 100)
+    wait(2, SEC)
+    drivetrain_forward(-3, -3)
+    holder.set(False)
 
 def auto_blue_2():
     pass
