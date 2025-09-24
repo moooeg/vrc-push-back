@@ -259,35 +259,39 @@ def drivetrain_control():
     deadband = 2
     
     while True:
-        forward = 100 * math.sin((controller_1.axis3.position()**3) / 636620)
-        rotate = 0.07*(5 + 0.5 * math.sqrt(abs(forward))) * controller_1.axis1.position()
+        axis3 = controller_1.axis3.position()
+        axis1 = controller_1.axis1.position()
+        
+        if abs(axis3) < deadband:
+            axis3 = 0
+        if abs(axis1) < deadband:
+            axis1 = 0
+        
+        forward = 100 * math.sin((axis3**3) / 636620)
+        rotate = (35 + 3 * math.sqrt(abs(forward))) * math.sin(axis1**3 / 636620)
         print(controller_1.axis1.position(), rotate)
 
         # Add integral component to turning calculation
         left_drive_smart_speed =  forward + rotate
         right_drive_smart_speed = forward - rotate
 
-        if abs(left_drive_smart_speed) < deadband:
-            left_drive_smart.stop()
-        else:
-            left_drive_smart.set_velocity(left_drive_smart_speed, PERCENT)
-            left_drive_smart.spin(FORWARD)
+        left_drive_smart.set_velocity(left_drive_smart_speed, PERCENT)
+        left_drive_smart.spin(FORWARD)
         
-        if abs(right_drive_smart_speed) < deadband:
-            right_drive_smart.stop()
-        else:
-            right_drive_smart.set_velocity(right_drive_smart_speed, PERCENT)
-            right_drive_smart.spin(FORWARD)
+        right_drive_smart.set_velocity(right_drive_smart_speed, PERCENT)
+        right_drive_smart.spin(FORWARD)
         wait(10, MSEC)
 
 def match_loading():
     while True:
+        wait(10, MSEC)
         if controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
             match_load.set(True) #down
         else:
             match_load.set(False)
             
 def double_parking():
+    wait(10, MSEC)
     while True:
         if controller_1.buttonY.pressing():
             double_park.set(True)
@@ -428,6 +432,7 @@ def user_control():
     Thread(match_loading)
     Thread(double_parking)
     while True:
+        wait(10, MSEC)
         if controller_1.buttonR1.pressing():
             intake1.spin(FORWARD)
             intake3.spin(FORWARD)
