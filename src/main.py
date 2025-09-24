@@ -211,7 +211,7 @@ def team_choosing(is_skill: bool = False) -> TeamPosition:
             
             wait_until_release(brain.screen.pressing, 50)
 
-class Intake:
+class Intake():
     # this is for autonomous code
     def start(direction: FORWARD | REVERSE):
         intake1.spin(direction)
