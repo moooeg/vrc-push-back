@@ -55,8 +55,6 @@
 # ---------------------------------------------------------------------------- #
 
 # ! Initialization
-# Library imports
-from re import match
 from vex import *
 
 brain = Brain()
@@ -198,7 +196,6 @@ def team_choosing(is_skill: bool = False) -> TeamPosition:
             if team_position.team:
                 if GUI_BUTTONS_POSITIONS["side"]["1"].pressing(x, y):
                     if team_position.team == "skill":
-                        team_position.position = ""
                         confirmed = True
                         brain.screen.draw_image_from_file("skill_confirmed.png", 0, 0)
                     else:
@@ -211,6 +208,7 @@ def team_choosing(is_skill: bool = False) -> TeamPosition:
                     confirmed = True
             
             wait_until_release(brain.screen.pressing, 50)
+
 
 # ! All functions
 # -misc.
@@ -384,50 +382,9 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
-    pass
-    '''
-    drivetrain_forward(3.3, 3.3, True, 80)
-    intake1.set_velocity(60)
-    intake1.spin(FORWARD)
-    intake2.set_velocity(40)
-    intake2.spin(FORWARD)
-    drivetrain_forward(2, 2, False, 35)
-    intake1.stop()
-    intake2.stop()
-    drivetrain_forward(-0.74, 0.74, False, 100)
-    wait(50, MSEC)
-    intake1.set_velocity(80)
-    intake2.set_velocity(80)
-    intake1.spin(FORWARD)
-    intake2.spin(FORWARD)
-    match_load.set(False)
-    drivetrain_forward(-3, -3, False, 100, 1000)
-    intake1.set_velocity(100)
-    intake2.set_velocity(100)
-    intake3.spin(REVERSE)
-    wait(2.5, SECONDS)
-    drivetrain_forward(8.7, 8.7, False, 100)
-    intake1.set_velocity(-50)
-    intake2.set_velocity(-50)
-    intake3.stop()
-    drivetrain_forward(-0.35, 0.35, False, 80)
-    match_load.set(True)
-    wait(0.2, SECONDS)
-    drivetrain_forward(1.8, 1.8, False, 80, 1000)
-    intake1.set_velocity(100)
-    intake2.set_velocity(100)
-    intake3.set_velocity(100)
-    intake1.spin(FORWARD)
-    intake2.spin(FORWARD)
-    intake3.spin(FORWARD)
-    '''
-    
-     
+     pass
 def auto_red_2():
-    match_load.set(True)
-    drivetrain_forward(5, 5, False, 100)
-    match_load.set(False)
-    drivetrain_forward(-0.5, -0.5, False, 100)
+    pass
 
 def auto_blue_1():
     pass
