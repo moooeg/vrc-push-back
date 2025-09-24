@@ -77,8 +77,7 @@ right_drive_smart = MotorGroup(right_motor_a, right_motor_b, right_motor_c)
 drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.8, MM)
 
 intake1 = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
-intake2 = Motor55(Ports.PORT5, True)
-intake3 = Motor55(Ports.PORT10, True)
+intake3 = Motor(Ports.PORT10, GearSetting.RATIO_18_1, True)
 
 
 left_odom =  Rotation(Ports.PORT19, False)
@@ -201,6 +200,7 @@ def team_choosing(is_skill: bool = False) -> TeamPosition:
                     if team_position.team == "skill":
                         team_position.position = ""
                         confirmed = True
+                        brain.screen.draw_image_from_file("skill_confirmed.png", 0, 0)
                     else:
                         team_position.position = "1"
                         brain.screen.draw_image_from_file(team_position.team+"_1.png", 0, 0)
@@ -255,40 +255,32 @@ def drivetrain_control():
     Control the drivetrain using the controller
     '''
     # Variables initialisation
-    left_drive_smart_stopped = False
-    right_drive_smart_stopped = False
     left_drive_smart_speed = 0
     right_drive_smart_speed = 0
     
+    deadband = 2
+    
     while True:
         forward = 100 * math.sin((controller_1.axis3.position()**3) / 636620)
-        rotate = (35 + 3 * math.sqrt(abs(forward))) * math.sin(controller_1.axis1.position()**3 / 636620)
+        rotate = 0.07*(5 + 0.5 * math.sqrt(abs(forward))) * controller_1.axis1.position()
+        print(controller_1.axis1.position(), rotate)
 
         # Add integral component to turning calculation
         left_drive_smart_speed =  forward + rotate
         right_drive_smart_speed = forward - rotate
 
-        if abs(left_drive_smart_speed) < 1:
-            if left_drive_smart_stopped:
-                left_drive_smart.stop()
-                left_drive_smart_stopped = False
+        if abs(left_drive_smart_speed) < deadband:
+            left_drive_smart.stop()
         else:
-            left_drive_smart_stopped = True
-
-        if abs(right_drive_smart_speed) < 1:
-            if right_drive_smart_stopped:
-                right_drive_smart.stop()
-                right_drive_smart_stopped = False
-        else:
-            right_drive_smart_stopped = True
-
-        if left_drive_smart_stopped:
             left_drive_smart.set_velocity(left_drive_smart_speed, PERCENT)
             left_drive_smart.spin(FORWARD)
-
-        if right_drive_smart_stopped:
+        
+        if abs(right_drive_smart_speed) < deadband:
+            right_drive_smart.stop()
+        else:
             right_drive_smart.set_velocity(right_drive_smart_speed, PERCENT)
             right_drive_smart.spin(FORWARD)
+        wait(10, MSEC)
 
 def match_loading():
     while True:
@@ -438,40 +430,7 @@ def auto_red_2():
     drivetrain_forward(-0.5, -0.5, False, 100)
 
 def auto_blue_1():
-    drivetrain_forward(3.3, 3.3, True, 80)
-    intake1.set_velocity(60)
-    intake1.spin(FORWARD)
-    intake2.set_velocity(40)
-    intake2.spin(FORWARD)
-    drivetrain_forward(2, 2, False, 35)
-    intake1.stop()
-    intake2.stop()
-    drivetrain_forward(-0.74, 0.74, False, 100)
-    wait(50, MSEC)
-    intake1.set_velocity(80)
-    intake2.set_velocity(80)
-    intake1.spin(FORWARD)
-    intake2.spin(FORWARD)
-    match_load.set(False)
-    drivetrain_forward(-3, -3, False, 100, 1000)
-    intake1.set_velocity(100)
-    intake2.set_velocity(100)
-    intake3.spin(REVERSE)
-    wait(2.5, SECONDS)
-    drivetrain_forward(8.7, 8.7, False, 100)
-    intake1.set_velocity(-50)
-    intake2.set_velocity(-50)
-    intake3.stop()
-    drivetrain_forward(-0.35, 0.35, False, 80)
-    match_load.set(True)
-    wait(0.2, SECONDS)
-    drivetrain_forward(1.8, 1.8, False, 80, 1000)
-    intake1.set_velocity(100)
-    intake2.set_velocity(100)
-    intake3.set_velocity(100)
-    intake1.spin(FORWARD)
-    intake2.spin(FORWARD)
-    intake3.spin(FORWARD)
+    pass
 
 def auto_blue_2():
     pass
@@ -504,8 +463,7 @@ def user_control():
     competition template for driver control
     '''
     intake1.set_velocity(100, PERCENT)
-    intake2.set_velocity(95)
-    intake3.set_velocity(100)
+    intake3.set_velocity(100, PERCENT)
     brain.timer.clear()
     match_load.set(False)
     # thread all func
@@ -515,26 +473,25 @@ def user_control():
     while True:
         if controller_1.buttonR1.pressing():
             intake1.spin(FORWARD)
-            intake2.spin(FORWARD)
             intake3.spin(FORWARD)
             if controller_1.buttonL1.pressing():
+                intake3.set_velocity(100)
                 holder.set(False)
             elif controller_1.buttonL2.pressing():
                 holder.set(False)
+                intake3.set_velocity(60)
                 intake3.spin(REVERSE)
             else:
+                intake3.set_velocity(100)
                 intake3.spin(FORWARD)
                 holder.set(True)
         elif controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
             holder.set(True)
             intake1.spin(FORWARD)
-            intake2.spin(FORWARD)
         elif controller_1.buttonR2.pressing():
             intake1.spin(REVERSE)
-            intake2.spin(REVERSE)
         else:
             intake1.stop()
-            intake2.stop()
             intake3.stop()
             
         if controller_1.buttonDown.pressing():
@@ -549,7 +506,6 @@ team_position = team_choosing()
 #Thread(color_sort, (team_position,))
 
 intake1.set_velocity(100, PERCENT)
-intake2.set_velocity(90)
 intake3.set_velocity(100)
 
 
