@@ -77,6 +77,8 @@ drivetrain = DriveTrain(left_drive_smart, right_drive_smart, 299.24, 377.1, 304.
 intake1 = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
 intake3 = Motor(Ports.PORT10, GearSetting.RATIO_18_1, True)
 
+color_sensor = Optical(Ports.PORT12)
+park_distance = Distance(Ports.PORT17)
 
 left_odom =  Rotation(Ports.PORT19, False)
 right_odom = Rotation(Ports.PORT20, True)
@@ -256,7 +258,7 @@ def drivetrain_control():
     left_drive_smart_speed = 0
     right_drive_smart_speed = 0
     
-    deadband = 2
+    deadband = 5
     
     while True:
         axis3 = controller_1.axis3.position()
@@ -267,8 +269,8 @@ def drivetrain_control():
         if abs(axis1) < deadband:
             axis1 = 0
         
-        forward = 100 * math.sin((axis3**3) / 636620)
-        rotate = (35 + 3 * math.sqrt(abs(forward))) * math.sin(axis1**3 / 636620)
+        forward = axis3
+        rotate = (25 + 2 * math.sqrt(abs(forward))) * math.sin(axis1**3 / 636620)
         print(controller_1.axis1.position(), rotate)
 
         # Add integral component to turning calculation
@@ -291,12 +293,29 @@ def match_loading():
             match_load.set(False)
             
 def double_parking():
-    wait(10, MSEC)
     while True:
+        wait(10, MSEC)
         if controller_1.buttonY.pressing():
+            while not (62 < park_distance.object_distance(MM) < 70):
+                intake1.set_velocity(80, PERCENT)
+                intake1.spin(REVERSE)
+            intake1.stop()
+            wait(100, MSEC)
             double_park.set(True)
         if controller_1.buttonB.pressing():
             double_park.set(False)
+            
+def color_detect():
+    global color
+    while True:
+        wait(10, MSEC)
+        if (330 <= color_sensor.hue() or color_sensor.hue() <= 30) and color_sensor.is_near_object():
+            color = "red"
+        elif 210 < color_sensor.hue() < 270 and color_sensor.is_near_object():
+            color = "blue"
+        else:
+            color = ""
+        
             
 
 # -autonomous functions
@@ -386,7 +405,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
-     pass
+    pass
+
 def auto_red_2():
     pass
 
@@ -431,20 +451,29 @@ def user_control():
     Thread(drivetrain_control)
     Thread(match_loading)
     Thread(double_parking)
+    Thread(color_detect)
     while True:
         wait(10, MSEC)
         if controller_1.buttonR1.pressing():
             intake1.spin(FORWARD)
             intake3.spin(FORWARD)
             if controller_1.buttonL1.pressing():
-                intake3.set_velocity(100)
                 holder.set(False)
+                intake3.spin(FORWARD)
+                intake3.set_velocity(100, PERCENT)
+                if color != team_position.team and color != "":
+                    intake3.spin_for(REVERSE, 2, TURNS)
+                    
             elif controller_1.buttonL2.pressing():
                 holder.set(False)
-                intake3.set_velocity(60)
                 intake3.spin(REVERSE)
+                intake3.set_velocity(50, PERCENT)
+                if color != team_position.team and color != "":
+                    intake3.set_velocity(100, PERCENT)
+                    intake3.spin_for(FORWARD, 2, TURNS)
+                    
             else:
-                intake3.set_velocity(100)
+                intake3.set_velocity(100, PERCENT)
                 intake3.spin(FORWARD)
                 holder.set(True)
         elif controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
@@ -452,14 +481,10 @@ def user_control():
             intake1.spin(FORWARD)
         elif controller_1.buttonR2.pressing():
             intake1.spin(REVERSE)
+            intake3.spin(REVERSE)
         else:
             intake1.stop()
             intake3.stop()
-            
-        if controller_1.buttonDown.pressing():
-            intake1.set_velocity(60, PERCENT)
-        elif controller_1.buttonUp.pressing():
-            intake1.set_velocity(100, PERCENT)
 
 # ! run after program start
 # getting team position
