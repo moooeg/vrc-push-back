@@ -271,7 +271,6 @@ def drivetrain_control():
         
         forward = axis3
         rotate = (25 + 2 * math.sqrt(abs(forward))) * math.sin(axis1**3 / 636620)
-        print(controller_1.axis1.position(), rotate)
 
         # Add integral component to turning calculation
         left_drive_smart_speed =  forward + rotate
@@ -296,9 +295,12 @@ def double_parking():
     while True:
         wait(10, MSEC)
         if controller_1.buttonY.pressing():
-            while not (62 < park_distance.object_distance(MM) < 70):
-                intake1.set_velocity(80, PERCENT)
+            intake1.set_velocity(70, PERCENT)
+            while not (40 < park_distance.object_distance(MM) < 55):
                 intake1.spin(REVERSE)
+                if controller_1.buttonB.pressing():
+                    double_park.set(False)
+                    break
             intake1.stop()
             wait(100, MSEC)
             double_park.set(True)
@@ -407,7 +409,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 def auto_red_1():
     pass
 
-def auto_red_2():
+def auto_red_2(): 
     pass
 
 def auto_blue_1():
@@ -417,9 +419,28 @@ def auto_blue_2():
     pass
 
 def auto_skill():
-    #double_park.set(True)
-    #
-    pass
+    drivetrain_forward(3.1, 3.1, True, 70, 1000)
+    intake1.spin(FORWARD, 100, PERCENT)
+    match_load.set(True)
+    drivetrain_forward(3, 3, False, 60, 1000)
+    wait(500, MSEC)
+    intake1.stop()
+    match_load.set(False)
+    drivetrain_forward(-1.45, -1.45, False, 80, 1000)
+    wait(500, MSEC)
+    drivetrain_forward(-0.86, 0.86, False, 100, 1000)
+    drivetrain_forward(-3.6, -3.5, False, 80, 1000)
+    intake1.spin(FORWARD, 100, PERCENT)
+    intake3.spin(REVERSE, 40, PERCENT)
+    wait(1800, MSEC)
+    intake1.stop()
+    drivetrain_forward(2, 2 , False, 100)
+    drivetrain_forward(-0.55, 0.55, False, 100, 1000)
+    intake1.spin(FORWARD, 100, PERCENT)
+    drivetrain_forward(4, 4 , False, 80)
+    wait(500, MSEC)
+    intake1.stop() 
+    intake3.stop()   
 
 AUTO_FUNCTIONS = {
     "red_1": auto_red_1, 
@@ -451,40 +472,35 @@ def user_control():
     Thread(drivetrain_control)
     Thread(match_loading)
     Thread(double_parking)
-    Thread(color_detect)
+    #Thread(color_detect)
     while True:
-        wait(10, MSEC)
-        if controller_1.buttonR1.pressing():
-            intake1.spin(FORWARD)
-            intake3.spin(FORWARD)
-            if controller_1.buttonL1.pressing():
-                holder.set(False)
+            if controller_1.buttonR1.pressing():
+                intake1.spin(FORWARD)
                 intake3.spin(FORWARD)
-                intake3.set_velocity(100, PERCENT)
-                if color != team_position.team and color != "":
-                    intake3.spin_for(REVERSE, 2, TURNS)
-                    
-            elif controller_1.buttonL2.pressing():
-                holder.set(False)
-                intake3.spin(REVERSE)
-                intake3.set_velocity(50, PERCENT)
-                if color != team_position.team and color != "":
-                    intake3.set_velocity(100, PERCENT)
-                    intake3.spin_for(FORWARD, 2, TURNS)
-                    
-            else:
-                intake3.set_velocity(100, PERCENT)
-                intake3.spin(FORWARD)
+                if controller_1.buttonL1.pressing():
+                    intake3.set_velocity(100)
+                    holder.set(False)
+                elif controller_1.buttonL2.pressing():
+                    holder.set(False)
+                    intake3.set_velocity(60)
+                    intake3.spin(REVERSE)
+                else:
+                    intake3.set_velocity(100)
+                    intake3.spin(FORWARD)
+                    holder.set(True)
+            elif controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
                 holder.set(True)
-        elif controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
-            holder.set(True)
-            intake1.spin(FORWARD)
-        elif controller_1.buttonR2.pressing():
-            intake1.spin(REVERSE)
-            intake3.spin(REVERSE)
-        else:
-            intake1.stop()
-            intake3.stop()
+                intake1.spin(FORWARD)
+            elif controller_1.buttonR2.pressing():
+                intake1.spin(REVERSE)
+            else:
+                intake1.stop()
+                intake3.stop()
+                
+            if controller_1.buttonDown.pressing():
+                intake1.set_velocity(60, PERCENT)
+            elif controller_1.buttonUp.pressing():
+                intake1.set_velocity(100, PERCENT)
 
 # ! run after program start
 # getting team position
