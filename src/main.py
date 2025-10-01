@@ -78,7 +78,7 @@ intake1 = Motor(Ports.PORT1, GearSetting.RATIO_18_1, True)
 intake3 = Motor(Ports.PORT10, GearSetting.RATIO_18_1, True)
 
 color_sensor = Optical(Ports.PORT12)
-park_distance = Distance(Ports.PORT17)
+park_distance = Distance(Ports.PORT3)
 
 left_odom =  Rotation(Ports.PORT19, False)
 right_odom = Rotation(Ports.PORT20, True)
@@ -86,7 +86,6 @@ right_odom = Rotation(Ports.PORT20, True)
 holder = DigitalOut(brain.three_wire_port.a) #true: hold, false: release
 double_park = DigitalOut(brain.three_wire_port.b) #true: lift, false: unlift
 match_load = DigitalOut(brain.three_wire_port.c) #true: Contracted, false: down
-
 
 # ! GUI setup
 # -Side Selection GUI
@@ -211,7 +210,6 @@ def team_choosing(is_skill: bool = False) -> TeamPosition:
             
             wait_until_release(brain.screen.pressing, 50)
 
-
 # ! All functions
 # -misc.
 def cprint(_input: Any) -> None:
@@ -292,31 +290,23 @@ def match_loading():
             match_load.set(False)
             
 def double_parking():
+    global double_park_status
+    double_park_status = False
     while True:
         wait(10, MSEC)
         if controller_1.buttonY.pressing():
-            intake1.set_velocity(70, PERCENT)
-            while not (40 < park_distance.object_distance(MM) < 55):
+            double_park_status = True
+            intake1.set_velocity(50, PERCENT)
+            while not (36 < park_distance.object_distance(MM) < 46):
                 intake1.spin(REVERSE)
                 if controller_1.buttonB.pressing():
                     double_park.set(False)
                     break
             intake1.stop()
-            wait(100, MSEC)
             double_park.set(True)
         if controller_1.buttonB.pressing():
+            double_park_status = False
             double_park.set(False)
-            
-def color_detect():
-    global color
-    while True:
-        wait(10, MSEC)
-        if (330 <= color_sensor.hue() or color_sensor.hue() <= 30) and color_sensor.is_near_object():
-            color = "red"
-        elif 210 < color_sensor.hue() < 270 and color_sensor.is_near_object():
-            color = "blue"
-        else:
-            color = ""
         
             
 
@@ -407,13 +397,73 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
-    pass
+    drivetrain_forward(3.1, 3.1, True, 70, 1000)
+    intake1.spin(FORWARD, 80, PERCENT)
+    Thread(drivetrain_forward,(3, 3, False, 50, 1000))
+    wait(200, MSEC)
+    match_load.set(True)
+    wait(1300, MSEC)
+    intake1.stop()
+    match_load.set(False)
+    drivetrain_forward(-1.45, -1.45, False, 100)
+    intake1.spin_for(REVERSE, 0.5, TURNS, wait = False)
+    wait(500, MSEC)
+    drivetrain_forward(-0.68, 0.68, False, 100)
+    drivetrain_forward(4.7, 4.7, False, 100)
+    drivetrain_forward(-0.53, 0.53, False, 100)
+    drivetrain_forward(-2, -2, False, 90, 800)
+    intake1.stop()
+    intake1.spin(FORWARD, 100, PERCENT)
+    intake3.spin(FORWARD, 100, PERCENT)
+    wait(2000, MSEC)
+    intake3.stop()
+    intake1.spin(FORWARD, 70, PERCENT)
+    drivetrain_forward(1, 1, False, 50)
+    drivetrain_forward(-2, -2, False, 80, 800)
+    match_load.set(True)
+    drivetrain_forward(6.5, 6.7, False, 60, 1000)
+    drivetrain.drive(FORWARD, 40, PERCENT)
+    wait(1500, MSEC)
+    drivetrain.stop()
+    drivetrain_forward(-6, -6.2, False, 50, 2000)
+    intake1.spin(FORWARD, 100, PERCENT)
+    intake3.spin(FORWARD, 100, PERCENT)
 
 def auto_red_2(): 
     pass
 
 def auto_blue_1():
-    pass
+    drivetrain_forward(3.1, 3.1, True, 70, 1000)
+    intake1.spin(FORWARD, 80, PERCENT)
+    Thread(drivetrain_forward,(3, 3, False, 50, 1000))
+    wait(200, MSEC)
+    match_load.set(True)
+    wait(1300, MSEC)
+    intake1.stop()
+    match_load.set(False)
+    drivetrain_forward(-1.45, -1.45, False, 100)
+    intake1.spin_for(REVERSE, 0.5, TURNS, wait = False)
+    wait(500, MSEC)
+    drivetrain_forward(-0.68, 0.68, False, 100)
+    drivetrain_forward(4.7, 4.7, False, 100)
+    drivetrain_forward(-0.53, 0.53, False, 100)
+    drivetrain_forward(-2, -2, False, 90, 800)
+    intake1.stop()
+    intake1.spin(FORWARD, 100, PERCENT)
+    intake3.spin(FORWARD, 100, PERCENT)
+    wait(2000, MSEC)
+    intake3.stop()
+    intake1.spin(FORWARD, 70, PERCENT)
+    drivetrain_forward(1, 1, False, 50) 
+    drivetrain_forward(-2, -2, False, 80, 800)
+    match_load.set(True)
+    drivetrain_forward(6.5, 6.7, False, 60, 1000)
+    drivetrain.drive(FORWARD, 40, PERCENT)
+    wait(1500, MSEC)
+    drivetrain.stop()
+    drivetrain_forward(-6, -6.2, False, 50, 2000)
+    intake1.spin(FORWARD, 100, PERCENT)
+    intake3.spin(FORWARD, 100, PERCENT)
 
 def auto_blue_2():
     pass
@@ -421,9 +471,10 @@ def auto_blue_2():
 def auto_skill():
     drivetrain_forward(3.1, 3.1, True, 70, 1000)
     intake1.spin(FORWARD, 100, PERCENT)
-    match_load.set(True)
-    drivetrain_forward(3, 3, False, 60, 1000)
+    Thread(drivetrain_forward,(3, 3, False, 60, 1000))
     wait(500, MSEC)
+    match_load.set(True)
+    wait(1000, MSEC)
     intake1.stop()
     match_load.set(False)
     drivetrain_forward(-1.45, -1.45, False, 80, 1000)
@@ -431,16 +482,26 @@ def auto_skill():
     drivetrain_forward(-0.86, 0.86, False, 100, 1000)
     drivetrain_forward(-3.6, -3.5, False, 80, 1000)
     intake1.spin(FORWARD, 100, PERCENT)
-    intake3.spin(REVERSE, 40, PERCENT)
-    wait(1800, MSEC)
-    intake1.stop()
+    intake3.spin(REVERSE, 30, PERCENT)
+    wait(2500, MSEC)
+    intake1.spin(REVERSE, 100, PERCENT)
     drivetrain_forward(2, 2 , False, 100)
     drivetrain_forward(-0.55, 0.55, False, 100, 1000)
-    intake1.spin(FORWARD, 100, PERCENT)
-    drivetrain_forward(4, 4 , False, 80)
-    wait(500, MSEC)
+    intake1.spin(FORWARD, 50, PERCENT)
+    drivetrain_forward(4.3, 4.3 , False, 80)
     intake1.stop() 
-    intake3.stop()   
+    wait(500, MSEC)
+    intake3.stop()
+    drivetrain_forward(-1.5, 1.5, False, 80, 1000)
+    drivetrain_forward(-2.5, -2.5, False, 80, 1000)
+    while True:
+        intake1.set_velocity(60, PERCENT)
+        while not (40 < park_distance.object_distance(MM) < 53):
+            intake1.spin(REVERSE, 60, PERCENT)
+        intake1.stop()
+        wait(100, MSEC)
+        double_park.set(True)
+        break
 
 AUTO_FUNCTIONS = {
     "red_1": auto_red_1, 
@@ -464,53 +525,59 @@ def user_control():
     '''
     competition template for driver control
     '''
-    intake1.set_velocity(100, PERCENT)
-    intake3.set_velocity(100, PERCENT)
     brain.timer.clear()
     match_load.set(False)
+    double_park_status = False
     # thread all func
     Thread(drivetrain_control)
     Thread(match_loading)
-    Thread(double_parking)
-    #Thread(color_detect)
+    #Thread(double_parking)
     while True:
-            if controller_1.buttonR1.pressing():
-                intake1.spin(FORWARD)
-                intake3.spin(FORWARD)
-                if controller_1.buttonL1.pressing():
-                    intake3.set_velocity(100)
-                    holder.set(False)
-                elif controller_1.buttonL2.pressing():
-                    holder.set(False)
-                    intake3.set_velocity(60)
-                    intake3.spin(REVERSE)
-                else:
-                    intake3.set_velocity(100)
-                    intake3.spin(FORWARD)
-                    holder.set(True)
-            elif controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
-                holder.set(True)
-                intake1.spin(FORWARD)
-            elif controller_1.buttonR2.pressing():
+        if controller_1.buttonY.pressing():
+            double_park_status = True
+            intake1.set_velocity(50, PERCENT)
+            while not (36 < park_distance.object_distance(MM) < 46):
                 intake1.spin(REVERSE)
+                if controller_1.buttonB.pressing():
+                    double_park.set(False)
+                    break
+            intake1.stop()
+            double_park.set(True)
+        if controller_1.buttonB.pressing():
+            double_park_status = False
+            double_park.set(False)
+        
+        if controller_1.buttonR1.pressing():
+            intake1.set_velocity(100, PERCENT)
+            intake3.set_velocity(100, PERCENT)
+            intake1.spin(FORWARD)
+            intake3.spin(FORWARD)
+            if controller_1.buttonL1.pressing():
+                intake3.set_velocity(100)
+                holder.set(False)
+            elif controller_1.buttonL2.pressing():
+                holder.set(False)
+                intake3.set_velocity(60)
+                intake3.spin(REVERSE)
             else:
-                intake1.stop()
-                intake3.stop()
+                intake3.set_velocity(100)
+                intake3.spin(FORWARD)
+                holder.set(True)
+        elif controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
+            holder.set(True)
+            intake1.spin(FORWARD)
+        elif controller_1.buttonR2.pressing():
+            intake1.spin(REVERSE)
+        elif double_park_status == False:
+            intake3.stop()
+            intake1.stop()
                 
-            if controller_1.buttonDown.pressing():
-                intake1.set_velocity(60, PERCENT)
-            elif controller_1.buttonUp.pressing():
-                intake1.set_velocity(100, PERCENT)
 
 # ! run after program start
 # getting team position
 team_position = team_choosing()
 
 #Thread(color_sort, (team_position,))
-
-intake1.set_velocity(100, PERCENT)
-intake3.set_velocity(100)
-
 
 # create competition instance
 comp = Competition(user_control, autonomous)
