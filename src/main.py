@@ -83,7 +83,7 @@ park_distance = Distance(Ports.PORT3)
 left_odom =  Rotation(Ports.PORT19, False)
 right_odom = Rotation(Ports.PORT20, True)
 
-holder = DigitalOut(brain.three_wire_port.a) #true: hold, false: release
+descorer = DigitalOut(brain.three_wire_port.d) #true: hold, false: release
 double_park = DigitalOut(brain.three_wire_port.b) #true: lift, false: unlift
 match_load = DigitalOut(brain.three_wire_port.c) #true: Contracted, false: down
 
@@ -554,23 +554,23 @@ def user_control():
             intake3.spin(FORWARD)
             if controller_1.buttonL1.pressing():
                 intake3.set_velocity(100)
-                holder.set(False)
             elif controller_1.buttonL2.pressing():
-                holder.set(False)
                 intake3.set_velocity(60)
                 intake3.spin(REVERSE)
             else:
                 intake3.set_velocity(100)
                 intake3.spin(FORWARD)
-                holder.set(True)
-        elif controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
-            holder.set(True)
-            intake1.spin(FORWARD)
+        elif controller_1.buttonL2.pressing():
+            if controller_1.buttonR2.pressing():
+                intake1.spin(FORWARD)
+            else: descorer.set(True)
         elif controller_1.buttonR2.pressing():
             intake1.spin(REVERSE)
         elif double_park_status == False:
             intake3.stop()
             intake1.stop()
+        else:
+            descorer.set(False)
                 
 
 # ! run after program start
