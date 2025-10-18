@@ -228,7 +228,7 @@ def wait_until_release(fn, time: float) -> None:
     Block until the passed function return False
 
     Args:
-        fn (function): must returm bool
+        fn (function): must return bool
         time: time to wait in ms
     '''
     while fn():
@@ -247,17 +247,17 @@ def clamp(number: int | float, minimum: int | float, maximum: int | float) -> in
     '''
     return max(min(number, maximum), minimum)
 
-# -thread in driver control
 def drivetrain_control():
     '''
     Control the drivetrain using the controller
     '''
-    # Variables initialisation
     left_drive_smart_speed = 0
     right_drive_smart_speed = 0
     
+    prev_forward = 0
+    MAX_DELTA = 20  # % change per loop
     deadband = 5
-    
+
     while True:
         axis3 = controller_1.axis3.position()
         axis1 = controller_1.axis1.position()
@@ -267,11 +267,18 @@ def drivetrain_control():
         if abs(axis1) < deadband:
             axis1 = 0
         
-        forward = axis3
-        rotate = (25 + 2 * math.sqrt(abs(forward))) * math.sin(axis1**3 / 636620)
+        # apply slew limit only to forward
+        target_forward = axis3
+        delta = target_forward - prev_forward
+        if abs(delta) > MAX_DELTA:
+            delta = MAX_DELTA if delta > 0 else -MAX_DELTA
+        prev_forward += delta
+        forward = prev_forward
 
-        # Add integral component to turning calculation
-        left_drive_smart_speed =  forward + rotate
+        # turning remains fully responsive
+        rotate = (30 + 1.9 * math.sqrt(abs(forward))) * math.sin(axis1**3 / 636620)
+
+        left_drive_smart_speed = forward + rotate
         right_drive_smart_speed = forward - rotate
 
         left_drive_smart.set_velocity(left_drive_smart_speed, PERCENT)
@@ -279,13 +286,16 @@ def drivetrain_control():
         
         right_drive_smart.set_velocity(right_drive_smart_speed, PERCENT)
         right_drive_smart.spin(FORWARD)
+
         wait(10, MSEC)
+
 
 def match_loading():
     while True:
         wait(10, MSEC)
         if controller_1.buttonL2.pressing() and controller_1.buttonR2.pressing():
             match_load.set(True) #down
+            descorer.set(False)
         else:
             match_load.set(False)
             
@@ -308,6 +318,120 @@ def double_parking():
             double_park_status = False
             double_park.set(False)
         
+
+# -autonomous functions
+def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
+    '''
+    Move forward using PID control
+    Args:
+        left_target_turns (float): target turns for left motor
+        right_target_turns (float): target turns for right motor
+        chain_status (bool): True if not the last motion for motion chain, default is False
+        speed (int): speed of the motors, default is 100
+        time_out (int): time out in ms, default is 0, 0 means no time out
+    '''
+    movement_start_time = brain.timer.time(MSEC)
+    false_condition_start_time = None
+    
+    kp = 28
+    ki = 0
+    kd = 0.5
+    
+    left_err = 0
+    right_err = 0
+    
+    left_integral = 0
+    right_integral = 0
+    
+    left_derivative = 0
+    right_derivative = 0
+    
+    left_prev_error = 0
+    right_prev_error = 0
+    
+    init_left_odom = left_odom.position(TURNS)
+    init_right_odom = right_odom.position(TURNS)
+    
+    current_left_odom = left_odom.position(TURNS)
+    current_right_odom = right_odom.position(TURNS)
+    
+    left_drive_smart.spin(FORWARD)
+    right_drive_smart.spin(FORWARD)
+    
+    last_time = brain.timer.time(MSEC) 
+    
+    #Kalman filter
+    left_Kalman_out = 0
+    right_Kalman_out = 0
+    
+    mesure_err = 0 #constant
+    
+    left_prev_best_est = 0
+    right_prev_best_est = 0
+    
+    left_best_est = 0
+    right_best_est = 0
+    
+    left_best_est_err = 0
+    right_best_est_err = 0
+      
+    
+    while True:
+        wait(10, MSEC)
+        dt = (brain.timer.time(MSEC) - last_time) / 1000.0
+        
+        left_Kalman_out = left_best_est_err/(left_best_est_err+mesure_err)
+        left_best_est = left_prev_best_est+left_Kalman_out*(current_left_odom-left_prev_best_est)
+        left_best_est_err = (1-left_Kalman_out) * left_prev_best_est
+        
+        right_Kalman_out = right_best_est_err/(right_best_est_err+mesure_err)
+        right_best_est = right_prev_best_est+right_Kalman_out*(current_right_odom-right_prev_best_est)
+        right_best_est_err = (1-right_Kalman_out) * right_prev_best_est
+        
+        left_prev_best_est = left_best_est
+        
+        right_prev_best_est = right_best_est
+        
+        last_time = brain.timer.time(MSEC)
+        left_err = left_target_turns - (left_Kalman_out - init_left_odom)
+        right_err = right_target_turns - (right_Kalman_out - init_right_odom)
+        
+        left_integral += left_err*dt
+        left_integral *= 0.99    
+        right_integral += right_err*dt
+        right_integral *= 0.99
+        
+        left_derivative = (left_err - left_prev_error) / dt
+        right_derivative = (right_err - right_prev_error) / dt
+        
+        left_speed = (speed/100)*(max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivative), 100), -100))
+        right_speed = (speed/100)*(max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivative), 100), -100))
+        
+        left_prev_error = left_err
+        right_prev_error = right_err
+        
+        left_drive_smart.set_velocity(left_speed, PERCENT)
+        right_drive_smart.set_velocity(right_speed, PERCENT)
+        
+        current_left_odom = left_odom.position(TURNS)
+        current_right_odom = right_odom.position(TURNS)
+        
+        if not chain_status:
+            if (not (left_target_turns-0.2 < current_left_odom-init_left_odom < left_target_turns+0.2) or 
+                    not (right_target_turns-0.2 < current_right_odom-init_right_odom < right_target_turns+0.2)):
+                # Reset the timer if the condition is false
+                false_condition_start_time = None
+            else:
+                if false_condition_start_time is None:
+                    false_condition_start_time = brain.timer.time(MSEC)
+                elif false_condition_start_time + 100 <= brain.timer.time(MSEC):
+                    break
+            if time_out > 0 and brain.timer.time(MSEC) - movement_start_time > time_out:
+                break
+        else:
+            if (left_target_turns-0.3 < current_left_odom-init_left_odom < left_target_turns+0.3) and (right_target_turns-0.3 < current_right_odom-init_right_odom < right_target_turns+0.3):
+                return
+    drivetrain.stop()
             
 
 # -autonomous functions
@@ -349,7 +473,8 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
     left_drive_smart.spin(FORWARD)
     right_drive_smart.spin(FORWARD)
     
-    last_time = brain.timer.time(MSEC)
+    last_time = brain.timer.time(MSEC) 
+
     
     while True:
         wait(10, MSEC)
@@ -469,39 +594,53 @@ def auto_blue_2():
     pass
 
 def auto_skill():
-    drivetrain_forward(3.1, 3.1, True, 70, 1000)
-    intake1.spin(FORWARD, 100, PERCENT)
-    Thread(drivetrain_forward,(3, 3, False, 60, 1000))
-    wait(500, MSEC)
-    match_load.set(True)
-    wait(1000, MSEC)
-    intake1.stop()
-    match_load.set(False)
-    drivetrain_forward(-1.45, -1.45, False, 80, 1000)
-    wait(500, MSEC)
-    drivetrain_forward(-0.86, 0.86, False, 100, 1000)
-    drivetrain_forward(-3.6, -3.5, False, 80, 1000)
-    intake1.spin(FORWARD, 100, PERCENT)
-    intake3.spin(REVERSE, 30, PERCENT)
-    wait(2500, MSEC)
-    intake1.spin(REVERSE, 100, PERCENT)
-    drivetrain_forward(2, 2 , False, 100)
-    drivetrain_forward(-0.55, 0.55, False, 100, 1000)
-    intake1.spin(FORWARD, 50, PERCENT)
-    drivetrain_forward(4.3, 4.3 , False, 80)
-    intake1.stop() 
-    wait(500, MSEC)
-    intake3.stop()
-    drivetrain_forward(-1.5, 1.5, False, 80, 1000)
-    drivetrain_forward(-2.5, -2.5, False, 80, 1000)
-    while True:
-        intake1.set_velocity(60, PERCENT)
-        while not (40 < park_distance.object_distance(MM) < 53):
-            intake1.spin(REVERSE, 60, PERCENT)
+    if 0:
+        drivetrain_forward(3.1, 3.1, True, 70, 1000)
+        intake1.spin(FORWARD, 100, PERCENT)
+        Thread(drivetrain_forward,(3, 3, False, 60, 1000))
+        wait(500, MSEC)
+        match_load.set(True)
+        wait(1000, MSEC)
         intake1.stop()
-        wait(100, MSEC)
-        double_park.set(True)
-        break
+        match_load.set(False)
+        drivetrain_forward(-1.45, -1.45, False, 80, 1000)
+        wait(500, MSEC)
+        drivetrain_forward(-0.86, 0.86, False, 100, 1000)
+        drivetrain_forward(-3.6, -3.5, False, 80, 1000)
+        intake1.spin(FORWARD, 100, PERCENT)
+        intake3.spin(REVERSE, 30, PERCENT)
+        wait(2500, MSEC)
+        intake1.spin(REVERSE, 100, PERCENT)
+        drivetrain_forward(2, 2 , False, 100)
+        drivetrain_forward(-0.55, 0.55, False, 100, 1000)
+        intake1.spin(FORWARD, 50, PERCENT)
+        drivetrain_forward(4.3, 4.3 , False, 80)
+        intake1.stop() 
+        wait(500, MSEC)
+        intake3.stop()
+        drivetrain_forward(-1.5, 1.5, False, 80, 1000)
+        drivetrain_forward(-2.5, -2.5, False, 80, 1000)
+        while True:
+            intake1.set_velocity(60, PERCENT)
+            while not (40 < park_distance.object_distance(MM) < 53):
+                intake1.spin(REVERSE, 60, PERCENT)
+            intake1.stop()
+            wait(100, MSEC)
+            double_park.set(True)
+            break
+    else:
+        drivetrain_forward(-1, -1, False, 80)
+        intake1.spin(FORWARD, 100, PERCENT)
+        intake3.spin(FORWARD, 100, PERCENT)
+        match_load.set(True)
+        wait(500, MSEC)
+        drivetrain.drive(FORWARD,100, PERCENT)
+        wait(800, MSEC)
+        drivetrain.stop()
+        drivetrain_forward(-0.4, -0.4, False, 80, 800)
+        match_load.set(False)
+        
+        
 
 AUTO_FUNCTIONS = {
     "red_1": auto_red_1, 
@@ -528,6 +667,11 @@ def user_control():
     brain.timer.clear()
     match_load.set(False)
     double_park_status = False
+    if team_position.team == "skill":
+        print("1")
+        drivetrain.drive(REVERSE, 100, PERCENT)
+        wait(150, MSEC)
+        drivetrain.stop()
     # thread all func
     Thread(drivetrain_control)
     Thread(match_loading)
@@ -563,13 +707,13 @@ def user_control():
         elif controller_1.buttonL2.pressing():
             if controller_1.buttonR2.pressing():
                 intake1.spin(FORWARD)
-            else: descorer.set(True)
+            else: 
+                descorer.set(True)
         elif controller_1.buttonR2.pressing():
             intake1.spin(REVERSE)
         elif double_park_status == False:
             intake3.stop()
             intake1.stop()
-        else:
             descorer.set(False)
                 
 
