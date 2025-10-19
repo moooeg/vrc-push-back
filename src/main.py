@@ -322,7 +322,7 @@ def double_parking():
 # -autonomous functions
 def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
     '''
-    Move forward using PID control
+    Move forward using PID control and Kalman filter to reduce odometry noise
     Args:
         left_target_turns (float): target turns for left motor
         right_target_turns (float): target turns for right motor
@@ -360,52 +360,66 @@ def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: floa
     
     last_time = brain.timer.time(MSEC) 
     
-    #Kalman filter
-    left_Kalman_out = 0
-    right_Kalman_out = 0
+    # Kalman filter parameters
+    mesure_err = 0.005  # R
+    process_err = 0.001 # Q
     
-    mesure_err = 0 #constant
+    left_best_est = init_left_odom
+    right_best_est = init_right_odom
     
-    left_prev_best_est = 0
-    right_prev_best_est = 0
+    left_best_est_err = 0.01
+    right_best_est_err = 0.01
     
-    left_best_est = 0
-    right_best_est = 0
+    left_prev_best_est = left_best_est
+    right_prev_best_est = right_best_est
     
-    left_best_est_err = 0
-    right_best_est_err = 0
-      
-    
+    left_prev_best_est_err = left_best_est_err
+    right_prev_best_est_err = right_best_est_err
+
     while True:
         wait(10, MSEC)
         dt = (brain.timer.time(MSEC) - last_time) / 1000.0
+        last_time = brain.timer.time(MSEC)
         
-        left_Kalman_out = left_best_est_err/(left_best_est_err+mesure_err)
-        left_best_est = left_prev_best_est+left_Kalman_out*(current_left_odom-left_prev_best_est)
-        left_best_est_err = (1-left_Kalman_out) * left_prev_best_est
+        current_left_odom = left_odom.position(TURNS)
+        current_right_odom = right_odom.position(TURNS)
         
-        right_Kalman_out = right_best_est_err/(right_best_est_err+mesure_err)
-        right_best_est = right_prev_best_est+right_Kalman_out*(current_right_odom-right_prev_best_est)
-        right_best_est_err = (1-right_Kalman_out) * right_prev_best_est
+        # ----- Left Kalman filter -----
+        left_best_est = left_prev_best_est
+        left_best_est_err = left_prev_best_est_err + process_err
+        
+        left_Kalman_out = (left_best_est_err+process_err) / (left_best_est_err + mesure_err+process_err)
+        left_best_est = left_best_est + left_Kalman_out * (current_left_odom - left_best_est)
+        left_best_est_err = (1 - left_Kalman_out) * (left_best_est_err+process_err)
         
         left_prev_best_est = left_best_est
+        left_prev_best_est_err = left_best_est_err
+        
+        # ----- Right Kalman filter -----
+        right_best_est = right_prev_best_est
+        right_best_est_err = right_prev_best_est_err + process_err
+        
+        right_Kalman_out = (right_best_est_err+ process_err) / (right_best_est_err + mesure_err)
+        right_best_est = right_best_est + right_Kalman_out * (current_right_odom - right_best_est)
+        right_best_est_err = (1 - right_Kalman_out) * (right_best_est_err+process_err)
         
         right_prev_best_est = right_best_est
+        right_prev_best_est_err = right_best_est_err
         
-        last_time = brain.timer.time(MSEC)
-        left_err = left_target_turns - (left_Kalman_out - init_left_odom)
-        right_err = right_target_turns - (right_Kalman_out - init_right_odom)
+        # ----- PID -----
+        left_err = left_target_turns - (left_best_est*2 - init_left_odom)
+        right_err = right_target_turns - (right_best_est*2 - init_right_odom)
         
-        left_integral += left_err*dt
+        left_integral += left_err * dt
         left_integral *= 0.99    
-        right_integral += right_err*dt
+        right_integral += right_err * dt
         right_integral *= 0.99
         
         left_derivative = (left_err - left_prev_error) / dt
         right_derivative = (right_err - right_prev_error) / dt
         
-        left_speed = (speed/100)*(max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivative), 100), -100))
-        right_speed = (speed/100)*(max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivative), 100), -100))
+        left_speed = (speed/100) * max(min((kp * left_err) + (ki * left_integral) + (kd * left_derivative), 100), -100)
+        right_speed = (speed/100) * max(min((kp * right_err) + (ki * right_integral) + (kd * right_derivative), 100), -100)
         
         left_prev_error = left_err
         right_prev_error = right_err
@@ -413,13 +427,10 @@ def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: floa
         left_drive_smart.set_velocity(left_speed, PERCENT)
         right_drive_smart.set_velocity(right_speed, PERCENT)
         
-        current_left_odom = left_odom.position(TURNS)
-        current_right_odom = right_odom.position(TURNS)
-        
+        # ----- Exit conditions -----
         if not chain_status:
-            if (not (left_target_turns-0.2 < current_left_odom-init_left_odom < left_target_turns+0.2) or 
-                    not (right_target_turns-0.2 < current_right_odom-init_right_odom < right_target_turns+0.2)):
-                # Reset the timer if the condition is false
+            if (not (left_target_turns-0.05 < left_best_est-init_left_odom < left_target_turns+0.05) or 
+                    not (right_target_turns-0.05 < right_best_est-init_right_odom < right_target_turns+0.05)):
                 false_condition_start_time = None
             else:
                 if false_condition_start_time is None:
@@ -429,9 +440,11 @@ def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: floa
             if time_out > 0 and brain.timer.time(MSEC) - movement_start_time > time_out:
                 break
         else:
-            if (left_target_turns-0.3 < current_left_odom-init_left_odom < left_target_turns+0.3) and (right_target_turns-0.3 < current_right_odom-init_right_odom < right_target_turns+0.3):
+            if (left_target_turns-0.1 < left_best_est-init_left_odom < left_target_turns+0.1) and (right_target_turns-0.1 < right_best_est-init_right_odom < right_target_turns+0.1):
                 return
+    
     drivetrain.stop()
+
             
 
 # -autonomous functions
@@ -501,6 +514,7 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
         right_drive_smart.set_velocity(right_speed, PERCENT)
         
         current_left_odom = left_odom.position(TURNS)
+        print(current_left_odom) #get actual result for kalman filter tuning
         current_right_odom = right_odom.position(TURNS)
         
         if not chain_status:
@@ -591,7 +605,8 @@ def auto_blue_1():
     intake3.spin(FORWARD, 100, PERCENT)
 
 def auto_blue_2():
-    pass
+    drivetrain_forward_kalman(5,5, False, 100)
+    drivetrain_forward_kalman(-1,1, False, 100)
 
 def auto_skill():
     if 0:
