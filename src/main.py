@@ -517,11 +517,14 @@ def autonomous():
     competition template for autonomous code
     '''
     global team_position
+    descorer.set(True)
     AUTO_FUNCTIONS[str(team_position)]()
         
 
 # driver control
 def user_control():
+    
+    descorer.set(True)
     '''
     competition template for driver control
     '''
@@ -563,14 +566,15 @@ def user_control():
         elif controller_1.buttonL2.pressing():
             if controller_1.buttonR2.pressing():
                 intake1.spin(FORWARD)
-            else: descorer.set(True)
+            else: 
+                descorer.set(False)
         elif controller_1.buttonR2.pressing():
             intake1.spin(REVERSE)
         elif double_park_status == False:
             intake3.stop()
             intake1.stop()
         else:
-            descorer.set(False)
+            descorer.set(True)
                 
 
 # ! run after program start
@@ -581,4 +585,5 @@ team_position = team_choosing()
 
 # create competition instance
 comp = Competition(user_control, autonomous)
+
 
