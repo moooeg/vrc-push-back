@@ -10,49 +10,41 @@
 #                                                                              #
 # ---------------------------------------------------------------------------- #
 
-# --------------------------------------
-# Wiring Guide
-# Updated: 2025-08-01
+# =========================
+# WIRING GUIDE
+# =========================
+#  1: intake1 motor (RATIO_18_1, reversed)
+#  2: empty
+#  3: park_distance sensor (Distance)
+#  4: empty
+#  5: empty
+#  6: empty
+#  7: empty
+#  8: empty
+#  9: empty
+# 10: intake3 motor (RATIO_18_1, reversed)
+# 11: right_motor_b (RATIO_6_1, reversed)
+# 12: color_sensor (Optical)
+# 13: right_motor_a (RATIO_6_1, normal)
+# 14: right_motor_c (RATIO_6_1, normal)
+# 15: left_motor_b (RATIO_6_1, normal)
+# 16: left_motor_a (RATIO_6_1, reversed)
+# 17: empty
+# 18: left_motor_c (RATIO_6_1, reversed)
+# 19: left_odom (Rotation, normal)
+# 20: right_odom (Rotation, reversed)
+#
+# Three-wire ports:
+#   A: empty
+#   B: double_park (True = lift, False = unlift)
+#   C: match_load (True = contracted, False = down)
+#   D: descorer (True = hold, False = release)
+#   E: empty
+#   F: empty
+#   G: empty
+#   H: empty
+# =========================
 
-# Port 01 : left motor a
-# Port 02 : 
-# Port 03 : left motor b
-# Port 04 : left motor c
-# Port 05 : 
-# Port 06 : left odom
-# Port 07 : right odom
-# Port 08 : right motor a
-# Port 09 : right motor b
-# Port 10 : right motor c
-# Port 11 : -
-# Port 12 : -
-# Port 13 : -
-# Port 14 : -
-# Port 15 : - optical1
-# Port 16 : - intake2
-# Port 17 : -
-# Port 18 : - intake1
-# Port 19 : -
-# Port 20 : -
-# Port 21 : -
-
-# Port A  : - angular
-# Port B  : -
-# Port C  : - trap_door
-# Port D  : -
-# Port E  : -
-# Port F  : -
-# Port G  : -
-# Port H  : -
-# --------------------------------------
-
-# ---------------------------------------------------------------------------- #
-# port define template
-# motor = Motor(Ports.PORT1, GearSetting.RATIO_6_1, True)
-# pneumatics = DigitalOut(brain.three_wire_port.a)
-# optical = Optical(Ports.PORT3)
-# distance = Distance(Ports.PORT4)
-# ---------------------------------------------------------------------------- #
 
 # ! Initialization
 from vex import *
@@ -61,7 +53,6 @@ brain = Brain()
 controller_1 = Controller(PRIMARY)
 
 # ports settings 
-# ! broken ports: 2
 left_motor_a = Motor(Ports.PORT16, GearSetting.RATIO_6_1, True)
 left_motor_b = Motor(Ports.PORT15, GearSetting.RATIO_6_1, False)
 left_motor_c = Motor(Ports.PORT18, GearSetting.RATIO_6_1, True)
@@ -289,7 +280,6 @@ def drivetrain_control():
 
         wait(10, MSEC)
 
-
 def match_loading():
     while True:
         wait(10, MSEC)
@@ -318,7 +308,6 @@ def double_parking():
             double_park_status = False
             double_park.set(False)
         
-
 # -autonomous functions
 def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
     '''
@@ -333,9 +322,9 @@ def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: floa
     movement_start_time = brain.timer.time(MSEC)
     false_condition_start_time = None
     
-    kp = 28
-    ki = 0
-    kd = 0.5
+    kp = 14
+    ki = 4
+    kd = 0
     
     left_err = 0
     right_err = 0
@@ -388,9 +377,9 @@ def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: floa
         left_best_est = left_prev_best_est
         left_best_est_err = left_prev_best_est_err + process_err
         
-        left_Kalman_out = (left_best_est_err+process_err) / (left_best_est_err + mesure_err+process_err)
+        left_Kalman_out = (left_best_est_err) / (left_best_est_err + mesure_err)
         left_best_est = left_best_est + left_Kalman_out * (current_left_odom - left_best_est)
-        left_best_est_err = (1 - left_Kalman_out) * (left_best_est_err+process_err)
+        left_best_est_err = (1 - left_Kalman_out) * (left_best_est_err)
         
         left_prev_best_est = left_best_est
         left_prev_best_est_err = left_best_est_err
@@ -399,16 +388,16 @@ def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: floa
         right_best_est = right_prev_best_est
         right_best_est_err = right_prev_best_est_err + process_err
         
-        right_Kalman_out = (right_best_est_err+ process_err) / (right_best_est_err + mesure_err)
+        right_Kalman_out = (right_best_est_err) / (right_best_est_err + mesure_err)
         right_best_est = right_best_est + right_Kalman_out * (current_right_odom - right_best_est)
-        right_best_est_err = (1 - right_Kalman_out) * (right_best_est_err+process_err)
+        right_best_est_err = (1 - right_Kalman_out) * (right_best_est_err)
         
         right_prev_best_est = right_best_est
         right_prev_best_est_err = right_best_est_err
         
         # ----- PID -----
-        left_err = left_target_turns - (left_best_est*2 - init_left_odom)
-        right_err = right_target_turns - (right_best_est*2 - init_right_odom)
+        left_err = left_target_turns - (left_best_est - init_left_odom)
+        right_err = right_target_turns - (right_best_est - init_right_odom)
         
         left_integral += left_err * dt
         left_integral *= 0.99    
@@ -445,9 +434,6 @@ def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: floa
     
     drivetrain.stop()
 
-            
-
-# -autonomous functions
 def drivetrain_forward(left_target_turns: float, right_target_turns: float, chain_status = False, speed=100, time_out=0):
     '''
     Move forward using PID control
@@ -605,8 +591,7 @@ def auto_blue_1():
     intake3.spin(FORWARD, 100, PERCENT)
 
 def auto_blue_2():
-    drivetrain_forward_kalman(5,5, False, 100)
-    drivetrain_forward_kalman(-1,1, False, 100)
+    drivetrain_forward_kalman(3.82,3.82, False, 80)
 
 def auto_skill():
     if 0:
@@ -655,8 +640,6 @@ def auto_skill():
         drivetrain_forward(-0.4, -0.4, False, 80, 800)
         match_load.set(False)
         
-        
-
 AUTO_FUNCTIONS = {
     "red_1": auto_red_1, 
     "red_2": auto_red_2,
@@ -673,7 +656,6 @@ def autonomous():
     global team_position
     AUTO_FUNCTIONS[str(team_position)]()
         
-
 # driver control
 def user_control():
     '''
@@ -731,10 +713,10 @@ def user_control():
             intake1.stop()
             descorer.set(False)
                 
-
 # ! run after program start
 # getting team position
 team_position = team_choosing()
+descorer.set(True)
 
 #Thread(color_sort, (team_position,))
 
