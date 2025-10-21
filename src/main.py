@@ -654,10 +654,13 @@ def autonomous():
     competition template for autonomous code
     '''
     global team_position
+    descorer.set(True)
     AUTO_FUNCTIONS[str(team_position)]()
         
 # driver control
 def user_control():
+    
+    descorer.set(True)
     '''
     competition template for driver control
     '''
@@ -722,4 +725,5 @@ descorer.set(True)
 
 # create competition instance
 comp = Competition(user_control, autonomous)
+
 
