@@ -296,14 +296,16 @@ def double_parking():
         wait(10, MSEC)
         if controller_1.buttonY.pressing():
             double_park_status = True
+            match_load.set(True)
             intake1.set_velocity(50, PERCENT)
-            while not (36 < park_distance.object_distance(MM) < 46):
+            while not (40 < park_distance.object_distance(MM) < 60):
                 intake1.spin(REVERSE)
                 if controller_1.buttonB.pressing():
                     double_park.set(False)
                     break
             intake1.stop()
             double_park.set(True)
+            match_load.set(False)
         if controller_1.buttonB.pressing():
             double_park_status = False
             double_park.set(False)
@@ -322,9 +324,9 @@ def drivetrain_forward_kalman(left_target_turns: float, right_target_turns: floa
     movement_start_time = brain.timer.time(MSEC)
     false_condition_start_time = None
     
-    kp = 14
-    ki = 4
-    kd = 0
+    kp = 19
+    ki = 0.5
+    kd = 0.1
     
     left_err = 0
     right_err = 0
@@ -555,19 +557,46 @@ def auto_red_1():
     intake3.spin(FORWARD, 100, PERCENT)
 
 def auto_red_2(): 
-    pass
-
-def auto_blue_1():
-    drivetrain_forward(3.1, 3.1, True, 70, 1000)
-    intake1.spin(FORWARD, 80, PERCENT)
+    descorer.set(False)
+    drivetrain_forward(3.1, 3.1, True, 60, 1000)
+    intake1.spin(FORWARD, 100, PERCENT)
+    intake3.spin(FORWARD, 20, PERCENT)
     Thread(drivetrain_forward,(3, 3, False, 50, 1000))
     wait(200, MSEC)
     match_load.set(True)
     wait(1300, MSEC)
     intake1.stop()
-    match_load.set(False)
     drivetrain_forward(-1.45, -1.45, False, 100)
-    intake1.spin_for(REVERSE, 0.5, TURNS, wait = False)
+    Thread(intake1.spin_for, (REVERSE, 0.3, TURNS))
+    wait(500, MSEC)
+    match_load.set(False)
+    drivetrain_forward(-0.68, 0.68, False, 100)
+    drivetrain_forward(4.7, 4.7, False, 100)
+    drivetrain_forward(-0.53, 0.53, False, 100)
+    drivetrain_forward(-2, -2, False, 90, 800)
+    intake1.stop()
+    intake1.spin(FORWARD, 100, PERCENT)
+    intake3.spin(FORWARD, 100, PERCENT)
+    wait(2000, MSEC)
+    intake3.stop()
+    intake1.stop()
+    drivetrain_forward(1.5, 1.5, False, 100) 
+    drivetrain_forward(0, -1, False, 100) 
+    drivetrain_forward(-1.5, -1.5, False, 100)
+    drivetrain_forward(-1, 0, False, 100) 
+    descorer.set(True)
+    drivetrain_forward(-3, -3, False, 100)
+
+def auto_blue_1():
+    descorer.set(False)
+    drivetrain_forward(3.1, 3.1, True, 70, 1000)
+    intake1.spin(FORWARD, 75, PERCENT)
+    Thread(drivetrain_forward,(3, 3, False, 50, 1000))
+    wait(200, MSEC)
+    match_load.set(True)
+    wait(1300, MSEC)
+    intake1.stop()
+    drivetrain_forward(-1.45, -1.45, False, 100)
     wait(500, MSEC)
     drivetrain_forward(-0.68, 0.68, False, 100)
     drivetrain_forward(4.7, 4.7, False, 100)
@@ -581,17 +610,46 @@ def auto_blue_1():
     intake1.spin(FORWARD, 70, PERCENT)
     drivetrain_forward(1, 1, False, 50) 
     drivetrain_forward(-2, -2, False, 80, 800)
-    match_load.set(True)
     drivetrain_forward(6.5, 6.7, False, 60, 1000)
-    drivetrain.drive(FORWARD, 40, PERCENT)
-    wait(1500, MSEC)
+    drivetrain.drive(FORWARD, 50, PERCENT)
+    wait(2000, MSEC)
     drivetrain.stop()
+    intake1.stop()
     drivetrain_forward(-6, -6.2, False, 50, 2000)
     intake1.spin(FORWARD, 100, PERCENT)
     intake3.spin(FORWARD, 100, PERCENT)
 
 def auto_blue_2():
-    drivetrain_forward_kalman(3.82,3.82, False, 80)
+    descorer.set(False)
+    drivetrain_forward(3.1, 3.1, True, 60, 1000)
+    intake1.spin(FORWARD, 100, PERCENT)
+    intake3.spin(FORWARD, 20, PERCENT)
+    Thread(drivetrain_forward,(3, 3, False, 50, 1000))
+    wait(200, MSEC)
+    match_load.set(True)
+    wait(1300, MSEC)
+    intake1.stop()
+    drivetrain_forward(-1.45, -1.45, False, 100)
+    Thread(intake1.spin_for, (REVERSE, 0.3, TURNS))
+    wait(500, MSEC)
+    match_load.set(False)
+    drivetrain_forward(-0.68, 0.68, False, 100)
+    drivetrain_forward(4.7, 4.7, False, 100)
+    drivetrain_forward(-0.53, 0.53, False, 100)
+    drivetrain_forward(-2, -2, False, 90, 800)
+    intake1.stop()
+    intake1.spin(FORWARD, 100, PERCENT)
+    intake3.spin(FORWARD, 100, PERCENT)
+    wait(2000, MSEC)
+    intake3.stop()
+    intake1.stop()
+    drivetrain_forward(1.5, 1.5, False, 100) 
+    drivetrain_forward(0, -1, False, 100) 
+    drivetrain_forward(-1.5, -1.5, False, 100)
+    drivetrain_forward(-1, 0, False, 100) 
+    descorer.set(True)
+    drivetrain_forward(-3, -3, False, 100)
+
 
 def auto_skill():
     if 0:
@@ -648,19 +706,16 @@ AUTO_FUNCTIONS = {
     "skill_": auto_skill
 }
 
-# autonomous
+# autonomous 
 def autonomous():
     '''
     competition template for autonomous code
     '''
     global team_position
-    descorer.set(True)
     AUTO_FUNCTIONS[str(team_position)]()
         
 # driver control
 def user_control():
-    
-    descorer.set(True)
     '''
     competition template for driver control
     '''
@@ -691,7 +746,7 @@ def user_control():
             double_park_status = False
             double_park.set(False)
         
-        if controller_1.buttonR1.pressing():
+        if controller_1.buttonR1.pressing() and double_park_status == False:
             intake1.set_velocity(100, PERCENT)
             intake3.set_velocity(100, PERCENT)
             intake1.spin(FORWARD)
@@ -704,14 +759,14 @@ def user_control():
             else:
                 intake3.set_velocity(100)
                 intake3.spin(FORWARD)
-        elif controller_1.buttonL2.pressing():
+        elif controller_1.buttonL2.pressing() and double_park_status == False:
             if controller_1.buttonR2.pressing():
                 intake1.spin(FORWARD)
             else: 
                 descorer.set(True)
-        elif controller_1.buttonR2.pressing():
+        elif controller_1.buttonR2.pressing() and double_park_status == False:
             intake1.spin(REVERSE)
-        elif double_park_status == False:
+        else:
             intake3.stop()
             intake1.stop()
             descorer.set(False)
