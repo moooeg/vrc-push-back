@@ -696,7 +696,9 @@ def auto_skill():
             double_park.set(True)
             break
     else:
-        drivetrain_forward(-1, -1, False, 80)
+        drivetrain.drive(REVERSE, 100, PERCENT)
+        wait(100, MSEC)
+        drivetrain.stop()
         intake1.spin(FORWARD, 100, PERCENT)
         intake3.spin(FORWARD, 100, PERCENT)
         match_load.set(True)
