@@ -697,7 +697,6 @@ def auto_skill():
         intake1.stop()
         match_load.set(True)
         drivetrain_forward(13, 10)
-        
     else:
         drivetrain.drive(REVERSE, 100, PERCENT)
         wait(100, MSEC)
@@ -746,6 +745,11 @@ def user_control():
     Thread(drivetrain_control)
     Thread(match_loading)
     #Thread(double_parking)
+    intake_speed = 0
+    if str(team_position) == "skill_":
+        intake_speed = 80
+    else:
+        intake_speed = 100
     while True:
         if controller_1.buttonY.pressing():
             double_park_status = True
@@ -764,8 +768,8 @@ def user_control():
             double_park.set(False)
         
         if controller_1.buttonR1.pressing() and double_park_status == False:
-            intake1.set_velocity(100, PERCENT)
-            intake3.set_velocity(100, PERCENT)
+            intake1.set_velocity(intake_speed, PERCENT)
+            intake3.set_velocity(intake_speed, PERCENT)
             intake1.spin(FORWARD)
             if controller_1.buttonL2.pressing():
                 intake3.set_velocity(-60)
@@ -774,9 +778,9 @@ def user_control():
                 if controller_1.buttonL2.pressing():
                     intake3.spin(REVERSE)
             if controller_1.buttonL1.pressing():
-                intake3.set_velocity(100)
+                intake3.set_velocity(intake_speed)
             if not controller_1.buttonL2.pressing():
-                intake3.set_velocity(100)
+                intake3.set_velocity(intake_speed)
                 intake3.spin(FORWARD)
         elif controller_1.buttonL2.pressing() and double_park_status == False:
             if controller_1.buttonR2.pressing():
