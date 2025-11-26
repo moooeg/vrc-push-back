@@ -72,7 +72,7 @@ color_sensor = Optical(Ports.PORT12)
 park_distance = Distance(Ports.PORT3)
 
 left_odom =  Rotation(Ports.PORT19, False)
-right_odom = Rotation(Ports.PORT20, True)
+right_odom = Rotation(Ports.PORT21, True)
 
 descorer = DigitalOut(brain.three_wire_port.d) #true: hold, false: release
 double_park = DigitalOut(brain.three_wire_port.b) #true: lift, false: unlift
@@ -664,7 +664,7 @@ def auto_skill():
     if 1:
         descorer.set(False)
         drivetrain_forward(3.1, 3.1, True, 60, 1000)
-        intake1.spin(FORWARD, 100, PERCENT)
+        intake1.spin(FORWARD, 80, PERCENT)
         intake3.spin(FORWARD, 20, PERCENT)
         Thread(drivetrain_forward,(3, 3, False, 50, 1000))
         wait(200, MSEC)
@@ -672,33 +672,37 @@ def auto_skill():
         wait(1300, MSEC)
         intake1.stop()
         intake3.stop()
-        drivetrain_forward_kalman(-1.45, -1.45, False, 100)
-        Thread(intake1.spin_for, (REVERSE, 0.3, TURNS))
+        drivetrain_forward(-1.45, -1.45, False, 100)
+        Thread(intake1.spin_for, (REVERSE, 0.6, TURNS))
         wait(500, MSEC)
         match_load.set(False)
-        drivetrain_forward_kalman(0.68, -0.68, False, 100)
-        drivetrain_forward_kalman(4.7, 4.7, False, 100)
-        drivetrain_forward_kalman(0.4, -0.4, False, 100)
-        drivetrain_forward_kalman(-5, -5, False, 90, 800)
-        intake1.stop()
+        drivetrain_forward(0.68, -0.68, False, 100)
+        drivetrain_forward(4.7, 4.7, False, 100)
+        drivetrain_forward(0.53, -0.53, False, 100)
+        drivetrain_forward(-2.3, -2.3, False, 90, 800)
         intake1.spin(FORWARD, 100, PERCENT)
         intake3.spin(FORWARD, 100, PERCENT)
         wait(2000, MSEC)
+        drivetrain_forward(1, 1, time_out=400)
+        wait(1, SECONDS)
+        drivetrain_forward(-4, -4, time_out=800)
+        intake1.spin(FORWARD)
+        intake3.spin(FORWARD)
+        wait(1, SECONDS)
         intake3.stop()
         intake1.stop()
-        drivetrain_forward_kalman(4, 4)
-        drivetrain_forward_kalman(0.7, -0.7)
-        Thread(intake1.spin_for, (REVERSE, 4, TURNS))
-        drivetrain_forward(8, 8)
-        Thread(drivetrain_forward,(3, 3, False, 50, 1000))
-        wait(200, MSEC)
         match_load.set(True)
-        wait(1300, MSEC)
-        intake1.stop()
-        intake3.stop()
-        drivetrain_forward_kalman(-1.45, -1.45, False, 100)
-        Thread(intake1.spin_for, (REVERSE, 0.3, TURNS))
-        wait(500, MSEC)
+        intake1.set_velocity(80, PERCENT)
+        intake1.spin(FORWARD)
+        intake3.spin(FORWARD)
+        drivetrain.set_stopping(HOLD)
+        drivetrain_forward(7, 6, speed=40, time_out=2000)
+        drivetrain.set_stopping(COAST)
+        wait(7500, MSEC)
+        drivetrain_forward(-6, -7, speed=40, time_out=2000)
+        intake1.spin(FORWARD)
+        intake3.spin(FORWARD)
+
     else:
         drivetrain.drive(REVERSE, 100, PERCENT)
         wait(100, MSEC)
@@ -769,18 +773,20 @@ def user_control():
             intake3.set_velocity(100, PERCENT)
             intake1.spin(FORWARD)
             if controller_1.buttonL2.pressing():
-                intake3.set_velocity(60)
-                intake3.spin(REVERSE)
+                intake3.set_velocity(-60)
             else:
                 intake3.spin(FORWARD)
+                if controller_1.buttonL2.pressing():
+                    intake3.spin(REVERSE)
             if controller_1.buttonL1.pressing():
                 intake3.set_velocity(100)
-            else:
+            if not controller_1.buttonL2.pressing():
                 intake3.set_velocity(100)
                 intake3.spin(FORWARD)
         elif controller_1.buttonL2.pressing() and double_park_status == False:
             if controller_1.buttonR2.pressing():
                 intake1.spin(FORWARD)
+                intake3.spin(REVERSE)
             else: 
                 descorer.set(True)
         elif controller_1.buttonR2.pressing() and double_park_status == False:
