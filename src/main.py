@@ -695,8 +695,11 @@ def auto_skill():
         wait(2.5, SECONDS)
         intake3.stop()
         intake1.stop()
+        drivetrain_forward(2, 2)
+        intake1.spin(FORWARD)
+        intake3.spin(FORWARD)
         match_load.set(True)
-        drivetrain_forward(13, 10)
+        drivetrain_forward_kalman(11, 11)
     else:
         drivetrain.drive(REVERSE, 100, PERCENT)
         wait(100, MSEC)
