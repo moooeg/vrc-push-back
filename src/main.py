@@ -543,9 +543,9 @@ def auto_red_1():
     Thread(intake1.spin_for, (REVERSE, 0.6, TURNS))
     wait(1000, MSEC)
     drivetrain_forward(-0.68, 0.68, False, 100)
-    drivetrain_forward(5, 5, False, 80)
-    drivetrain_forward(-0.48, 0.48, False, 100)
-    drivetrain_forward(-3, -3, False, 100, 800)
+    drivetrain_forward(5.2, 5.2, False, 80)
+    drivetrain_forward(-0.52, 0.52, False, 100)
+    drivetrain_forward(-3.5, -3.5, False, 100, 800)
     intake1.stop()
     intake1.spin(FORWARD, 100, PERCENT)
     intake3.spin(FORWARD, 100, PERCENT)
@@ -553,13 +553,13 @@ def auto_red_1():
     intake3.stop()
     intake1.stop()
     drivetrain_forward(1.5, 1.5, False, 100) 
-    drivetrain_forward(0, -1, False, 100) 
-    drivetrain_forward(-1.4, -1.4, False, 100)
-    drivetrain_forward(-1, 0, False, 100) 
+    drivetrain_forward(0, -1.05, False, 100) 
+    drivetrain_forward(-1.5, -1.5, False, 100)
+    drivetrain_forward(-0.95, 0, False, 100) 
     descorer.set(True)
-    drivetrain_forward(-3.2, -3.2, False, 100)
     drivetrain.set_stopping(HOLD)
-
+    drivetrain_forward(-3.15, -3.15, False, 100)
+    
 def auto_red_2(): 
     descorer.set(False)
     drivetrain_forward(3.1, 3.1, True, 60, 1000)
@@ -577,7 +577,7 @@ def auto_red_2():
     wait(1000, MSEC)
     drivetrain_forward(0.68, -0.68, False, 100)
     drivetrain_forward(5.2, 5.2, False, 80)
-    drivetrain_forward(0.52, -0.52, False, 100)
+    drivetrain_forward(0.43, -0.43, False, 100)
     drivetrain_forward(-3, -3, False, 100, 800)
     intake1.stop()
     intake1.spin(FORWARD, 100, PERCENT)
@@ -590,8 +590,8 @@ def auto_red_2():
     drivetrain_forward(-1.5, -1.5, False, 100)
     drivetrain_forward(-0.95, 0, False, 100) 
     descorer.set(True)
-    drivetrain_forward(-3.2, -3.2, False, 100)
     drivetrain.set_stopping(HOLD)
+    drivetrain_forward(-3.15, -3.15, False, 100)
 
 def auto_blue_1():
     descorer.set(False)
@@ -611,7 +611,7 @@ def auto_blue_1():
     drivetrain_forward(-0.68, 0.68, False, 100)
     drivetrain_forward(5.2, 5.2, False, 80)
     drivetrain_forward(-0.52, 0.52, False, 100)
-    drivetrain_forward(-3, -3, False, 100, 800)
+    drivetrain_forward(-3.5, -3.5, False, 100, 800)
     intake1.stop()
     intake1.spin(FORWARD, 100, PERCENT)
     intake3.spin(FORWARD, 100, PERCENT)
@@ -619,12 +619,12 @@ def auto_blue_1():
     intake3.stop()
     intake1.stop()
     drivetrain_forward(1.5, 1.5, False, 100) 
-    drivetrain_forward(0, -1, False, 100) 
+    drivetrain_forward(0, -1.05, False, 100) 
     drivetrain_forward(-1.5, -1.5, False, 100)
     drivetrain_forward(-0.95, 0, False, 100) 
     descorer.set(True)
-    drivetrain_forward(-3.2, -3.2, False, 100)
     drivetrain.set_stopping(HOLD)
+    drivetrain_forward(-3.15, -3.15, False, 100)
 
 def auto_blue_2():
     descorer.set(False)
@@ -656,7 +656,7 @@ def auto_blue_2():
     drivetrain_forward(-1.5, -1.5, False, 100)
     drivetrain_forward(-0.95, 0, False, 100) 
     descorer.set(True)
-    drivetrain_forward(-3.2, -3.2, False, 100)
+    drivetrain_forward(-3.15, -3.15, False, 100)
     drivetrain.set_stopping(HOLD)
 
 
