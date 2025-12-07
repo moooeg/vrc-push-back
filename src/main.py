@@ -552,7 +552,7 @@ def auto_blue_1():
     Thread(intake1.spin_for, (REVERSE, 0.6, TURNS))
     wait(1000, MSEC)
     drivetrain_forward(-0.68, 0.68, False, 100)
-    drivetrain_forward(4.65, 4.65, False, 80)
+    drivetrain_forward(4.95, 4.95, False, 80)
     drivetrain_forward(-0.52, 0.52, False, 100)
     drivetrain_forward(-3.5, -3.5, False, 100, 800)
     intake1.stop()
@@ -714,15 +714,13 @@ def user_control():
             double_park.set(False)
         
         if controller_1.buttonR1.pressing() and double_park_status == False:
-            intake1.set_velocity(intake_speed, PERCENT)
-            intake3.set_velocity(intake_speed, PERCENT)
             intake1.spin(FORWARD)
             if controller_1.buttonL2.pressing():
-                intake3.set_velocity(-60)
-            else:
+                intake3.set_velocity(-60, PERCENT)
                 intake3.spin(FORWARD)
-                if controller_1.buttonL2.pressing():
-                    intake3.spin(REVERSE)
+            else:
+                intake1.set_velocity(intake_speed, PERCENT)
+                intake3.set_velocity(intake_speed, PERCENT)
             if controller_1.buttonL1.pressing():
                 intake3.set_velocity(intake_speed)
             if not controller_1.buttonL2.pressing():
