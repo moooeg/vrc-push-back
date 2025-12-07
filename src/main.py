@@ -284,6 +284,9 @@ def drivetrain_control():
 
 def match_loading():
     global double_park_status
+    global intake_speed
+    intake1.set_velocity(100, PERCENT)
+    intake3.set_velocity(100, PERCENT)
     while True:
         wait(10, MSEC)
         if not double_park_status:
@@ -528,70 +531,10 @@ def drivetrain_forward(left_target_turns: float, right_target_turns: float, chai
 
 # -autonomous code
 def auto_red_1():
-    descorer.set(False)
-    drivetrain_forward(3.1, 3.1, True, 60, 1000)
-    intake1.spin(FORWARD, 80, PERCENT)
-    intake3.spin(FORWARD, 20, PERCENT)
-    Thread(drivetrain_forward,(3, 3, False, 50, 1000))
-    wait(200, MSEC)
-    match_load.set(True)
-    wait(1300, MSEC)
-    intake1.stop()
-    intake3.stop()
-    match_load.set(False)
-    drivetrain_forward(-1.45, -1.45, False, 100)
-    Thread(intake1.spin_for, (REVERSE, 0.6, TURNS))
-    wait(1000, MSEC)
-    drivetrain_forward(-0.68, 0.68, False, 100)
-    drivetrain_forward(5.2, 5.2, False, 80)
-    drivetrain_forward(-0.52, 0.52, False, 100)
-    drivetrain_forward(-3.5, -3.5, False, 100, 800)
-    intake1.stop()
-    intake1.spin(FORWARD, 100, PERCENT)
-    intake3.spin(FORWARD, 100, PERCENT)
-    wait(2000, MSEC)
-    intake3.stop()
-    intake1.stop()
-    drivetrain_forward(1.5, 1.5, False, 100) 
-    drivetrain_forward(0, -1.05, False, 100) 
-    drivetrain_forward(-1.5, -1.5, False, 100)
-    drivetrain_forward(-0.95, 0, False, 100) 
-    descorer.set(True)
-    drivetrain.set_stopping(HOLD)
-    drivetrain_forward(-3.15, -3.15, False, 100)
+    auto_blue_1()
     
 def auto_red_2(): 
-    descorer.set(False)
-    drivetrain_forward(3.1, 3.1, True, 60, 1000)
-    intake1.spin(FORWARD, 80, PERCENT)
-    intake3.spin(FORWARD, 20, PERCENT)
-    Thread(drivetrain_forward,(3, 3, False, 50, 1000))
-    wait(200, MSEC)
-    match_load.set(True)
-    wait(1300, MSEC)
-    intake1.stop()
-    intake3.stop()
-    match_load.set(False)
-    drivetrain_forward(-1.45, -1.45, False, 100)
-    Thread(intake1.spin_for, (REVERSE, 0.6, TURNS))
-    wait(1000, MSEC)
-    drivetrain_forward(0.68, -0.68, False, 100)
-    drivetrain_forward(5.2, 5.2, False, 80)
-    drivetrain_forward(0.43, -0.43, False, 100)
-    drivetrain_forward(-3, -3, False, 100, 800)
-    intake1.stop()
-    intake1.spin(FORWARD, 100, PERCENT)
-    intake3.spin(FORWARD, 100, PERCENT)
-    wait(2000, MSEC)
-    intake3.stop()
-    intake1.stop()
-    drivetrain_forward(1.5, 1.5, False, 100) 
-    drivetrain_forward(0, -1, False, 100) 
-    drivetrain_forward(-1.5, -1.5, False, 100)
-    drivetrain_forward(-0.95, 0, False, 100) 
-    descorer.set(True)
-    drivetrain.set_stopping(HOLD)
-    drivetrain_forward(-3.15, -3.15, False, 100)
+    auto_blue_2()
 
 def auto_blue_1():
     descorer.set(False)
@@ -609,22 +552,19 @@ def auto_blue_1():
     Thread(intake1.spin_for, (REVERSE, 0.6, TURNS))
     wait(1000, MSEC)
     drivetrain_forward(-0.68, 0.68, False, 100)
-    drivetrain_forward(5.2, 5.2, False, 80)
+    drivetrain_forward(4.65, 4.65, False, 80)
     drivetrain_forward(-0.52, 0.52, False, 100)
     drivetrain_forward(-3.5, -3.5, False, 100, 800)
     intake1.stop()
     intake1.spin(FORWARD, 100, PERCENT)
     intake3.spin(FORWARD, 100, PERCENT)
     wait(2000, MSEC)
-    intake3.stop()
+    drivetrain_forward(1, 1)
+    drivetrain_forward(-1.5, -1.5, time_out=1000)
+    match_load.set(True)
+    drivetrain_forward(4.5, 4.5, time_out=3000)
     intake1.stop()
-    drivetrain_forward(1.5, 1.5, False, 100) 
-    drivetrain_forward(0, -1.05, False, 100) 
-    drivetrain_forward(-1.5, -1.5, False, 100)
-    drivetrain_forward(-0.95, 0, False, 100) 
-    descorer.set(True)
-    drivetrain.set_stopping(HOLD)
-    drivetrain_forward(-3.15, -3.15, False, 100)
+    intake3.stop()
 
 def auto_blue_2():
     descorer.set(False)
@@ -642,23 +582,19 @@ def auto_blue_2():
     Thread(intake1.spin_for, (REVERSE, 0.6, TURNS))
     wait(1000, MSEC)
     drivetrain_forward(0.68, -0.68, False, 100)
-    drivetrain_forward(5.2, 5.2, False, 80)
+    drivetrain_forward(4.55, 4.55, False, 80)
     drivetrain_forward(0.52, -0.52, False, 100)
     drivetrain_forward(-3, -3, False, 100, 800)
     intake1.stop()
     intake1.spin(FORWARD, 100, PERCENT)
     intake3.spin(FORWARD, 100, PERCENT)
     wait(2000, MSEC)
-    intake3.stop()
+    drivetrain_forward(1, 1)
+    drivetrain_forward(-1.5, -1.5, time_out=1000)
+    match_load.set(True)
+    drivetrain_forward(4.5, 4.5, time_out=3000)
     intake1.stop()
-    drivetrain_forward(1.5, 1.5, False, 100) 
-    drivetrain_forward(0, -1, False, 100) 
-    drivetrain_forward(-1.5, -1.5, False, 100)
-    drivetrain_forward(-0.95, 0, False, 100) 
-    descorer.set(True)
-    drivetrain_forward(-3.15, -3.15, False, 100)
-    drivetrain.set_stopping(HOLD)
-
+    intake3.stop()
 
 def auto_skill():
     if 1:
@@ -741,6 +677,7 @@ def user_control():
     '''
     competition template for driver control
     '''
+    global intake_speed
     global double_park_status
     drivetrain.set_stopping(COAST)
     brain.timer.clear()
@@ -754,12 +691,12 @@ def user_control():
     Thread(drivetrain_control)
     Thread(match_loading)
     #Thread(double_parking)
-    intake_speed = 0
-    if str(team_position) == "skill_":
-        intake_speed = 80
-    else:
-        intake_speed = 100
     while True:
+        intake_speed = 0
+        if str(team_position) == "skill_":
+            intake_speed = 80
+        else:
+            intake_speed = 100
         if controller_1.buttonY.pressing():
             double_park_status = True
             match_load.set(True)
