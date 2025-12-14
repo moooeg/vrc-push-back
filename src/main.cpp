@@ -1,4 +1,6 @@
 #include "main.h"
+#include "autonomous.h"
+
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "pros/apix.h"
 #include "lvgl.h"
@@ -91,6 +93,8 @@ LV_IMAGE_DECLARE(red_1);
 LV_IMAGE_DECLARE(red_1_confirmed);
 LV_IMAGE_DECLARE(red_2);
 LV_IMAGE_DECLARE(red_2_confirmed);
+
+TeamPosition position = TeamPosition();
 
 class ButtonPosition {
 public:
@@ -210,7 +214,7 @@ void initialize() {
         }
     });
    
-    TeamPosition position = TeamChoosing();
+    position = TeamChoosing();
 }
 
 /**
@@ -229,7 +233,13 @@ void competition_initialize() {}
  * This is an example autonomous routine which demonstrates a lot of the features LemLib has to offer
  */
 void autonomous() {
-	
+    Autonomous autonomous = Autonomous();
+
+	if (position.position == "_1") {
+        autonomous.Auto1();
+    } else if (position.position == "_2") {
+        autonomous.Auto2();
+    }
 }
 
 /**
