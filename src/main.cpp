@@ -1,6 +1,8 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 
+#include <map>
+
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
@@ -75,6 +77,59 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 
+class ButtonPosition {
+public:
+    int x1, x2, y1, y2;
+
+    bool pressing(int x, int y) {
+        return (x1 <= x <= x2) && (y1 <= y <= y2);
+    }
+
+    ButtonPosition(int x1, int x2, int y1, int y2) {
+        this->x1 = x1;
+        this->x2 = x2;
+        this->y1 = y1;
+        this->y2 = y2;
+    }
+};
+
+class TeamPosition {
+public:
+
+    std::string team;
+    std::string position;
+
+    std::string asString() {
+        return team + "_" + position;
+    }
+
+    TeamPosition(std::string team, std::string position) {
+        this->position = position;
+        this->position = position;
+    }
+};
+
+std::map<std::string, std::map<std::string, ButtonPosition>> GUI_BUTTON_POSITIONS = {
+    {
+        "top", {
+            { "1", ButtonPosition(139, 8, 240, 26) },
+            { "2", ButtonPosition(249, 8, 351, 26) },
+            { "3", ButtonPosition(358, 8, 461, 26) }
+        }
+    },
+    {
+        "bottom", {
+            { "1", ButtonPosition(19, 52, 138, 73)},
+            { "2", ButtonPosition(19, 85, 138, 107) },
+            { "3", ButtonPosition(19, 120, 138, 142) }
+        }
+    }
+};
+
+TeamPosition TeamChoosing() {
+    
+}
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -100,6 +155,8 @@ void initialize() {
             pros::delay(50);
         }
     });
+
+    TeamPosition position = TeamChoosing();
 }
 
 /**
