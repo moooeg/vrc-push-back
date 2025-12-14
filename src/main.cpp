@@ -1,5 +1,7 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
+#include "apix.h"
+#include "lvgl.h"
 
 #include <map>
 
@@ -96,16 +98,11 @@ public:
 class TeamPosition {
 public:
 
-    std::string team;
-    std::string position;
+    std::string team = "";
+    std::string position = "";
 
     std::string asString() {
         return team + "_" + position;
-    }
-
-    TeamPosition(std::string team, std::string position) {
-        this->position = position;
-        this->position = position;
     }
 };
 
@@ -127,7 +124,39 @@ std::map<std::string, std::map<std::string, ButtonPosition>> GUI_BUTTON_POSITION
 };
 
 TeamPosition TeamChoosing() {
-    
+
+    // set screen here
+
+    TeamPosition teamPosition = TeamPosition();
+    bool confirmed = false;
+
+    while (true) {
+        pros::delay(5);
+
+        // exit
+        if (confirmed) {
+            // set screen here
+            return teamPosition;
+        }
+
+        // controller
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            teamPosition.team = "red";
+            teamPosition.position = "1";
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+            teamPosition.team = "red";
+            teamPosition.position = "2";
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            teamPosition.team = "blue";
+            teamPosition.position = "1";
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            teamPosition.team = "blue";
+            teamPosition.position = "2";
+        }
+    }
 }
 
 /**
@@ -155,7 +184,7 @@ void initialize() {
             pros::delay(50);
         }
     });
-
+   
     TeamPosition position = TeamChoosing();
 }
 
