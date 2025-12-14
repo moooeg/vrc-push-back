@@ -19,13 +19,13 @@ pros::Imu imu(7);
 // vertical tracking wheel encoder. Rotation sensor, port 9
 pros::Rotation verticalEnc(8);
 // vertical tracking wheel. 2" diameter, 2.5" offset, left of the robot (negative)
-lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, -2.5);
+lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, 0);
 
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               &rightMotors, // right motor group
                               11.9, // 11.9 inch track width
-                              lemlib::Omniwheel::NEW_325, // using new 4" omnis
+                              lemlib::Omniwheel::NEW_325, // using new 3.25" omnis
                               450, // drivetrain rpm is 450
                               8 // horizontal drift is 8. 2 for full omni, 8 for traction
 );
