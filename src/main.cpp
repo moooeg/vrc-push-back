@@ -1,6 +1,6 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include "apix.h"
+#include "pros/apix.h"
 #include "lvgl.h"
 
 #include <map>
@@ -79,6 +79,19 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 
+// declare all images
+LV_IMAGE_DECLARE(begin);
+
+LV_IMAGE_DECLARE(blue_1);
+LV_IMAGE_DECLARE(blue_1_confirmed);
+LV_IMAGE_DECLARE(blue_2);
+LV_IMAGE_DECLARE(blue_2_confirmed);
+
+LV_IMAGE_DECLARE(red_1);
+LV_IMAGE_DECLARE(red_1_confirmed);
+LV_IMAGE_DECLARE(red_2);
+LV_IMAGE_DECLARE(red_2_confirmed);
+
 class ButtonPosition {
 public:
     int x1, x2, y1, y2;
@@ -125,7 +138,10 @@ std::map<std::string, std::map<std::string, ButtonPosition>> GUI_BUTTON_POSITION
 
 TeamPosition TeamChoosing() {
 
-    // set screen here
+    lv_obj_t *img = lv_image_create(lv_screen_active());
+    
+    lv_image_set_src(img, &begin);
+    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
 
     TeamPosition teamPosition = TeamPosition();
     bool confirmed = false;
@@ -135,7 +151,20 @@ TeamPosition TeamChoosing() {
 
         // exit
         if (confirmed) {
-            // set screen here
+
+            // probs a faster way then all these if checks. 
+            if (teamPosition.asString() == "blue_1") {
+                lv_image_set_src(img, &blue_1_confirmed);
+            } else if (teamPosition.asString() == "blue_2") {
+                lv_image_set_src(img, &blue_2_confirmed);
+            }
+            else if (teamPosition.asString() == "red_1") {
+                lv_image_set_src(img, &red_1_confirmed);
+            }
+            else if (teamPosition.asString() == "red_2") {
+                lv_image_set_src(img, &red_2_confirmed);
+            }
+
             return teamPosition;
         }
 
@@ -166,17 +195,13 @@ TeamPosition TeamChoosing() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-    pros::lcd::initialize(); // initialize brain screen
+
     chassis.calibrate(); // calibrate sensors
 
     // thread to for brain screen and position logging
     pros::Task screenTask([&]() {
         while (true) {
 			if (0){
-				// print robot location to the brain screen
-            	pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-            	pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-            	pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
             	// log position telemetry
             	lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
 			}
