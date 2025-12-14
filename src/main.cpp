@@ -14,12 +14,8 @@ pros::MotorGroup leftMotors({4, 5, -6}, pros::MotorGearset::green); //front righ
 // Inertial Sensor on port 11
 pros::Imu imu(7);
 // tracking wheels
-// horizontal tracking wheel encoder. Rotation sensor, port 8
-pros::Rotation horizontalEnc(8);
 // vertical tracking wheel encoder. Rotation sensor, port 9
-pros::Rotation verticalEnc(9);
-// horizontal tracking wheel. 2" diameter, 5.75" offset, back of the robot (negative)
-lemlib::TrackingWheel horizontal(&horizontalEnc, lemlib::Omniwheel::NEW_2, -5.75);
+pros::Rotation verticalEnc(8);
 // vertical tracking wheel. 2" diameter, 2.5" offset, left of the robot (negative)
 lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, -2.5);
 
@@ -59,7 +55,7 @@ lemlib::ControllerSettings angularController(2, // proportional gain (kP)
 // sensors for odometry
 lemlib::OdomSensors sensors(&vertical, // vertical tracking wheel
                             nullptr, // vertical tracking wheel 2, set to nullptr as we don't have a second one
-                            &horizontal, // horizontal tracking wheel
+                            nullptr, // horizontal tracking wheel
                             nullptr, // horizontal tracking wheel 2, set to nullptr as we don't have a second one
                             &imu // inertial sensor
 );
