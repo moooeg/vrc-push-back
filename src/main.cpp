@@ -201,18 +201,6 @@ TeamPosition TeamChoosing() {
 void initialize() {
 
     chassis.calibrate(); // calibrate sensors
-
-    // thread to for brain screen and position logging
-    pros::Task screenTask([&]() {
-        while (true) {
-			if (0){
-            	// log position telemetry
-            	lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-			}
-            // delay to save resources
-            pros::delay(50);
-        }
-    });
    
     position = TeamChoosing();
 }
