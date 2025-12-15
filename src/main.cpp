@@ -218,10 +218,10 @@ void competition_initialize() {}
 /**
  * Runs during auto
  *
- * This is an example autonomous routine which demonstrates a lot of the features LemLib has to offer
  */
+
 void autonomous() {
-    Autonomous autonomous = Autonomous();
+    Autonomous autonomous = Autonomous(chassis);
 
 	if (position.position == "_1") {
         autonomous.Auto1();
