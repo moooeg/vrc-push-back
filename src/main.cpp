@@ -7,8 +7,7 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 // motor groups
 pros::MotorGroup rightMotors({-1, -2, 3}, //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
                             pros::MotorGearset::green);
-pros::MotorGroup leftMotors({4, 5, -6}, pros::MotorGearset::green); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed)
-
+pros::MotorGroup leftMotors({4, 5, -6}, pros::MotorGearset::green); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed) 
 
 
 // Inertial Sensor on port 11
