@@ -5,6 +5,7 @@
 #include "pros/apix.h"
 #include "lvgl.h"
 
+#include <pros/adi.hpp> //penumatics
 #include <map>
 
 // controller
@@ -14,7 +15,6 @@ pros::Controller controller(pros::E_CONTROLLER_MASTER);
 pros::MotorGroup rightMotors({-1, -2, 3}, //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
                             pros::MotorGearset::green);
 pros::MotorGroup leftMotors({4, 5, -6}, pros::MotorGearset::green); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed) 
-
 
 // Inertial Sensor on port 11
 pros::Imu imu(7);
@@ -193,7 +193,6 @@ TeamPosition TeamChoosing() {
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
- *
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
@@ -202,6 +201,17 @@ void initialize() {
     chassis.calibrate(); // calibrate sensors
    
     position = TeamChoosing();
+
+    //define motor ports
+    pros::Motor intakeStage1(9, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 1 intake motor 11W green
+    pros::Motor intakeStage2(10, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 2 intake motor 5.5W
+    pros::Motor intakeStage3(11, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); // stage 3 intake motor 5.5W
+
+    //define pneumatics
+    pros::ADIAnalogOut matchload = pros::ADIAnalogOut('A');
+    pros::ADIAnalogOut intakeLift = pros::ADIAnalogOut('B');
+    pros::ADIAnalogOut descore = pros::ADIAnalogOut('C');
+    pros::ADIAnalogOut holder = pros::ADIAnalogOut('D');
 }
 
 /**
