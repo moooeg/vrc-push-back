@@ -1,5 +1,11 @@
 #include "main.h"
+#include "autonomous.h"
+
 #include "lemlib/api.hpp" // IWYU pragma: keep
+#include "pros/apix.h"
+#include "lvgl.h"
+
+#include <map>
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -74,6 +80,117 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 
+// declare all images
+LV_IMAGE_DECLARE(begin);
+
+LV_IMAGE_DECLARE(blue_1);
+LV_IMAGE_DECLARE(blue_1_confirmed);
+LV_IMAGE_DECLARE(blue_2);
+LV_IMAGE_DECLARE(blue_2_confirmed);
+
+LV_IMAGE_DECLARE(red_1);
+LV_IMAGE_DECLARE(red_1_confirmed);
+LV_IMAGE_DECLARE(red_2);
+LV_IMAGE_DECLARE(red_2_confirmed);
+
+TeamPosition position = TeamPosition();
+
+class ButtonPosition {
+public:
+    int x1, x2, y1, y2;
+
+    bool pressing(int x, int y) {
+        return (x1 <= x <= x2) && (y1 <= y <= y2);
+    }
+
+    ButtonPosition(int x1, int x2, int y1, int y2) {
+        this->x1 = x1;
+        this->x2 = x2;
+        this->y1 = y1;
+        this->y2 = y2;
+    }
+};
+
+class TeamPosition {
+public:
+
+    std::string team = "";
+    std::string position = "";
+
+    std::string asString() {
+        return team + "_" + position;
+    }
+};
+
+std::map<std::string, std::map<std::string, ButtonPosition>> GUI_BUTTON_POSITIONS = {
+    {
+        "top", {
+            { "1", ButtonPosition(139, 8, 240, 26) },
+            { "2", ButtonPosition(249, 8, 351, 26) },
+            { "3", ButtonPosition(358, 8, 461, 26) }
+        }
+    },
+    {
+        "bottom", {
+            { "1", ButtonPosition(19, 52, 138, 73)},
+            { "2", ButtonPosition(19, 85, 138, 107) },
+            { "3", ButtonPosition(19, 120, 138, 142) }
+        }
+    }
+};
+
+TeamPosition TeamChoosing() {
+
+    lv_obj_t *img = lv_image_create(lv_screen_active());
+    
+    lv_image_set_src(img, &begin);
+    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
+
+    TeamPosition teamPosition = TeamPosition();
+    bool confirmed = false;
+
+    while (true) {
+        pros::delay(5);
+
+        // exit
+        if (confirmed) {
+
+            // probs a faster way then all these if checks. 
+            if (teamPosition.asString() == "blue_1") {
+                lv_image_set_src(img, &blue_1_confirmed);
+            } else if (teamPosition.asString() == "blue_2") {
+                lv_image_set_src(img, &blue_2_confirmed);
+            }
+            else if (teamPosition.asString() == "red_1") {
+                lv_image_set_src(img, &red_1_confirmed);
+            }
+            else if (teamPosition.asString() == "red_2") {
+                lv_image_set_src(img, &red_2_confirmed);
+            }
+
+            return teamPosition;
+        }
+
+        // controller
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            teamPosition.team = "red";
+            teamPosition.position = "1";
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+            teamPosition.team = "red";
+            teamPosition.position = "2";
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            teamPosition.team = "blue";
+            teamPosition.position = "1";
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            teamPosition.team = "blue";
+            teamPosition.position = "2";
+        }
+    }
+}
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -81,24 +198,10 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-    pros::lcd::initialize(); // initialize brain screen
-    chassis.calibrate(); // calibrate sensors
 
-    // thread to for brain screen and position logging
-    pros::Task screenTask([&]() {
-        while (true) {
-			if (0){
-				// print robot location to the brain screen
-            	pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-            	pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-            	pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            	// log position telemetry
-            	lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-			}
-            // delay to save resources
-            pros::delay(50);
-        }
-    });
+    chassis.calibrate(); // calibrate sensors
+   
+    position = TeamChoosing();
 }
 
 /**
@@ -114,10 +217,16 @@ void competition_initialize() {}
 /**
  * Runs during auto
  *
- * This is an example autonomous routine which demonstrates a lot of the features LemLib has to offer
  */
+
 void autonomous() {
-	
+    Autonomous autonomous = Autonomous(chassis);
+
+	if (position.position == "_1") {
+        autonomous.Auto1();
+    } else if (position.position == "_2") {
+        autonomous.Auto2();
+    }
 }
 
 /**
