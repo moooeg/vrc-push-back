@@ -222,7 +222,10 @@ void disabled() {}
 /**
  * runs after initialize if the robot is connected to field control
  */
-void competition_initialize() {}
+void competition_initialize() {
+
+    chassis.calibrate(); // calibrate sensors
+}
 
 /**
  * Runs during auto
@@ -230,12 +233,11 @@ void competition_initialize() {}
  */
 
 void autonomous() {
-    Autonomous autonomous = Autonomous(chassis);
 
 	if (position.position == "_1") {
-        autonomous.Auto1();
+        Auto1(&chassis);
     } else if (position.position == "_2") {
-        autonomous.Auto2();
+        Auto2(&chassis);
     }
 }
 

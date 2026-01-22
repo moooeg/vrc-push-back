@@ -1,16 +1,10 @@
 
 #include "autonomous.h"
 
-class Autonomous {
+void Auto1(lemlib::Chassis * chassis) {
 
-   lemlib::Chassis &chassis;
+}
 
-public:
-   void Auto1() {
-      
-   }
+void Auto2(lemlib::Chassis * chassis) {
 
-   void Auto2() {
-    
-   }
-};
+}
