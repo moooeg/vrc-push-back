@@ -234,9 +234,9 @@ void competition_initialize() {
 
 void autonomous() {
 
-	if (position.position == "_1") {
+	if (position.position == "1") {
         Auto1(&chassis);
-    } else if (position.position == "_2") {
+    } else if (position.position == "2") {
         Auto2(&chassis);
     }
 }
