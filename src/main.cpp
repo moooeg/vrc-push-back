@@ -3,9 +3,8 @@
 
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "pros/apix.h"
-#include "lvgl.h"
+#include "pros/adi.h"
 
-#include <pros/adi.hpp> //penumatics
 #include <map>
 
 // controller
@@ -80,48 +79,6 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 
-// declare all images
-LV_IMAGE_DECLARE(begin);
-
-LV_IMAGE_DECLARE(blue_1);
-LV_IMAGE_DECLARE(blue_1_confirmed);
-LV_IMAGE_DECLARE(blue_2);
-LV_IMAGE_DECLARE(blue_2_confirmed);
-
-LV_IMAGE_DECLARE(red_1);
-LV_IMAGE_DECLARE(red_1_confirmed);
-LV_IMAGE_DECLARE(red_2);
-LV_IMAGE_DECLARE(red_2_confirmed);
-
-TeamPosition position = TeamPosition();
-
-class ButtonPosition {
-public:
-    int x1, x2, y1, y2;
-
-    bool pressing(int x, int y) {
-        return (x1 <= x <= x2) && (y1 <= y <= y2);
-    }
-
-    ButtonPosition(int x1, int x2, int y1, int y2) {
-        this->x1 = x1;
-        this->x2 = x2;
-        this->y1 = y1;
-        this->y2 = y2;
-    }
-};
-
-class TeamPosition {
-public:
-
-    std::string team = "";
-    std::string position = "";
-
-    std::string asString() {
-        return team + "_" + position;
-    }
-};
-
 std::map<std::string, std::map<std::string, ButtonPosition>> GUI_BUTTON_POSITIONS = {
     {
         "top", {
@@ -139,14 +96,8 @@ std::map<std::string, std::map<std::string, ButtonPosition>> GUI_BUTTON_POSITION
     }
 };
 
-TeamPosition TeamChoosing() {
+void TeamChoosing() {
 
-    lv_obj_t *img = lv_image_create(lv_screen_active());
-    
-    lv_image_set_src(img, &begin);
-    lv_obj_align(img, LV_ALIGN_CENTER, 0, 0);
-
-    TeamPosition teamPosition = TeamPosition();
     bool confirmed = false;
 
     while (true) {
@@ -155,38 +106,51 @@ TeamPosition TeamChoosing() {
         // exit
         if (confirmed) {
 
-            // probs a faster way then all these if checks. 
-            if (teamPosition.asString() == "blue_1") {
-                lv_image_set_src(img, &blue_1_confirmed);
-            } else if (teamPosition.asString() == "blue_2") {
-                lv_image_set_src(img, &blue_2_confirmed);
+            if (position.asString() == "blue_1") {
+                pros::screen::fill_circle(160, 120, 40);
+            } else if (position.asString() == "blue_2") {
+                pros::screen::fill_circle(160, 120, 40);
+                pros::screen::fill_circle(320, 120, 40);
             }
-            else if (teamPosition.asString() == "red_1") {
-                lv_image_set_src(img, &red_1_confirmed);
+            else if (position.asString() == "red_1") {
+                pros::screen::draw_circle(160, 120, 40);
             }
-            else if (teamPosition.asString() == "red_2") {
-                lv_image_set_src(img, &red_2_confirmed);
+            else if (position.asString() == "red_2") {
+                pros::screen::draw_circle(160, 120, 40);
+                pros::screen::draw_circle(320, 120, 40);
+            }
+            else if (position.asString() == "skill_") {
+                pros::screen::fill_circle(160, 120, 40);
+                pros::screen::draw_circle(320, 120, 40);
             }
 
-            return teamPosition;
+            return;
         }
 
         // controller
         if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-            teamPosition.team = "red";
-            teamPosition.position = "1";
+            position.team = "red";
+            position.position = "1";
+            confirmed = true;
         }
         else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-            teamPosition.team = "red";
-            teamPosition.position = "2";
+            position.team = "red";
+            position.position = "2";
+            confirmed = true;
         }
         else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            teamPosition.team = "blue";
-            teamPosition.position = "1";
+            position.team = "blue";
+            position.position = "1";
+            confirmed = true;
         }
         else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            teamPosition.team = "blue";
-            teamPosition.position = "2";
+            position.team = "blue";
+            position.position = "2";
+            confirmed = true;
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            position.team = "skill";
+            confirmed = true;
         }
     }
 }
@@ -200,18 +164,18 @@ void initialize() {
 
     chassis.calibrate(); // calibrate sensors
    
-    position = TeamChoosing();
+    TeamChoosing();
 
     //define motor ports
     pros::Motor intakeStage1(9, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 1 intake motor 11W green
     pros::Motor intakeStage2(10, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 2 intake motor 5.5W
     pros::Motor intakeStage3(11, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); // stage 3 intake motor 5.5W
 
-    //define pneumatics
-    pros::ADIAnalogOut matchload = pros::ADIAnalogOut('A');
-    pros::ADIAnalogOut intakeLift = pros::ADIAnalogOut('B');
-    pros::ADIAnalogOut descore = pros::ADIAnalogOut('C');
-    pros::ADIAnalogOut holder = pros::ADIAnalogOut('D');
+    //define pneumatics 
+    pros::adi::AnalogOut matchload = pros::adi::AnalogOut('A');
+    pros::adi::AnalogOut intakeLift = pros::adi::AnalogOut('B');
+    pros::adi::AnalogOut descore = pros::adi::AnalogOut('C');
+    pros::adi::AnalogOut holder = pros::adi::AnalogOut('D');
 }
 
 /**

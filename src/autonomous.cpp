@@ -8,3 +8,7 @@ void Auto1(lemlib::Chassis * chassis) {
 void Auto2(lemlib::Chassis * chassis) {
 
 }
+
+std::string TeamPosition::asString() {
+    return team + "_" + position;
+}
