@@ -23,5 +23,7 @@ public:
     std::string team;
     std::string position;
 
-    std::string asString();
+    std::string asString() {
+        return team + "_" + position;
+    }
 };

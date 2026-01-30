@@ -199,9 +199,11 @@ void competition_initialize() {
 void autonomous() {
 
 	if (position.position == "1") {
-        Auto1(&chassis);
+        Auto1(chassis);
     } else if (position.position == "2") {
-        Auto2(&chassis);
+        Auto2(chassis);
+    } else if (position.team == "skill") {
+        Skills(chassis);
     }
 }
 
