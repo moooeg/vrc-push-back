@@ -2,7 +2,6 @@
 #include "autonomous.h"
 
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include "pros/apix.h"
 #include "pros/adi.h"
 
 #include <map>
@@ -78,23 +77,6 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
-
-std::map<std::string, std::map<std::string, ButtonPosition>> GUI_BUTTON_POSITIONS = {
-    {
-        "top", {
-            { "1", ButtonPosition(139, 8, 240, 26) },
-            { "2", ButtonPosition(249, 8, 351, 26) },
-            { "3", ButtonPosition(358, 8, 461, 26) }
-        }
-    },
-    {
-        "bottom", {
-            { "1", ButtonPosition(19, 52, 138, 73)},
-            { "2", ButtonPosition(19, 85, 138, 107) },
-            { "3", ButtonPosition(19, 120, 138, 142) }
-        }
-    }
-};
 
 void TeamChoosing() {
 
