@@ -10,18 +10,18 @@
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-pros::MotorGroup rightMotors({-1, -2, 3}, //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
+pros::MotorGroup rightMotors({1, -2, 3}, //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
                             pros::MotorGearset::green);
-pros::MotorGroup leftMotors({4, 5, -6}, pros::MotorGearset::green); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed) 
+pros::MotorGroup leftMotors({-4, 5, -6}, pros::MotorGearset::green); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed) 
 
-// Inertial Sensor on port 11
-pros::Imu imu(7);
+// Inertial Sensor on port 12
+pros::Imu imu(12);
 // tracking wheels
-// vertical tracking wheel encoder. Rotation sensor, port 9
-pros::Rotation verticalEnc(8);
-// vertical tracking wheel. 2" diameter, 2.5" offset, left of the robot (negative)
+// vertical tracking wheel encoder. Rotation sensor, port 11
+pros::Rotation verticalEnc(11);
+// vertical tracking wheel. 2" diameter, 0" offset
 lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, 0);
-
+ 
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               &rightMotors, // right motor group
