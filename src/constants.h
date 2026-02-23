@@ -1,19 +1,17 @@
 
+#include "pros/adi.hpp"
+#include "pros/motors.hpp"
 #include <string>
+#include <vector>
 
-class ButtonPosition {
+class Devices {
 public:
-    int x1, x2, y1, y2;
 
-    bool pressing(int x, int y) {
-        return (x1 <= x <= x2) && (y1 <= y <= y2);
-    }
+    std::vector<pros::Motor> motors;
+    std::vector<pros::adi::AnalogOut> analogOuts;
 
-    ButtonPosition(int x1, int x2, int y1, int y2) {
-        this->x1 = x1;
-        this->x2 = x2;
-        this->y1 = y1;
-        this->y2 = y2;
+    Devices(std::vector<pros::Motor> motors, std::vector<pros::adi::AnalogOut> analogOuts): motors(std::move(motors)), analogOuts(std::move(analogOuts)) {
+        
     }
 };
 

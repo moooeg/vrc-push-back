@@ -1,5 +1,6 @@
 #include "main.h"
 #include "autonomous.h"
+#include "constants.h"
 
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "selection/selection.h" // Autonomous Selection
@@ -89,6 +90,8 @@ pros::adi::AnalogOut intakeLift = pros::adi::AnalogOut('B');
 pros::adi::AnalogOut descore = pros::adi::AnalogOut('C');
 pros::adi::AnalogOut holder = pros::adi::AnalogOut('D');
 
+Devices devices({intakeStage1, intakeStage2, intakeStage3}, {matchload, intakeLift, descore, holder});
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  * All other competition modes are blocked by initialize; it is recommended
@@ -100,7 +103,7 @@ void initialize() {
    
     selector::init();
 
-    Auto1(chassis);
+    Auto1(chassis, devices); // temporary for calibrating the pid
 }
 
 /**
@@ -123,13 +126,13 @@ void competition_initialize() {
 
 void autonomous() {
     switch (selector::auton) {
-        case (0): Skills(chassis);
-        case (1): Auto1(chassis);
-        case (2): Auto2(chassis);
-        case (3): SoloAutonomous(chassis);
-        case (-1): Auto1(chassis);
-        case (-2): Auto2(chassis);
-        case (-3): SoloAutonomous(chassis);
+        case (0): Skills(chassis, devices);
+        case (1): Auto1(chassis, devices);
+        case (2): Auto2(chassis, devices);
+        case (3): SoloAutonomous(chassis, devices);
+        case (-1): Auto1(chassis, devices);
+        case (-2): Auto2(chassis, devices);
+        case (-3): SoloAutonomous(chassis, devices);
     }
 }
 
@@ -139,7 +142,6 @@ void autonomous() {
 void opcontrol() {
     // controller
     // loop to continuously update motors
-    return;
 
     while (true) {
 		//get joystick values
