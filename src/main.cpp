@@ -2,15 +2,12 @@
 #include "autonomous.h"
 
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include "pros/adi.h"
-
-#include <map>
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-pros::MotorGroup rightMotors({1, -2, 3}, //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
+pros::MotorGroup rightMotors({9, -2, 3}, //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
                             pros::MotorGearset::green);
 pros::MotorGroup leftMotors({-4, 5, -6}, pros::MotorGearset::green); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed) 
 
@@ -32,7 +29,8 @@ lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
 );
 
 // lateral motion controller
-lemlib::ControllerSettings linearController(10, // proportional gain (kP)
+lemlib::ControllerSettings linearController(
+                                            10, // proportional gain (kP)
                                             0, // integral gain (kI)
                                             3, // derivative gain (kD)
                                             3, // anti windup
@@ -44,15 +42,16 @@ lemlib::ControllerSettings linearController(10, // proportional gain (kP)
 );
 
 // angular motion controller
-lemlib::ControllerSettings angularController(2, // proportional gain (kP)
-                                             0, // integral gain (kI)
-                                             10, // derivative gain (kD)
-                                             3, // anti windup
-                                             1, // small error range, in degrees
-                                             100, // small error range timeout, in milliseconds
-                                             3, // large error range, in degrees
-                                             500, // large error range timeout, in milliseconds
-                                             0 // maximum acceleration (slew)
+lemlib::ControllerSettings angularController(
+                                            2.53, // proportional gain (kP)
+                                            0, // integral gain (kI)
+                                            25, // derivative gain (kD)
+                                            3, // anti windup
+                                            1, // small error range, in degrees
+                                            100, // small error range timeout, in milliseconds
+                                            3, // large error range, in degrees
+                                            500, // large error range timeout, in milliseconds
+                                            0 // maximum acceleration (slew)
 );
 
 // sensors for odometry
@@ -149,15 +148,17 @@ void initialize() {
     TeamChoosing();
 
     //define motor ports
-    pros::Motor intakeStage1(9, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 1 intake motor 11W green
-    pros::Motor intakeStage2(10, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 2 intake motor 5.5W
-    pros::Motor intakeStage3(11, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); // stage 3 intake motor 5.5W
+    pros::Motor intakeStage1(13, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 1 intake motor 11W green
+    pros::Motor intakeStage2(14, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 2 intake motor 5.5W
+    pros::Motor intakeStage3(15, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); // stage 3 intake motor 5.5W
 
     //define pneumatics 
     pros::adi::AnalogOut matchload = pros::adi::AnalogOut('A');
     pros::adi::AnalogOut intakeLift = pros::adi::AnalogOut('B');
     pros::adi::AnalogOut descore = pros::adi::AnalogOut('C');
     pros::adi::AnalogOut holder = pros::adi::AnalogOut('D');
+
+    Auto1(chassis);
 }
 
 /**
@@ -195,12 +196,14 @@ void autonomous() {
 void opcontrol() {
     // controller
     // loop to continuously update motors
+    return;
+
     while (true) {
 		//get joystick values
 		int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         // move the chassis with curvature drive
-        chassis.arcade(leftY, rightX);
+        chassis.curvature(leftY, rightX);
         // delay to save resources
         pros::delay(10);
     }
