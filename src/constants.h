@@ -1,3 +1,4 @@
+#pragma once
 
 #include "pros/adi.hpp"
 #include "pros/motors.hpp"
@@ -11,7 +12,7 @@ public:
     std::vector<pros::adi::AnalogOut> analogOuts;
 
     Devices(std::vector<pros::Motor> motors, std::vector<pros::adi::AnalogOut> analogOuts): motors(std::move(motors)), analogOuts(std::move(analogOuts)) {
-        
+
     }
 };
 
