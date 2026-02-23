@@ -2,6 +2,7 @@
 #include "autonomous.h"
 
 #include "lemlib/api.hpp" // IWYU pragma: keep
+#include "selection/selection.h" // Autonomous Selection
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
@@ -77,64 +78,16 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 // create the chassis
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 
-void TeamChoosing() {
+//define motor ports
+pros::Motor intakeStage1(13, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 1 intake motor 11W green
+pros::Motor intakeStage2(14, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 2 intake motor 5.5W
+pros::Motor intakeStage3(15, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); // stage 3 intake motor 5.5W
 
-    bool confirmed = false;
-
-    while (true) {
-        pros::delay(5);
-
-        // exit
-        if (confirmed) {
-
-            if (position.asString() == "blue_1") {
-                pros::screen::fill_circle(160, 120, 40);
-            } else if (position.asString() == "blue_2") {
-                pros::screen::fill_circle(160, 120, 40);
-                pros::screen::fill_circle(320, 120, 40);
-            }
-            else if (position.asString() == "red_1") {
-                pros::screen::draw_circle(160, 120, 40);
-            }
-            else if (position.asString() == "red_2") {
-                pros::screen::draw_circle(160, 120, 40);
-                pros::screen::draw_circle(320, 120, 40);
-            }
-            else if (position.asString() == "skill_") {
-                pros::screen::fill_circle(160, 120, 40);
-                pros::screen::draw_circle(320, 120, 40);
-            }
-
-            return;
-        }
-
-        // controller
-        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-            position.team = "red";
-            position.position = "1";
-            confirmed = true;
-        }
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-            position.team = "red";
-            position.position = "2";
-            confirmed = true;
-        }
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            position.team = "blue";
-            position.position = "1";
-            confirmed = true;
-        }
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            position.team = "blue";
-            position.position = "2";
-            confirmed = true;
-        }
-        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            position.team = "skill";
-            confirmed = true;
-        }
-    }
-}
+//define pneumatics 
+pros::adi::AnalogOut matchload = pros::adi::AnalogOut('A');
+pros::adi::AnalogOut intakeLift = pros::adi::AnalogOut('B');
+pros::adi::AnalogOut descore = pros::adi::AnalogOut('C');
+pros::adi::AnalogOut holder = pros::adi::AnalogOut('D');
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -145,18 +98,7 @@ void initialize() {
 
     chassis.calibrate(); // calibrate sensors
    
-    TeamChoosing();
-
-    //define motor ports
-    pros::Motor intakeStage1(13, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 1 intake motor 11W green
-    pros::Motor intakeStage2(14, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 2 intake motor 5.5W
-    pros::Motor intakeStage3(15, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); // stage 3 intake motor 5.5W
-
-    //define pneumatics 
-    pros::adi::AnalogOut matchload = pros::adi::AnalogOut('A');
-    pros::adi::AnalogOut intakeLift = pros::adi::AnalogOut('B');
-    pros::adi::AnalogOut descore = pros::adi::AnalogOut('C');
-    pros::adi::AnalogOut holder = pros::adi::AnalogOut('D');
+    selector::init();
 
     Auto1(chassis);
 }
@@ -171,7 +113,7 @@ void disabled() {}
  */
 void competition_initialize() {
 
-    chassis.calibrate(); // calibrate sensors
+    chassis.calibrate(); // recalibrate sensors incase robot has moved between being placed on the field and plugged in.
 }
 
 /**
@@ -180,13 +122,14 @@ void competition_initialize() {
  */
 
 void autonomous() {
-
-	if (position.position == "1") {
-        Auto1(chassis);
-    } else if (position.position == "2") {
-        Auto2(chassis);
-    } else if (position.team == "skill") {
-        Skills(chassis);
+    switch (selector::auton) {
+        case (0): Skills(chassis);
+        case (1): Auto1(chassis);
+        case (2): Auto2(chassis);
+        case (3): SoloAutonomous(chassis);
+        case (-1): Auto1(chassis);
+        case (-2): Auto2(chassis);
+        case (-3): SoloAutonomous(chassis);
     }
 }
 

@@ -6,12 +6,15 @@ Base done by a public library and we have adapted it for our needs.
 
 #pragma once
 
-#include <string>
+// includes
+#include "pros/apix.h"
+#include <cstring>
+#include <stdlib.h>
 
 //selector configuration
 #define HUE 360
 #define DEFAULT 1
-#define AUTONS "Front", "Back", "Do Nothing"
+#define AUTONS "Front", "Back", "Solo"
 
 namespace selector{
 
