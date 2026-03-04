@@ -1,19 +1,19 @@
 
 #include "global.h"
+#include "pros/adi.hpp"
 
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-pros::MotorGroup rightMotors({9, -2, 3}, //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
-                            pros::MotorGearset::green);
-pros::MotorGroup leftMotors({-4, 5, -6}, pros::MotorGearset::green); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed) 
+pros::MotorGroup rightMotors({-9, 12, -13}, pros::MotorGearset::green); //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
+pros::MotorGroup leftMotors({16, -17, 18}, pros::MotorGearset::green); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed) 
 
-// Inertial Sensor on port 12
-pros::Imu imu(12);
+// Inertial Sensor on port 17
+pros::Imu imu(17);
 // tracking wheels
-// vertical tracking wheel encoder. Rotation sensor, port 11
-pros::Rotation verticalEnc(11);
+// vertical tracking wheel encoder. Rotation sensor, port 19
+pros::Rotation verticalEnc(19);
 // vertical tracking wheel. 2" diameter, 0" offset
 lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, 0);
  
@@ -28,28 +28,28 @@ lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
 
 // lateral motion controller
 lemlib::ControllerSettings linearController(
-                                            10, // proportional gain (kP)
-                                            0, // integral gain (kI)
-                                            3, // derivative gain (kD)
-                                            3, // anti windup
-                                            1, // small error range, in inches
-                                            100, // small error range timeout, in milliseconds
-                                            3, // large error range, in inches
-                                            500, // large error range timeout, in milliseconds
-                                            20 // maximum acceleration (slew)
+    10, // proportional gain (kP)
+    0, // integral gain (kI)
+    3, // derivative gain (kD)
+    3, // anti windup
+    1, // small error range, in inches
+    100, // small error range timeout, in milliseconds
+    3, // large error range, in inches
+    500, // large error range timeout, in milliseconds
+    20 // maximum acceleration (slew)
 );
 
 // angular motion controller
 lemlib::ControllerSettings angularController(
-                                            2.53, // proportional gain (kP)
-                                            0, // integral gain (kI)
-                                            25, // derivative gain (kD)
-                                            3, // anti windup
-                                            1, // small error range, in degrees
-                                            100, // small error range timeout, in milliseconds
-                                            3, // large error range, in degrees
-                                            500, // large error range timeout, in milliseconds
-                                            0 // maximum acceleration (slew)
+    0.5, // proportional gain (kP)
+    0, // integral gain (kI)
+    10, // derivative gain (kD)
+    0, // anti windup
+    0, // small error range, in inches
+    0, // small error range timeout, in milliseconds
+    0, // large error range, in inches
+    0, // large error range timeout, in milliseconds
+    0 // maximum acceleration (slew)
 );
 
 // sensors for odometry
@@ -76,14 +76,14 @@ lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
 lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 
 //define motor ports
-pros::Motor intakeStage1(13, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 1 intake motor 11W green
+pros::Motor intakeStage1(10, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 1 intake motor 11W green
 pros::Motor intakeStage2(14, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 2 intake motor 5.5W
 pros::Motor intakeStage3(15, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); // stage 3 intake motor 5.5W
 
 //define pneumatics 
-pros::adi::AnalogOut matchload('A');
-pros::adi::AnalogOut intakeLift('B');
-pros::adi::AnalogOut descore('C');
-pros::adi::AnalogOut holder('D');
+pros::adi::Pneumatics matchload('A', false);
+pros::adi::Pneumatics intakeLift('B', false);
+pros::adi::Pneumatics descore('C', true);
+pros::adi::Pneumatics holder('D', true);
 
 Devices devices({intakeStage1, intakeStage2, intakeStage3}, {matchload, intakeLift, descore, holder});

@@ -1,11 +1,10 @@
 #include "main.h"
 #include "autonomous.h"
+#include "liblvgl/llemu.hpp"
 #include "selector.h"
 #include "global.h"
 
 #include "lemlib/api.hpp" // IWYU pragma: keep
-
-
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -13,12 +12,15 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-
-    chassis.calibrate(); // calibrate sensors
    
     selector::init();
 
-    Auto1(); // temporary for calibrating the pid
+    pros::lcd::initialize();
+    pros::lcd::set_text(1, selector::auton.asString());
+
+    chassis.calibrate();
+
+    if (tuning) Auto1(); // pid temporary.
 }
 
 /**
@@ -40,7 +42,10 @@ void competition_initialize() {
  */
 
 void autonomous() {
-    
+    if (selector::auton.position == "1") Auto1();
+    else if (selector::auton.team == "solo") SoloAutonomous();
+    else if (selector::auton.team == "skills") Skills();
+    else Auto2();
 }
 
 /**
@@ -50,12 +55,35 @@ void opcontrol() {
     // controller
     // loop to continuously update motors
 
+    if (tuning) return;
+
     while (true) {
-		//get joystick values
+		//get controller values
 		int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        int rightX = -controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        int r1 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
+        int r2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2);
+
         // move the chassis with curvature drive
         chassis.curvature(leftY, rightX);
+
+        // intake stage 1
+        if (r1) { 
+            intakeStage1.move_velocity(100);
+            intakeStage2.move_velocity(100);
+            intakeStage3.move_velocity(100);
+        }
+        else if (r2) { 
+            intakeStage1.move_velocity(-100);
+            intakeStage2.move_velocity(-100);
+            intakeStage3.move_velocity(-100);
+        }
+        else {
+            intakeStage1.move_velocity(0);
+            intakeStage2.move_velocity(0);
+            intakeStage3.move_velocity(0);
+        }
+
         // delay to save resources
         pros::delay(10);
     }

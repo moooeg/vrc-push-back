@@ -1,9 +1,10 @@
 
 #include "selector.h"
-#include "pros/apix.h"
+#include "global.h"
+#include "pros/misc.h"
 #include <cstdint>
 
-static bool isDone = false;
+static bool confirmed = false;
 
 static lv_style_t createStyle(const uint32_t& color, bool skills = false) {
     lv_style_t style;
@@ -35,35 +36,35 @@ static lv_obj_t * tabView;
 static void red1(lv_event_t * event) {
     selector::auton.team = "red";
     selector::auton.position = "1";
-    isDone = true;
+    confirmed = true;
 }
 
 static void red2(lv_event_t * event) {
     selector::auton.team = "red";
     selector::auton.position = "2";
-    isDone = true;
+    confirmed = true;
 }
 
 static void blue1(lv_event_t * event) {
     selector::auton.team = "blue";
     selector::auton.position = "1";
-    isDone = true;
+    confirmed = true;
 }
 
 static void blue2(lv_event_t * event) {
     selector::auton.team = "blue";
     selector::auton.position = "2";
-    isDone = true;
+    confirmed = true;
 }
 
 static void skills(lv_event_t * event) {
     selector::auton.team = "skills";
-    isDone = true;
+    confirmed = true;
 }
 
 static void solo(lv_event_t * event) {
     selector::auton.team = "solo";
-    isDone = true;
+    confirmed = true;
 }
 
 static void redTabPressed(lv_event_t * event) {
@@ -163,7 +164,36 @@ void selector::init() {
     lv_obj_add_event_cb(blueTab, blueTabPressed, LV_EVENT_PRESSED, nullptr);
     lv_obj_add_event_cb(skillsTab, skillsTabPressed, LV_EVENT_PRESSED, nullptr);
 
-    while (!isDone) {
+    while (!confirmed) {
         pros::delay(50);
+
+        if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            auton.team = "red";
+            auton.position = "1";
+            confirmed = true;
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            auton.team = "red";
+            auton.position = "2";
+            confirmed = true;
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            auton.team = "blue";
+            auton.position = "1";
+            confirmed = true;
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+            auton.team = "blue";
+            auton.position = "2";
+            confirmed = true;
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            auton.team = "skill";
+            confirmed = true;
+        }
+        else if (controller.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
+            auton.team = "solo";
+            
+        }
     }
 }

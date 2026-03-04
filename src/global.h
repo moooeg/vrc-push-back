@@ -2,6 +2,7 @@
 
 #include "main.h"
 #include "lemlib/api.hpp"
+#include "pros/adi.hpp"
 #include <string>
 #include <vector>
 
@@ -9,9 +10,9 @@ class Devices {
 public:
 
     std::vector<pros::Motor> motors;
-    std::vector<pros::adi::AnalogOut> analogOuts;
+    std::vector<pros::adi::Pneumatics> pneumatics;
 
-    Devices(std::vector<pros::Motor> motors, std::vector<pros::adi::AnalogOut> analogOuts): motors(std::move(motors)), analogOuts(std::move(analogOuts)) {
+    Devices(std::vector<pros::Motor> motors, std::vector<pros::adi::Pneumatics> pneumatics): motors(std::move(motors)), pneumatics(std::move(pneumatics)) {
 
     }
 };
@@ -26,6 +27,8 @@ public:
         return team + "_" + position;
     }
 };
+
+inline bool tuning = false;
 
 // controller
 extern pros::Controller controller;
@@ -69,9 +72,9 @@ extern pros::Motor intakeStage2;
 extern pros::Motor intakeStage3;
 
 //define pneumatics 
-extern pros::adi::AnalogOut matchload;
-extern pros::adi::AnalogOut intakeLift;
-extern pros::adi::AnalogOut descore;
-extern pros::adi::AnalogOut holder;
+extern pros::adi::Pneumatics matchload;
+extern pros::adi::Pneumatics intakeLift;
+extern pros::adi::Pneumatics descore;
+extern pros::adi::Pneumatics holder;
 
 extern Devices devices;
