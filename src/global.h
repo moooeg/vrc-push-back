@@ -30,6 +30,7 @@ public:
 
 inline bool tuning = false;
 
+
 // controller
 extern pros::Controller controller;
 

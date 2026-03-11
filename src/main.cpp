@@ -67,7 +67,7 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.curvature(leftY, rightX);
 
-        // intake stage 1
+        // intake
         if (r1) { 
             intakeStage1.move_velocity(100);
             intakeStage2.move_velocity(100);

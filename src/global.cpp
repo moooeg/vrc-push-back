@@ -20,7 +20,7 @@ lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, 0);
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
                               &rightMotors, // right motor group
-                              11.9, // 11.9 inch track width
+                              11.81, // 11.81 inch track width
                               lemlib::Omniwheel::NEW_325, // using new 3.25" omnis
                               450, // drivetrain rpm is 450
                               8 // horizontal drift is 8. 2 for full omni, 8 for traction
@@ -41,9 +41,9 @@ lemlib::ControllerSettings linearController(
 
 // angular motion controller
 lemlib::ControllerSettings angularController(
-    0.5, // proportional gain (kP)
+    0.34, // proportional gain (kP)
     0, // integral gain (kI)
-    10, // derivative gain (kD)
+    3.4, // derivative gain (kD)
     0, // anti windup
     0, // small error range, in inches
     0, // small error range timeout, in milliseconds
@@ -77,13 +77,13 @@ lemlib::Chassis chassis(drivetrain, linearController, angularController, sensors
 
 //define motor ports
 pros::Motor intakeStage1(10, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 1 intake motor 11W green
-pros::Motor intakeStage2(14, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 2 intake motor 5.5W
+pros::Motor intakeStage2(-14, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); //stage 2 intake motor 5.5W
 pros::Motor intakeStage3(15, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); // stage 3 intake motor 5.5W
 
 //define pneumatics 
-pros::adi::Pneumatics matchload('A', false);
-pros::adi::Pneumatics intakeLift('B', false);
-pros::adi::Pneumatics descore('C', true);
-pros::adi::Pneumatics holder('D', true);
+pros::adi::Pneumatics matchload('C', false);
+pros::adi::Pneumatics intakeLift('D', false);
+pros::adi::Pneumatics descore('B', true);
+pros::adi::Pneumatics holder('A', true);
 
 Devices devices({intakeStage1, intakeStage2, intakeStage3}, {matchload, intakeLift, descore, holder});
