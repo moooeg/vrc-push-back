@@ -28,7 +28,9 @@ public:
     }
 };
 
-inline bool tuning = false;
+inline bool tuning = true;
+inline bool holderToggle = false;
+inline bool holderToggleOverwrite = true;
 
 
 // controller

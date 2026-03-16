@@ -7,12 +7,8 @@
 #include <thread>
 
 void Info() {
-    uint16_t line = 0;
     while (true) {
-        std::string heading = std::to_string(imu.get_heading());
-        const char* headingChar = heading.c_str();
-        controller.print(line, 0, headingChar);
-        line++;
+        pros::lcd::set_text(2, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
         pros::delay(50);
     }
 }
@@ -27,7 +23,7 @@ void Auto1() {
     chassis.setPose(0, 0, 0);
     // thread info
     // turn to face heading 90 with a very long timeout
-    chassis.turnToHeading(90, 1000000);
+    chassis.moveToPoint(-24, 0, 100000);
     std::cout << "/n test";
 }
 
