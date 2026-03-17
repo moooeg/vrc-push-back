@@ -2,6 +2,7 @@
 #include "autonomous.h"
 
 #include "global.h"
+#include "lemlib/chassis/chassis.hpp"
 #include <cstdint>
 #include <string>
 #include <thread>
@@ -23,7 +24,7 @@ void Auto1() {
     chassis.setPose(0, 0, 0);
     // thread info
     // turn to face heading 90 with a very long timeout
-    chassis.moveToPoint(-24, 0, 100000);
+    chassis.turnToHeading(90, 10000000);
     std::cout << "/n test";
 }
 

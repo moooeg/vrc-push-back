@@ -6,14 +6,14 @@
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
 // motor groups
-pros::MotorGroup rightMotors({-9, 12, -13}, pros::MotorGearset::blue); //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
-pros::MotorGroup leftMotors({16, -17, 18}, pros::MotorGearset::blue); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed) 
+pros::MotorGroup leftMotors({-1, 12, -13}, pros::MotorGearset::blue); //front right motor port 4, middle right motor port 5, back right motor port 6 (reversed) 
+pros::MotorGroup rightMotors({16, -11, 18}, pros::MotorGearset::blue); //front right motor port 1 (reversed), middle right motor port 2 (reversed), back right motor port 3 
 
 // Inertial Sensor on port 17
 pros::Imu imu(17);
 // tracking wheels
 // vertical tracking wheel encoder. Rotation sensor, port 19
-pros::Rotation verticalEnc(-19);
+pros::Rotation verticalEnc(19);
 // vertical tracking wheel. 2" diameter, 0" offset
 lemlib::TrackingWheel vertical(&verticalEnc, lemlib::Omniwheel::NEW_2, 0);
  
@@ -41,12 +41,12 @@ lemlib::ControllerSettings linearController(
 
 // angular motion controller
 lemlib::ControllerSettings angularController(
-    1, // proportional gain (kP)
+    2.4, // proportional gain (kP)
     0, // integral gain (kI)
-    10, // derivative gain (kD)
+    18.25, // derivative gain (kD)
     3, // anti windup
     1, // small error range, in inches
-    100, // small error range timeout, in milliseconds
+    1000, // small error range timeout, in milliseconds
     3, // large error range, in inches
     500, // large error range timeout, in milliseconds
     0 // maximum acceleration (slew)

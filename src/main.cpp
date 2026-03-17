@@ -76,7 +76,7 @@ void opcontrol() {
     while (true) {
 		//get controller values
 		int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = -controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         int r1 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
         int r2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2);
         int l1 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1);
