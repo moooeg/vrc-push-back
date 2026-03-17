@@ -17,3 +17,8 @@ temp.errors
 .d/
 .DS_Store
 vrc-push-back.code-workspace
+.idea/.gitignore
+.gitignore
+.idea/vcs.xml
+.idea/editor.xml
+idea/.gitignore
