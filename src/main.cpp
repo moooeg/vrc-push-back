@@ -22,8 +22,13 @@ void initialize() {
     pros::lcd::set_text(1, selector::auton.asString());
 
     chassis.calibrate();
-    chassis.setPose(0, 0, 0);
     pros::lcd::set_text(2, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
+
+    while (true) { 
+        // print measurements
+        pros::lcd::set_text(1, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
+        pros::delay(10); 
+    }
 
     if (tuning) Auto1(); // pid temporary.
 }
@@ -56,14 +61,6 @@ void autonomous() {
     else Auto2();
 }
 
-void waitTillReleased(void* param) {
-    int button = (int) param;
-
-    while (button) pros::delay(500);
-
-    holderToggle = false;
-}
-
 /**
  * Runs in driver control
  */
@@ -87,20 +84,7 @@ void opcontrol() {
         // move the chassis with curvature drive
         chassis.curvature(leftY, rightX);
 
-        // holder toggle
-        if (l2 && !r2) {
-            holder.toggle();
-            
-            if (holderToggle) continue;
-            else holderToggle = true;
-
-            if (holder.is_extended()) {
-                holderToggleOverwrite = true;
-            } else holderToggleOverwrite = false;
-
-            pros::Task wait(waitTillReleased, (void*) l2);
-            continue;
-        }
+        holderDown = true;
 
         // intake
         if (r1) { 
@@ -108,7 +92,8 @@ void opcontrol() {
             intakeStage2.move_velocity(100);
             intakeStage3.move_velocity(100);
 
-            if (l1) { holder.retract(); }
+            if (l1) holderDown = false;
+            else holderDown = true;
         }
         else if (r2) { 
             int speed;
@@ -127,17 +112,23 @@ void opcontrol() {
             intakeStage3.move_velocity(0);
         }
 
-        // undo holder if normal
-        if (!l1 && !holderToggleOverwrite) holder.extend();
+
+        if (l1 && !r2) {
+            holderDown = false;
+        }
         
         // descore
-        if (l1 && !r1) {
+        if (l2 && !r1) {
             descore.retract();
         }
         else descore.extend(); 
 
         // double parking
         if (y) intakeLift.toggle();
+
+        // holder position
+        if (holderDown) holder.extend();
+        else holder.retract();
 
         // delay to save resources
         pros::delay(10);

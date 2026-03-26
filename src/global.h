@@ -29,8 +29,7 @@ public:
 };
 
 inline bool tuning = true;
-inline bool holderToggle = false;
-inline bool holderToggleOverwrite = true;
+inline bool holderDown = false;
 
 
 // controller
