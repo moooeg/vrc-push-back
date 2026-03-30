@@ -25,11 +25,13 @@ void initialize() {
     chassis.calibrate();
     pros::lcd::set_text(2, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
 
-    /* while (true) { 
-        // print measurements
-        pros::lcd::set_text(1, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
-        pros::delay(10); 
-    }*/
+    if (testing) {
+        while (true) { 
+            // print measurements
+            pros::lcd::set_text(1, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
+            pros::delay(10); 
+        }
+    }
 
     if (tuning) Auto1(); // pid temporary.
 }

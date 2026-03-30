@@ -6,17 +6,6 @@
 #include <string>
 #include <vector>
 
-class Devices {
-public:
-
-    std::vector<pros::Motor> motors;
-    std::vector<pros::adi::Pneumatics> pneumatics;
-
-    Devices(std::vector<pros::Motor> motors, std::vector<pros::adi::Pneumatics> pneumatics): motors(std::move(motors)), pneumatics(std::move(pneumatics)) {
-
-    }
-};
-
 class TeamPosition {
 public:
 
@@ -29,6 +18,7 @@ public:
 };
 
 inline bool tuning = false;
+inline bool testing = false;
 inline bool holderDown = false;
 
 
@@ -78,5 +68,3 @@ extern pros::adi::Pneumatics matchload;
 extern pros::adi::Pneumatics intakeLift;
 extern pros::adi::Pneumatics descore;
 extern pros::adi::Pneumatics holder;
-
-extern Devices devices;

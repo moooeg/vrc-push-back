@@ -85,5 +85,3 @@ pros::adi::Pneumatics matchload('E', false);
 pros::adi::Pneumatics intakeLift('D', false);
 pros::adi::Pneumatics descore('B', true);
 pros::adi::Pneumatics holder('A', true);
-
-Devices devices({intakeStage1, intakeStage2, intakeStage3}, {matchload, intakeLift, descore, holder});
