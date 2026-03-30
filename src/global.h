@@ -4,7 +4,6 @@
 #include "lemlib/api.hpp"
 #include "pros/adi.hpp"
 #include <string>
-#include <vector>
 
 class TeamPosition {
 public:

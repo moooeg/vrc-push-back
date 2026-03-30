@@ -23,12 +23,14 @@ void initialize() {
     pros::lcd::set_text(1, selector::auton.asString());
 
     chassis.calibrate();
-    pros::lcd::set_text(2, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
+    chassis.setPose(0, 0, 0);
+    pros::lcd::set_text(1, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
 
     if (testing) {
         while (true) { 
             // print measurements
-            pros::lcd::set_text(1, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
+            pros::lcd::set_text(2, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
+            pros::lcd::set_text(3, std::to_string(verticalEnc.get_position()));
             pros::delay(10); 
         }
     }
