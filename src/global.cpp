@@ -81,7 +81,7 @@ pros::Motor intakeStage2(-14, pros::MotorGearset::green, pros::v5::MotorUnits::d
 pros::Motor intakeStage3(15, pros::MotorGearset::green, pros::v5::MotorUnits::degrees); // stage 3 intake motor 5.5W
 
 //define pneumatics 
-pros::adi::Pneumatics matchload('C', false);
+pros::adi::Pneumatics matchload('E', false);
 pros::adi::Pneumatics intakeLift('D', false);
 pros::adi::Pneumatics descore('B', true);
 pros::adi::Pneumatics holder('A', true);

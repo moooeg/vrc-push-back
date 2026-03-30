@@ -7,6 +7,7 @@
 #include "global.h"
 
 #include "lemlib/api.hpp" // IWYU pragma: keep
+#include <cmath>
 #include <string>
 
 /**
@@ -24,11 +25,11 @@ void initialize() {
     chassis.calibrate();
     pros::lcd::set_text(2, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
 
-    while (true) { 
+    /* while (true) { 
         // print measurements
         pros::lcd::set_text(1, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
         pros::delay(10); 
-    }
+    }*/
 
     if (tuning) Auto1(); // pid temporary.
 }
@@ -100,7 +101,7 @@ void opcontrol() {
 
             // power or not power matchload
             if (l2) { matchload.extend(); speed = 100; }
-            else matchload.retract(); speed = -100;
+            else {matchload.retract(); speed = -100; }
 
             intakeStage1.move_velocity(speed);
             intakeStage2.move_velocity(speed);
@@ -112,13 +113,17 @@ void opcontrol() {
             intakeStage3.move_velocity(0);
         }
 
+        if (!l2) {
+            matchload.retract();
+        }
+
 
         if (l1 && !r2) {
             holderDown = false;
         }
         
         // descore
-        if (l2 && !r1) {
+        if (l2 && !r1 && !r2) {
             descore.retract();
         }
         else descore.extend(); 

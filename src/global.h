@@ -28,7 +28,7 @@ public:
     }
 };
 
-inline bool tuning = true;
+inline bool tuning = false;
 inline bool holderDown = false;
 
 
