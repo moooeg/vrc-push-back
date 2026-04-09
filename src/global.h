@@ -2,8 +2,10 @@
 
 #include "main.h"
 #include "lemlib/api.hpp"
-#include "pros/adi.hpp"
 #include <string>
+
+// paths
+ASSET(auto1_txt)
 
 class TeamPosition {
 public:
@@ -15,6 +17,9 @@ public:
         return team + "_" + position;
     }
 };
+
+void IntakeStart(int speed = 127, bool holding = true, bool lowerGoal = false, bool matchloading = false);
+void IntakeStop();
 
 inline bool tuning = false;
 inline bool testing = false;

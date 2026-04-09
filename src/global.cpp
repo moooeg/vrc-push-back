@@ -2,6 +2,48 @@
 #include "global.h"
 #include "pros/adi.hpp"
 
+void IntakeStart(int speed, bool holding, bool lowerGoal, bool matchloading) {
+
+    // holder
+    if (holding) {
+        holder.extend();
+        holderDown = true;
+    } 
+    else {
+        holder.retract();
+        holderDown = false;
+    }
+
+    // lower goal - opposite
+    if (lowerGoal) {
+        intakeLift.extend();
+    }
+    else {
+        intakeLift.retract();
+    }
+
+    // matchload
+    if (matchloading) {
+        matchload.extend();
+    } 
+    else {
+        matchload.retract();
+    }
+
+    intakeStage1.move(speed);
+    intakeStage2.move(speed);
+    intakeStage3.move(speed);
+}
+
+void IntakeStop() {
+    intakeLift.retract();
+    matchload.retract();
+
+    intakeStage1.move(0);
+    intakeStage2.move(0);
+    intakeStage3.move(0);
+}
+
 // controller
 pros::Controller controller(pros::E_CONTROLLER_MASTER);
 
@@ -30,12 +72,12 @@ lemlib::Drivetrain drivetrain(&leftMotors, // left motor group
 lemlib::ControllerSettings linearController(
     10, // proportional gain (kP)
     0, // integral gain (kI)
-    0, // derivative gain (kD)
+    50, // derivative gain (kD)
     0, // anti windup
-    0, // small error range, in inches
-    0, // small error range timeout, in milliseconds
-    0, // large error range, in inches
-    0, // large error range timeout, in milliseconds
+    1, // small error range, in inches
+    100, // small error range timeout, in milliseconds
+    3, // large error range, in inches
+    5000, // large error range timeout, in milliseconds
     0 // maximum acceleration (slew)
 );
 
@@ -46,7 +88,7 @@ lemlib::ControllerSettings angularController(
     18.25, // derivative gain (kD)
     3, // anti windup
     1, // small error range, in inches
-    1000, // small error range timeout, in milliseconds
+    100, // small error range timeout, in milliseconds
     3, // large error range, in inches
     500, // large error range timeout, in milliseconds
     0 // maximum acceleration (slew)
