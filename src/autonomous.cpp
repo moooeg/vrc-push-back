@@ -8,7 +8,8 @@
 #include <cmath>
 
 void SoloAutonomous() {
-
+    chassis.setPose(0, 0, 270);
+    chassis.moveToPoint(5, 0, 1000);
 }
 
 void Auto1() {
