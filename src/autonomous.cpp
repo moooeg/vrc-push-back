@@ -54,8 +54,7 @@ void Auto1() {
 }
 
 void Auto2() {
-
-    std::cout << "Hello Teresa" << std::endl;
+    IntakeStop();
 }
 
 void Skills() {
