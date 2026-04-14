@@ -12,11 +12,11 @@ void SoloAutonomous() {
     chassis.moveToPoint(5, 0, 1000);
 }
 
-void Auto1() {
+void Auto1() { //left
     chassis.setPose(0, 0, 0);
     // get three center block
     chassis.moveToPoint(-3, 17, 2000, {.minSpeed = 72, .earlyExitRange = 8});
-    IntakeStart();
+    IntakeStart(127, false, false, false);
     chassis.moveToPoint(-6, 45, 2000, {.maxSpeed = 32});
     pros::delay(900);
     matchload.extend();
@@ -25,6 +25,10 @@ void Auto1() {
     chassis.turnToHeading(315, 1000, {.maxSpeed = 100});
     pros::delay(500);
     chassis.moveToPose(-33, 20, 180, 1500, {.lead = 0.1, .maxSpeed = 100});
+    pros::delay(100);
+    chassis.moveToPoint(-33, 0, 300, {.maxSpeed = 64});
+    pros::delay(100);
+    chassis.moveToPoint(-33, 10, 300, {.forwards = false, .maxSpeed = 64});
     pros::delay(100);
     chassis.moveToPoint(-33, 0, 300, {.maxSpeed = 64});
     pros::delay(1500);
