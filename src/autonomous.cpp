@@ -16,7 +16,6 @@ void Auto1() { //left
     chassis.setPose(0, 0, 0);
     // get three center block
     chassis.moveToPoint(-3, 17, 2000, {.minSpeed = 72, .earlyExitRange = 8});
-    holder.extend();
     IntakeStart(127, true, false, false);
     chassis.moveToPoint(-6, 45, 2000, {.maxSpeed = 32});
     pros::delay(900);
