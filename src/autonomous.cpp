@@ -18,7 +18,7 @@ void Auto1() { //left
     chassis.moveToPoint(-3, 17, 2000, {.minSpeed = 72, .earlyExitRange = 8});
     IntakeStart(127, false, false, false);
     chassis.moveToPoint(-6, 45, 2000, {.maxSpeed = 32});
-    pros::delay(900);
+    pros::delay(1000);
     matchload.extend();
 
     // go to match load tube
@@ -47,8 +47,8 @@ void Auto1() { //left
     // push to center
     chassis.moveToPoint(-31, 15, 1000, {}, false);
     descore.retract();
-    chassis.moveToPose(-20, 45, 0, 1000, {.forwards = false, .lead = 0.8});
-    chassis.moveToPoint(-23, 60, 1000, {.forwards = false});
+    chassis.moveToPose(-15, 40, 0, 1000, {.forwards = false, .lead = 0.8});
+    chassis.moveToPoint(-15, 60, 1000, {.forwards = false});
 }
 
 void Auto2() {
