@@ -16,6 +16,7 @@ void Auto1() { //left
     chassis.setPose(0, 0, 0);
     // get three center block
     chassis.moveToPoint(-3, 17, 2000, {.minSpeed = 72, .earlyExitRange = 8});
+    holder.extend();
     IntakeStart(127, true, false, false);
     chassis.moveToPoint(-6, 45, 2000, {.maxSpeed = 32});
     pros::delay(900);
@@ -28,26 +29,26 @@ void Auto1() { //left
     pros::delay(100);
     chassis.moveToPoint(-33, 0, 300, {.maxSpeed = 64});
     pros::delay(100);
-    chassis.moveToPoint(-33, 10, 300, {.forwards = false, .maxSpeed = 64});
+    chassis.moveToPoint(-33, 20, 300, {.forwards = false, .maxSpeed = 64});
     pros::delay(100);
     chassis.moveToPoint(-33, 0, 300, {.maxSpeed = 64});
     pros::delay(1500);
 
     // score in long goal
-    chassis.moveToPoint(-33, 45, 1500, {.forwards = false}, false);
+    chassis.moveToPoint(-31, 45, 1500, {.forwards = false}, false);
     holder.retract();
     matchload.retract();
     pros::delay(1500);
     IntakeStop();
-    chassis.moveToPoint(-33, 35, 500, {.forwards = false}, false);
+    chassis.moveToPoint(-31, 35, 500, {.forwards = false}, false);
     holder.extend();
-    chassis.moveToPoint(-33, 45, 500, {.forwards = false}, false);
+    chassis.moveToPoint(-31, 45, 500, {.forwards = false}, false);
     pros::delay(500);
 
     // push to center
-    chassis.moveToPoint(-33, 25, 1000, {}, false);
+    chassis.moveToPoint(-31, 15, 1000, {}, false);
     descore.retract();
-    chassis.moveToPose(-23, 45, 0, 1000, {.forwards = false, .lead = 0.8});
+    chassis.moveToPose(-20, 45, 0, 1000, {.forwards = false, .lead = 0.8});
     chassis.moveToPoint(-23, 60, 1000, {.forwards = false});
 }
 
