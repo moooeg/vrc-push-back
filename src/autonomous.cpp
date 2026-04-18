@@ -43,7 +43,7 @@ void Auto1() {
     pros::delay(1500);
     holder.extend();
     // set the chassis x to 0 in case of drifting
-    chassis.setPose(0, chassis.getPose().y, 0); // set x and theta to be 0
+    chassis.setPose(0, chassis.getPose().y, 0);
     // outtake then intake incase stuck.
     IntakeStart(-127, true, false, true);
     chassis.moveToPoint(0, chassis.getPose().y - 15, 500);
@@ -58,7 +58,8 @@ void Auto1() {
     holder.extend();
     matchload.retract();
     pros::delay(1500);
-    // put hook down and push to middle
+    // put hook down and push to middle after resetting chassis pose again.
+    chassis.setPose(0, chassis.getPose().y, 0);
     chassis.moveToPoint(0, 25, 2000);
     descore.retract();
     chassis.moveToPose(10, 60, 0, 3000, {.forwards = false, .lead = 0.8});
