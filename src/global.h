@@ -21,8 +21,12 @@ public:
 void IntakeStart(int speed = 127, bool holding = true, bool lowerGoal = false, bool matchloading = false);
 void IntakeStop();
 
+// just run auto1 to either tune pid or test auto
 inline bool tuning = false;
+// test the chassis position (cancels out other things)
 inline bool testing = false;
+
+
 inline bool holderDown = false;
 
 
