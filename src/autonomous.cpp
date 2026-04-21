@@ -4,6 +4,7 @@
 #include "global.h"
 #include "lemlib/chassis/chassis.hpp"
 #include "lemlib/pose.hpp"
+#include "pros/motors.h"
 #include "pros/rtos.hpp"
 #include <cmath>
 
@@ -12,7 +13,10 @@ void SoloAutonomous() {
     chassis.moveToPoint(5, 0, 1000);
 }
 
-void Auto1() { 
+void Auto1() {
+    leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+    rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+    chassis.setPose(0, 0, 0);
     // start intaking normally then drive to point. as moving runs on own thread delay will run during the second move to point. after 900ms extend the matchload to catch the blocks while still moving
     IntakeStart();
     chassis.moveToPoint(-3, 17, 2000, {.minSpeed = 72, .earlyExitRange = 8});

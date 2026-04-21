@@ -23,7 +23,7 @@ void IntakeStop();
 
 // just run auto1 to either tune pid or test auto
 inline bool tuning = false;
-// test the chassis position (cancels out other things)
+// test the chassis position 
 inline bool testing = false;
 
 

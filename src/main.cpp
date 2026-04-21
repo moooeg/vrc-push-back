@@ -3,6 +3,7 @@
 #include "lemlib/asset.hpp"
 #include "liblvgl/llemu.hpp"
 #include "pros/misc.h"
+#include "pros/motors.h"
 #include "pros/rtos.hpp"
 #include "selector.h"
 #include "global.h"
@@ -79,14 +80,17 @@ void opcontrol() {
 
     if (tuning) return;
 
+    leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+
     while (true) {
 		//get controller values
 		int leftY = controller.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         int r1 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
         int r2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2);
-        int l1 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1);
         int l2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
+        int l1 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1);
         
         int y = controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
 
@@ -101,15 +105,16 @@ void opcontrol() {
             intakeStage2.move_velocity(600);
             intakeStage3.move_velocity(600);
 
-            if (l1) holderDown = false;
+            if (l2) holderDown = false;
             else holderDown = true;
         }
         else if (r2) { 
             int speed;
 
             // power or not power matchload
-            if (l2) { matchload.extend(); speed = 600; }
-            else {matchload.retract(); speed = -600; }
+            if (l1) { matchload.extend(); speed = 600; }
+            // intakeLift on outtake (reversed)
+            else {matchload.retract(); intakeLift.extend(); speed = -600; }
 
             intakeStage1.move_velocity(speed);
             intakeStage2.move_velocity(speed);
@@ -121,17 +126,17 @@ void opcontrol() {
             intakeStage3.move_velocity(0);
         }
 
-        if (!l2) {
+        if (!l1) {
             matchload.retract();
         }
 
 
-        if (l1 && !r2) {
+        if (l2 && !r2) {
             holderDown = false;
         }
         
         // descore
-        if (l2 && !r1 && !r2) {
+        if (l1 && !r1 && !r2) {
             descore.retract();
         }
         else descore.extend(); 
