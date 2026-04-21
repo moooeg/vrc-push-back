@@ -22,47 +22,37 @@ void Auto1() {
     // turn to face the general direction of the matchload then wait for blocks to settle and do a quick outtake then intake to fix any jams
     chassis.turnToHeading(chassis.getPose().theta - 155, 1000, {.maxSpeed = 100});
     pros::delay(500);
-    IntakeStart(-127, true, false, true);
     // drive to matchload
-    chassis.moveToPose(-33, 20, 180, 1500, {.lead = 0.1, .maxSpeed = 100});
+    chassis.moveToPose(-32.5, 20, 180, 1500, {.lead = 0.1, .maxSpeed = 100});
     pros::delay(100);
     // normal intake with matchload down (go back and forth)
+    chassis.moveToPoint(-32.5, 0, 2000, {.maxSpeed=50});
+    pros::delay(900);
     IntakeStart(127, true, false, true);
-    chassis.moveToPoint(-33, 0, 300, {.maxSpeed = 64});
-    chassis.moveToPoint(-33, chassis.getPose().y - 10, 300, {.forwards = false});
-    chassis.moveToPoint(-33, 0, 300, {.maxSpeed = 64});
     pros::delay(1500);
     // go to long goal and make sure fully pressed up
-    chassis.moveToPoint(-33, 45, 1500, {.forwards = false});
+    chassis.moveToPoint(-32.5, 45, 2000, {.forwards = false, .maxSpeed=80});
+    pros::delay(500);
+    holder.retract();
     while (chassis.isInMotion())
     {
         pros::delay(10);
     }
-    // score for 1.5 seconds
-    holder.retract();
-    pros::delay(1500);
-    holder.extend();
     // set the chassis x to 0 in case of drifting
-    chassis.setPose(0, chassis.getPose().y, 0);
-    // outtake then intake incase stuck.
-    IntakeStart(-127, true, false, true);
-    chassis.moveToPoint(0, chassis.getPose().y - 15, 500);
-    IntakeStart(127, true, false, true);
-    // rescore some blocks
-    holder.retract();
-    chassis.moveToPoint(0, 45, 500, {.forwards = false});
-    while (chassis.isInMotion())
-    {
-        pros::delay(10);
-    }
-    holder.extend();
-    matchload.retract();
+    chassis.setPose(0, 0, 0);
+    // score for 1.5 seconds
+    pros::delay(500);
+    IntakeStart(-127, false, false, false);
+    pros::delay(750);
+    IntakeStart(127, false, false, false);
     pros::delay(1500);
+    holder.extend();
+    // outtake then intake incase stuck.
     // put hook down and push to middle after resetting chassis pose again.
-    chassis.setPose(0, chassis.getPose().y, 0);
-    chassis.moveToPoint(0, 25, 2000);
+    chassis.moveToPoint(0, 10, 2000);
     descore.retract();
-    chassis.moveToPose(10, 60, 0, 3000, {.forwards = false, .lead = 0.8});
+    chassis.turnToHeading(-45, 750);
+    chassis.moveToPose(-10, -20, 0, 6000, {.forwards = false, .lead = 0.8, .minSpeed=64});
     IntakeStop();
 }
 

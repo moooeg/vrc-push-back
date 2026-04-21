@@ -17,6 +17,10 @@
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+
+    descore.retract();
+    holder.retract();
+    matchload.retract();
    
     selector::init();
 
@@ -52,9 +56,6 @@ void disabled() {}
 void competition_initialize() {
 
     chassis.calibrate(); // recalibrate sensors incase robot has moved between being placed on the field and plugged in.
-
-    descore.retract();
-    holder.retract();
 }
 
 /**
@@ -96,9 +97,9 @@ void opcontrol() {
 
         // intake
         if (r1) { 
-            intakeStage1.move_velocity(100);
-            intakeStage2.move_velocity(100);
-            intakeStage3.move_velocity(100);
+            intakeStage1.move_velocity(600);
+            intakeStage2.move_velocity(600);
+            intakeStage3.move_velocity(600);
 
             if (l1) holderDown = false;
             else holderDown = true;
@@ -107,8 +108,8 @@ void opcontrol() {
             int speed;
 
             // power or not power matchload
-            if (l2) { matchload.extend(); speed = 100; }
-            else {matchload.retract(); speed = -100; }
+            if (l2) { matchload.extend(); speed = 600; }
+            else {matchload.retract(); speed = -600; }
 
             intakeStage1.move_velocity(speed);
             intakeStage2.move_velocity(speed);
