@@ -46,13 +46,13 @@ void Auto1() {
     chassis.setPose(0, 0, 0);
     // score for 1.5 seconds
     pros::delay(500);
+    // outtake then intake incase stuck
     IntakeStart(-127, false, false, false);
     pros::delay(750);
     IntakeStart(127, false, false, false);
     pros::delay(1500);
     holder.extend();
-    // outtake then intake incase stuck.
-    // put hook down and push to middle after resetting chassis pose again.
+    // put hook down and push to middle
     chassis.moveToPoint(0, 10, 2000);
     descore.retract();
     chassis.turnToHeading(-45, 750);
