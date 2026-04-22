@@ -635,7 +635,9 @@
       }
     },
     "upload_options": {
-      "slot": 1
+      "slot": 1,
+      "icon": "planet",
+      "description": "The Frij Team's Code"
     },
     "use_early_access": false
   }
