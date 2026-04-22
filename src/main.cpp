@@ -105,14 +105,14 @@ void opcontrol() {
             intakeStage2.move_velocity(600);
             intakeStage3.move_velocity(600);
 
-            if (l2) holderDown = false;
+            if (l1) holderDown = false;
             else holderDown = true;
         }
         else if (r2) { 
             int speed;
 
             // power or not power matchload
-            if (l1) { matchload.extend(); speed = 600; }
+            if (l2) { matchload.extend(); speed = 600; }
             // intakeLift on outtake (reversed)
             else {matchload.retract(); intakeLift.extend(); speed = -600; }
 
@@ -126,7 +126,7 @@ void opcontrol() {
             intakeStage3.move_velocity(0);
         }
 
-        if (!l1) {
+        if (!l2) {
             matchload.retract();
         }
 
