@@ -19,19 +19,24 @@
  */
 void initialize() {
 
+    // retract all pneumatics to be in starting size
     descore.retract();
     holder.retract();
     matchload.retract();
    
+    // team selector
     selector::init();
 
+    // init lcd for easy writing to screen
     pros::lcd::initialize();
     pros::lcd::set_text(1, selector::auton.asString());
 
+    // calibrate and set chassis
     chassis.calibrate();
     chassis.setPose(0, 0, 0);
     pros::lcd::set_text(1, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
 
+    // if testing the position create a thread (never on in matches so thread doesn't intefere with robot not moving)
     if (testing) {
         pros::Task task{[=] {
             while (true) { 
@@ -43,6 +48,8 @@ void initialize() {
         }};
     }
 
+
+    // if tuning pid or testing auto without a board
     if (tuning) Auto1(); // pid temporary.
 }
 
