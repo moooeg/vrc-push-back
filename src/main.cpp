@@ -31,9 +31,6 @@ void initialize() {
     pros::lcd::initialize();
     pros::lcd::set_text(1, selector::auton.asString());
 
-    // calibrate and set chassis
-    chassis.calibrate();
-    chassis.setPose(0, 0, 0);
     pros::lcd::set_text(1, std::to_string(chassis.getPose().x) + " " + std::to_string(chassis.getPose().y) + " " + std::to_string(chassis.getPose().theta));
 
     // if testing the position create a thread (never on in matches so thread doesn't intefere with robot not moving)
