@@ -9,7 +9,6 @@
 #include "global.h"
 
 #include "lemlib/api.hpp" // IWYU pragma: keep
-#include <cmath>
 #include <string>
 
 /**
@@ -26,6 +25,10 @@ void initialize() {
    
     // team selector
     selector::init();
+
+    // calibrate sensors
+    chassis.calibrate();
+    chassis.setPose(0, 0, 0);
 
     // init lcd for easy writing to screen
     pros::lcd::initialize();
@@ -84,8 +87,8 @@ void opcontrol() {
 
     if (tuning) return;
 
-    leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-    rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    leftMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+    rightMotors.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
 
     while (true) {
 		//get controller values
@@ -93,8 +96,8 @@ void opcontrol() {
         int rightX = controller.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         int r1 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
         int r2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_R2);
-        int l2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
         int l1 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L1);
+        int l2 = controller.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
         
         int y = controller.get_digital(pros::E_CONTROLLER_DIGITAL_Y);
 
@@ -102,6 +105,10 @@ void opcontrol() {
         chassis.curvature(leftY, rightX);
 
         holderDown = true;
+
+        // center goal - opposite
+        if (y) intakeLift.extend();
+        else intakeLift.retract();
 
         // intake
         if (r1) { 
@@ -115,8 +122,12 @@ void opcontrol() {
         else if (r2) { 
             int speed;
 
+            if (l1) {
+                holderDown = false;
+            }
+
             // power or not power matchload
-            if (l2) { matchload.extend(); speed = 600; }
+            if (l2) { matchload.extend(); intakeLift.retract(); speed = 600; }
             // intakeLift on outtake (reversed)
             else {matchload.retract(); intakeLift.extend(); speed = -600; }
 
@@ -130,24 +141,19 @@ void opcontrol() {
             intakeStage3.move_velocity(0);
         }
 
+        if (l1) {
+            holderDown = false;
+        }
+
         if (!l2) {
             matchload.retract();
         }
-
-
-        if (l2 && !r2) {
-            holderDown = false;
-        }
         
         // descore
-        if (l1 && !r1 && !r2) {
+        if (l2 && !r1 && !r2) {
             descore.retract();
         }
         else descore.extend(); 
-
-        // center goal - opposite
-        if (y) intakeLift.extend();
-        else intakeLift.retract();
 
         // holder position
         if (holderDown) holder.extend();

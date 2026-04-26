@@ -22,7 +22,10 @@ void IntakeStart(int speed = 127, bool holding = true, bool lowerGoal = false, b
 void IntakeStop();
 
 // just run auto1 to either tune pid or test auto
-inline bool tuning = false;
+/*
+! DON'T CHANGE!!! REPEAT DON'T CHANGE!!!
+*/
+inline bool tuning = false; 
 // test the chassis position 
 inline bool testing = false;
 
